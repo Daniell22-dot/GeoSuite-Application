@@ -14,7 +14,7 @@ from app.services.gps_service import GPSService
 from app.services.elevation_service import ElevationService
 from app.services.file_converter import FileConverterService
 from app.database import get_db
-from app.models.geospatial import User, GPSTrack
+from app.models.geospatial import User, GPSTrack, GPSPoint
 from app.services.auth_service import auth_service
 
 router = APIRouter()
@@ -36,18 +36,15 @@ async def upload_gps_file(
     - GPX (.gpx): GPS Exchange Format
     - KML (.kml): Google Earth format
     - GeoJSON (.geojson, .json): Web mapping format
-    - CSV (.csv): Comma-separated values with lat/lon columns
+    - CSV (.csv): Comma-separated values with lat/lon or easting/northing columns
     """
-    # Verify user authentication
     user = auth_service.get_current_user(db, token)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    # Validate file
     if not file.filename:
         raise HTTPException(status_code=400, detail="No file provided")
     
-    # Check file extension
     file_ext = os.path.splitext(file.filename)[1].lower()
     supported_extensions = ['.gpx', '.kml', '.geojson', '.json', '.csv']
     
@@ -58,19 +55,13 @@ async def upload_gps_file(
         )
     
     try:
-        # Save uploaded file temporarily
         with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as temp_file:
             content = await file.read()
             temp_file.write(content)
             temp_path = temp_file.name
         
-        # Parse GPS file
         result = gps_service.parse_gps_file(temp_path)
         
-        if not result.get('success'):
-            raise HTTPException(status_code=400, detail=result.get('error', 'Failed to parse GPS file'))
-        
-        # Create database record
         track = GPSTrack(
             id=uuid.uuid4(),
             user_id=user.id,
@@ -78,27 +69,52 @@ async def upload_gps_file(
             description=result.get('metadata', {}).get('description', ''),
             file_name=file.filename,
             file_size=len(content),
-            file_type=file_ext[1:],  # Remove dot
-            points_count=result.get('statistics', {}).get('points', 0),
-            distance_2d=result.get('statistics', {}).get('distance_2d', 0),
-            distance_3d=result.get('statistics', {}).get('distance_3d', 0),
-            elevation_gain=result.get('statistics', {}).get('elevation_gain', 0),
-            elevation_loss=result.get('statistics', {}).get('elevation_loss', 0),
+            file_type=file_ext[1:],
+            points_count=result.get('statistics', {}).get('total_points', 0),
+            distance_2d=result.get('statistics', {}).get('total_distance_2d', 0),
+            distance_3d=result.get('statistics', {}).get('total_distance_3d', 0),
+            elevation_gain=result.get('statistics', {}).get('total_elevation_gain', 0),
+            elevation_loss=result.get('statistics', {}).get('total_elevation_loss', 0),
             duration_seconds=result.get('statistics', {}).get('duration', 0),
             start_time=result.get('metadata', {}).get('start_time'),
             end_time=result.get('metadata', {}).get('end_time'),
-            bounds=result.get('bounds'),
+            bounds=result.get('metadata', {}).get('bounds'),
             metadata=result.get('metadata', {}),
         )
         
         db.add(track)
+        db.flush()
+        
+        point_number = 0
+        for track_data in result.get('tracks', []):
+            for segment in track_data.get('segments', []):
+                for pt in segment.get('points', []):
+                    point_number += 1
+                    db.add(GPSPoint(
+                        track_id=track.id,
+                        point_number=point_number,
+                        latitude=pt['latitude'],
+                        longitude=pt['longitude'],
+                        elevation_raw=pt.get('elevation_raw', pt.get('elevation')),
+                        elevation_corrected=pt.get('elevation_corrected', pt.get('elevation')),
+                        time=datetime.fromisoformat(pt['time']) if pt.get('time') else None,
+                    ))
+        
+        for wp in result.get('waypoints', []):
+            point_number += 1
+            db.add(GPSPoint(
+                track_id=track.id,
+                point_number=point_number,
+                latitude=wp['latitude'],
+                longitude=wp['longitude'],
+                elevation_raw=wp.get('elevation'),
+            ))
+        
         db.commit()
         db.refresh(track)
         
-        # Clean up temp file
         os.unlink(temp_path)
         
-        # Schedule elevation correction in background if needed
         if background_tasks and result.get('statistics', {}).get('has_elevation', False):
             background_tasks.add_task(
                 correct_track_elevation_async,
@@ -115,6 +131,8 @@ async def upload_gps_file(
         }
         
     except Exception as e:
+        if 'temp_path' in locals() and os.path.exists(temp_path):
+            os.unlink(temp_path)
         raise HTTPException(status_code=500, detail=f"Error processing GPS file: {str(e)}")
 
 @router.post("/correct-elevation")
