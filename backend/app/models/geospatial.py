@@ -295,6 +295,39 @@ class DroneImage(Base):
     survey = relationship("DroneSurvey", back_populates="images")
 
 
+class SurveyPlan(Base):
+    """Survey plan image linked to digitization/CV results."""
+    __tablename__ = "survey_plans"
+
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID(), ForeignKey("users.id"), index=True)
+    file_name = Column(String(255))
+    file_path = Column(String(500))
+    coordinate_system = Column(String(50), default="cassini")
+    zone = Column(String(50))
+    status = Column(String(20), default="pending")
+    result = Column(JSON)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User")
+
+
+class Annotation(Base):
+    """Generic annotation record for CV training data."""
+    __tablename__ = "annotations"
+
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID(), ForeignKey("users.id"), index=True)
+    image_id = Column(String(50), index=True)
+    image_path = Column(String(500))
+    annotations = Column(JSON)
+    annotated = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    user = relationship("User")
+
+
 def init_db():
     """Initialize database tables."""
     from sqlalchemy import create_engine
