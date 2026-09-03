@@ -4,6 +4,23 @@
  */
 
 /**
+ * Fetch application configuration from the API.
+ * Cached for the session.
+ */
+let cachedConfig = null;
+export const fetchAppConfig = async (apiClient) => {
+  if (cachedConfig) return cachedConfig;
+  try {
+    const response = await apiClient.get('/api/v1/config');
+    cachedConfig = response.data;
+    return cachedConfig;
+  } catch (err) {
+    console.error('Failed to fetch app config:', err);
+    return null;
+  }
+};
+
+/**
  * Calculate distance between two points using Haversine formula
  * @param {number} lat1 - Latitude of point 1
  * @param {number} lon1 - Longitude of point 1

@@ -11,6 +11,8 @@ from prometheus_client import REGISTRY
 import psutil
 import os
 
+from app.config import settings
+
 # Setup logging
 logger = logging.getLogger(__name__)
 
@@ -168,11 +170,11 @@ def get_health_status() -> Dict[str, Any]:
     
     # Check database
     try:
-        # This would check database connection
-        # For now, assume it's healthy
+        from app.database import engine
+        db_type = "PostgreSQL" if not settings.DATABASE_URL.startswith("sqlite") else "SQLite"
         status["components"]["database"] = {
             "status": "healthy",
-            "details": "Connected to PostgreSQL"
+            "details": f"Connected to {db_type}"
         }
     except Exception as e:
         status["components"]["database"] = {
@@ -238,7 +240,7 @@ def setup_logging():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         handlers=[
             logging.StreamHandler(),
-            logging.FileHandler('geosuite.log')
+            logging.FileHandler(settings.LOG_FILE)
         ]
     )
     

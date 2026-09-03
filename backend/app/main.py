@@ -98,6 +98,7 @@ app.include_router(drone_routes.router, prefix="/api/v1/drone", tags=["Drone"])
 app.include_router(transform_routes.router, prefix="/api/v1/transform", tags=["Coordinate Transform"])
 app.include_router(cv_routes.router, tags=["Computer Vision"])
 app.include_router(annotate_routes.router, tags=["Annotation"])
+app.include_router(config_routes.router, prefix="/api/v1/config", tags=["Config"])
 
 @app.get("/")
 async def root():
