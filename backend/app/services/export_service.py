@@ -15,6 +15,7 @@ from app.services.gps_service import GPSService
 from app.services.watershed_service import WatershedService
 from app.services.marine_service import MarineChartService
 from app.services.hecras_service import HECRASService
+from app.config import settings
 
 try:
     import geospatial_cpp

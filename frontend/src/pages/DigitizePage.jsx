@@ -54,6 +54,7 @@ import {
   PictureAsPdf as PdfIcon,
   Image as ImageIcon,
 } from '@mui/icons-material';
+import { useAppConfig } from '../services/gisUtils';
 
 const DigitizePage = () => {
   const [uploadFile, setUploadFile] = useState(null);
@@ -70,6 +71,9 @@ const DigitizePage = () => {
     ocrEnabled: true,
   });
   const [previewOpen, setPreviewOpen] = useState(false);
+  const { config } = useAppConfig();
+  const zones = config?.transformZones || [];
+  const maxUploadMB = config?.maxUploadSizeMB || 100;
 
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length > 0) {
@@ -78,15 +82,23 @@ const DigitizePage = () => {
     }
   }, []);
 
+  const supportedTypes = config?.supportedFileTypes || {
+    pdf: ['.pdf'],
+    image: ['.jpg', '.jpeg', '.tif', '.tiff', '.png'],
+    dxf: ['.dxf'],
+    dwg: ['.dwg'],
+  };
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'application/pdf': ['.pdf'],
-      'image/*': ['.jpg', '.jpeg', '.tif', '.tiff', '.png'],
-      'application/dxf': ['.dxf'],
-      'application/acad': ['.dwg'],
+      'application/pdf': supportedTypes.pdf || ['.pdf'],
+      'image/*': supportedTypes.image || ['.jpg', '.jpeg', '.tif', '.tiff', '.png'],
+      'application/dxf': supportedTypes.dxf || ['.dxf'],
+      'application/acad': supportedTypes.dwg || ['.dwg'],
     },
     multiple: false,
+    maxSize: maxUploadMB * 1024 * 1024,
   });
 
   const handleProcess = () => {
@@ -232,11 +244,9 @@ const DigitizePage = () => {
                   onChange={(e) => setSettings(s => ({ ...s, zone: e.target.value }))}
                   sx={{ mb: 2 }}
                 >
-                  <MenuItem value="zone_i">Zone I — Malindi</MenuItem>
-                  <MenuItem value="zone_ii">Zone II — Nairobi</MenuItem>
-                  <MenuItem value="zone_iii">Zone III — Nakuru</MenuItem>
-                  <MenuItem value="zone_iv">Zone IV — Kisumu</MenuItem>
-                  <MenuItem value="nairobi_local">Nairobi Local</MenuItem>
+                  {zones.map(z => (
+                    <MenuItem key={z.value} value={z.value}>{z.label}</MenuItem>
+                  ))}
                 </TextField>
                 <TextField
                   fullWidth

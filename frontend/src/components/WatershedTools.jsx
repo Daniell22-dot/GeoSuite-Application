@@ -41,6 +41,7 @@ const WatershedTools = ({ demData, onAnalysisComplete }) => {
   const { delineateWatershed, extractStreams, calculateFlowPath } = useWatershed();
   const { config } = useAppConfig();
   const baseTile = (config?.mapLayers || []).find(l => l.name === 'Dark Matter')?.url || 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
+  const thresholds = config?.watershedThresholds || [500, 1000, 5000];
 
   useEffect(() => {
     if (map) {
@@ -87,9 +88,9 @@ const WatershedTools = ({ demData, onAnalysisComplete }) => {
         <Stack direction="row" spacing={2}>
           <FormControl size="small" sx={{ minWidth: 140 }}>
             <Select value={threshold} onChange={(e) => setThreshold(e.target.value)} sx={{ fontSize: '0.8rem', bgcolor: 'rgba(255,255,255,0.02)' }}>
-              <MenuItem value={500}>500 cells</MenuItem>
-              <MenuItem value={1000}>1000 cells</MenuItem>
-              <MenuItem value={5000}>5000 cells</MenuItem>
+              {thresholds.map(t => (
+                <MenuItem key={t} value={t}>{t} cells</MenuItem>
+              ))}
             </Select>
           </FormControl>
           <Button

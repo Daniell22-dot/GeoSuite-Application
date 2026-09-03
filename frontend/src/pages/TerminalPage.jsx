@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Grid, Typography, Box, Paper } from '@mui/material';
 import Terminal from '../components/Terminal';
 import { Terminal as TerminalIcon, Info as InfoIcon } from '@mui/icons-material';
+import { useAppConfig } from '../services/gisUtils';
 
 const TerminalPage = () => {
-  const socketUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:8000/api/v1/terminal/ws';
+  const [socketUrl, setSocketUrl] = useState('');
+  const { config } = useAppConfig();
+
+  useEffect(() => {
+    const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+    const wsPath = config?.terminalWsPath || '/api/v1/terminal/ws';
+    setSocketUrl(apiBase.replace(/^http/, 'ws') + wsPath);
+  }, [config]);
 
   return (
     <Container maxWidth={false} sx={{ py: 4, px: { xs: 2, md: 4 } }}>

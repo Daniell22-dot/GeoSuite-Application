@@ -75,4 +75,5 @@ async def get_config():
         "watershedThresholds": [500, 1000, 5000],
         "weatherDefaultCity": "Nairobi,KE",
         "droneMaxImages": 500,
+        "terminalWsPath": "/api/v1/terminal/ws",
     }

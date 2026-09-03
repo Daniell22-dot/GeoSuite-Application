@@ -136,7 +136,7 @@ const FileUploader = ({ onFileProcessed, maxFiles = 10, acceptMultiple = true })
     },
     maxFiles: maxFiles,
     multiple: acceptMultiple,
-    maxSize: 100 * 1024 * 1024,
+    maxSize: maxSize,
   });
 
   const removeFile = (fileId) => setFiles(prev => prev.filter(file => file.id !== fileId));
