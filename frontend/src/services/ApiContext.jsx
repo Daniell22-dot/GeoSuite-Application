@@ -278,16 +278,20 @@ export const ApiProvider = ({ children }) => {
     },
 
     // Process KAP file
-    processKapFile: async (filePath) => {
-      return apiRequest('post', '/api/v1/marine/process-kap', {
-        file_path: filePath,
+    processKapFile: async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return apiRequest('post', '/api/v1/marine/process-kap', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
     },
 
     // Process DWG/DXF file
-    processCadFile: async (filePath) => {
-      return apiRequest('post', '/api/v1/marine/process-cad', {
-        file_path: filePath,
+    processCadFile: async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return apiRequest('post', '/api/v1/marine/process-cad', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
     },
 
@@ -309,6 +313,41 @@ export const ApiProvider = ({ children }) => {
       return apiRequest('post', '/api/v1/marine/extract-soundings', {
         chart_data: chartData,
         depth_range: depthRange,
+      });
+    },
+
+    // List charts
+    listCharts: async () => {
+      return apiRequest('get', '/api/v1/marine/charts');
+    },
+
+    // Get chart details
+    getChart: async (chartId, includeSoundings = false) => {
+      return apiRequest('get', `/api/v1/marine/charts/${chartId}`, null, {
+        params: { include_soundings: includeSoundings },
+      });
+    },
+
+    // Get chart thumbnail
+    getChartThumbnail: async (chartId) => {
+      return apiRequest('get', `/api/v1/marine/charts/${chartId}/thumbnail`, {
+        responseType: 'blob',
+      });
+    },
+
+    // Depth analysis
+    analyzeDepth: async (chartId, analysisType = 'basic') => {
+      return apiRequest('post', '/api/v1/marine/depth-analysis', {
+        chart_id: chartId,
+        analysis_type: analysisType,
+      });
+    },
+
+    // Georeference chart
+    georeferenceChart: async (chartPath, controlPoints) => {
+      return apiRequest('post', '/api/v1/marine/georeference', {
+        chart_path: chartPath,
+        control_points: controlPoints,
       });
     },
   };

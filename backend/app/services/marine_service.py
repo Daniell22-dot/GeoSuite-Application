@@ -329,7 +329,13 @@ class MarineChartService:
         elif output_format == "geojson":
             self._save_as_geojson(merged_data, output_path)
         
-        return output_path
+        return {
+            "success": True,
+            "output_path": output_path,
+            "output_format": output_format,
+            "combined_bounds": merged_data["combined_bounds"],
+            "charts_merged": len(merged_data["charts"]),
+        }
     
     def _save_as_geotiff(self, data: Dict, output_path: str):
         """Save merged charts as GeoTIFF"""

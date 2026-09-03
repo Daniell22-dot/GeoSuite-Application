@@ -95,14 +95,20 @@ const MarineChartViewer = ({ chartData, onChartLoad }) => {
     if (!chartData) return null;
 
     const elements = [];
+    const chartId = chartData.chart_id || chartData.id;
 
     // Render chart image as tile layer
-    if (layers.chart && chartData.tiles) {
+    if (layers.chart && chartData.tiles && chartId) {
       chartData.tiles.tile_urls.forEach(tile => {
+        const url = tile.url_template
+          .replace('{chart_id}', chartId)
+          .replace('{z}', '{z}')
+          .replace('{x}', '{x}')
+          .replace('{y}', '{y}');
         elements.push(
           <TileLayer
-            key={`chart-tile-${tile.zoom}`}
-            url={tile.url_template.replace('{z}', '{z}').replace('{x}', '{x}').replace('{y}', '{y}')}
+            key={`chart-tile-${tile.zoom}-${chartId}`}
+            url={url}
             minZoom={tile.zoom}
             maxZoom={tile.zoom}
             bounds={[
@@ -120,10 +126,9 @@ const MarineChartViewer = ({ chartData, onChartLoad }) => {
         if (sounding.depth >= depthRange[0] && sounding.depth <= depthRange[1]) {
           const popupContent = `
             <div>
-              <strong>Depth:</strong> ${sounding.depth} ${sounding.unit}<br/>
-              <strong>Lat:</strong> ${sounding.latitude.toFixed(6)}<br/>
-              <strong>Lon:</strong> ${sounding.longitude.toFixed(6)}<br/>
-              <strong>Quality:</strong> ${sounding.quality}
+              <strong>Depth:</strong> ${sounding.depth} ${sounding.unit || 'm'}<br/>
+              <strong>Position:</strong> ${(sounding.latitude || 0).toFixed(6)}, ${(sounding.longitude || 0).toFixed(6)}<br/>
+              <strong>Quality:</strong> ${sounding.quality || 'N/A'}
             </div>
           `;
 
@@ -150,20 +155,22 @@ const MarineChartViewer = ({ chartData, onChartLoad }) => {
     // Render depth contours
     if (layers.contours && chartData.contours) {
       chartData.contours.forEach((contour, index) => {
-        if (contour.points && contour.points.length > 0) {
-          const coordinates = contour.points.map(p => [p.latitude, p.longitude]);
-          
-          // Determine color based on depth
-          const depth = contour.depth;
-          let color = '#0000FF'; // Blue for deep
-          if (depth < 10) color = '#FF0000'; // Red for shallow
-          else if (depth < 20) color = '#FFFF00'; // Yellow
-          else if (depth < 50) color = '#00FF00'; // Green
+        const points = contour.points || [];
+        const coords = points
+          .filter(p => p.latitude != null && p.longitude != null)
+          .map(p => [p.latitude, p.longitude]);
+        
+        if (coords.length > 2) {
+          const depth = contour.depth || 0;
+          let color = '#0000FF';
+          if (depth < 10) color = '#FF0000';
+          else if (depth < 20) color = '#FFFF00';
+          else if (depth < 50) color = '#00FF00';
 
           elements.push(
             <Polygon
               key={`contour-${index}`}
-              positions={coordinates}
+              positions={coords}
               pathOptions={{
                 color: color,
                 weight: depth < 10 ? 3 : 2,
@@ -179,35 +186,6 @@ const MarineChartViewer = ({ chartData, onChartLoad }) => {
             />
           );
         }
-      });
-    }
-
-    // Render navigation aids
-    if (layers.navigation && chartData.navigation_aids) {
-      chartData.navigation_aids.forEach((aid, index) => {
-        elements.push(
-          <Marker
-            key={`nav-aid-${index}`}
-            position={[aid.latitude, aid.longitude]}
-            icon={harborIcon}
-            eventHandlers={{
-              click: () => setSelectedFeature({
-                type: 'navigation',
-                data: aid,
-                position: [aid.latitude, aid.longitude]
-              })
-            }}
-          >
-            <Popup>
-              <div>
-                <strong>{aid.name}</strong><br/>
-                Type: {aid.type}<br/>
-                Light: {aid.light || 'None'}<br/>
-                Fog Signal: {aid.fog_signal || 'None'}
-              </div>
-            </Popup>
-          </Marker>
-        );
       });
     }
 
