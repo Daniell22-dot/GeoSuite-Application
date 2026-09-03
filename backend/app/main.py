@@ -2,24 +2,17 @@ import os
 import sys
 
 # R integration — only set if R_HOME not already configured
-if 'R_HOME' not in os.environ:
-    r_home_candidates = [
-        r'C:\Program Files\R\R-4.5.1',
-        '/usr/lib/R',
-        '/usr/local/lib/R',
-    ]
-    for candidate in r_home_candidates:
-        if os.path.exists(candidate):
-            os.environ['R_HOME'] = candidate
-            r_bin = os.path.join(candidate, 'bin', 'x64' if os.name == 'nt' else '')
-            if os.path.exists(r_bin):
-                os.environ['PATH'] = r_bin + os.pathsep + os.environ.get('PATH', '')
-                if hasattr(os, 'add_dll_directory'):
-                    try:
-                        os.add_dll_directory(r_bin)
-                    except Exception:
-                        pass
-            break
+if 'R_HOME' not in os.environ and settings.R_HOME:
+    if os.path.exists(settings.R_HOME):
+        os.environ['R_HOME'] = settings.R_HOME
+        r_bin = os.path.join(settings.R_HOME, 'bin', 'x64' if os.name == 'nt' else '')
+        if os.path.exists(r_bin):
+            os.environ['PATH'] = r_bin + os.pathsep + os.environ.get('PATH', '')
+            if hasattr(os, 'add_dll_directory'):
+                try:
+                    os.add_dll_directory(r_bin)
+                except Exception:
+                    pass
 
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,7 +23,7 @@ from dotenv import load_dotenv
 
 from app.routes import gps_routes, marine_routes, watershed_routes, file_routes, terminal_routes, weather_routes
 from app.routes import auth_routes, export_routes, monitoring_routes, task_routes, drone_routes, transform_routes
-from app.routes import cv_routes, annotate_routes
+from app.routes import cv_routes, annotate_routes, config_routes
 from app.config import settings
 from app.models.geospatial import init_db
 
@@ -50,11 +43,11 @@ async def lifespan(app: FastAPI):
     print(" Database initialized")
     
     # Create necessary directories
+    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     os.makedirs("data/temp", exist_ok=True)
     os.makedirs("data/output", exist_ok=True)
     os.makedirs("data/dem", exist_ok=True)
     os.makedirs("data/drone_surveys", exist_ok=True)
-    os.makedirs("data/uploads", exist_ok=True)
     
     yield
     
@@ -68,10 +61,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-ORIGINS = [
-    "http://localhost",
-    "http://localhost:3000",
-    "http://localhost:8000",]
+ORIGINS = [o.strip() for o in settings.BACKEND_CORS_ORIGINS if o.strip()]
 # Middleware
 app.add_middleware(
     CORSMiddleware,
@@ -112,8 +102,8 @@ app.include_router(annotate_routes.router, tags=["Annotation"])
 @app.get("/")
 async def root():
     return {
-        "message": " GeoSuite API",
-        "version": "2.0.0",
+        "message": f" {settings.APP_NAME} API",
+        "version": settings.APP_VERSION,
         "endpoints": {
             "gps": "/api/v1/gps",
             "marine": "/api/v1/marine",
@@ -125,14 +115,15 @@ async def root():
             "monitoring": "/api/v1/monitoring",
             "tasks": "/api/v1/tasks",
             "drone": "/api/v1/drone",
-            "transform": "/api/v1/transform"
+            "transform": "/api/v1/transform",
+            "config": "/api/v1/config",
         },
         "docs": "/docs"
     }
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": "geosuite"}
+    return {"status": "healthy", "service": settings.APP_NAME.lower().replace(" ", "-")}
 
 if __name__ == "__main__":
     import uvicorn

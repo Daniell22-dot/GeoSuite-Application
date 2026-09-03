@@ -47,14 +47,14 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
     
     # Application
-    APP_NAME: str = "GeoSuite"
-    APP_VERSION: str = "2.0.0"
+    APP_NAME: str = os.getenv("APP_NAME", "GeoSuite")
+    APP_VERSION: str = os.getenv("APP_VERSION", "2.0.0")
     DEBUG: bool = os.getenv("DEBUG", "false").lower() in ("true", "1", "yes")
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "")
     
     # API
     API_V1_STR: str = "/api/v1"
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
+    BACKEND_CORS_ORIGINS: List[str] = os.getenv("BACKEND_CORS_ORIGINS", "http://localhost:3000,http://localhost:8000").split(",")
     
     # Database — auto-detects PostgreSQL or falls back to SQLite
     DATABASE_URL: str = _resolve_database_url()
@@ -84,9 +84,7 @@ class Settings(BaseSettings):
     OPENWEATHER_API_KEY: Optional[str] = os.getenv("OPENWEATHER_API_KEY")
     
     # Security
-    _DEV_SECRET_KEY: str = "dev-secret-change-in-production"
-    _DEV_JWT_SECRET: str = "dev-jwt-secret-change-in-production"
-    JWT_SECRET: str = os.getenv("JWT_SECRET", "dev-jwt-secret-change-in-production")
+    JWT_SECRET: str = os.getenv("JWT_SECRET", "")
     JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
     JWT_EXPIRE_MINUTES: int = int(os.getenv("JWT_EXPIRE_MINUTES", "60"))
     
@@ -97,6 +95,7 @@ class Settings(BaseSettings):
     # Monitoring
     SENTRY_DSN: Optional[str] = os.getenv("SENTRY_DSN")
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
+    LOG_FILE: str = os.getenv("LOG_FILE", "geosuite.log")
     
     # Email
     SMTP_HOST: Optional[str] = os.getenv("SMTP_HOST")
@@ -111,6 +110,7 @@ class Settings(BaseSettings):
     # Drone Processing
     ODM_PATH: Optional[str] = os.getenv("ODM_PATH", "run.py")
     ODM_DOCKER: bool = os.getenv("ODM_DOCKER", "false").lower() in ("true", "1", "yes")
+    DRONE_MAX_IMAGES: int = int(os.getenv("DRONE_MAX_IMAGES", "500"))
     
     class Config:
         env_file = ".env"
@@ -120,18 +120,18 @@ class Settings(BaseSettings):
 # Create settings instance
 settings = Settings()
 
-# Fail-closed on secrets: development-only defaults must not be used in production.
+# Fail-closed on secrets: refuse to start if secrets are missing or still hold
+# known development defaults. Production must supply strong random values.
 if not settings.DEBUG:
-    dev_values = {settings._DEV_SECRET_KEY, settings._DEV_JWT_SECRET}
     for name, value in (
         ("SECRET_KEY", settings.SECRET_KEY),
         ("JWT_SECRET", settings.JWT_SECRET),
     ):
-        if value in dev_values or not value:
+        if not value:
             raise RuntimeError(
                 f"[CRITICAL] {name} is not set. Set a strong random value via the "
                 f"{name} environment variable. Refusing to start in production (DEBUG=false) "
-                f"with the development default."
+                f"without an explicit {name}."
             )
 
 # Database connection string
