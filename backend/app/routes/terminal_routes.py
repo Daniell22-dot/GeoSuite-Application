@@ -1,9 +1,8 @@
 import os
-import signal
 import asyncio
 import json
 import ptyprocess
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException, status
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
 from sqlalchemy.orm import Session
 from typing import Dict, Optional
 
