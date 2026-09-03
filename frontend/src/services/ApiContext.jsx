@@ -456,16 +456,20 @@ export const ApiProvider = ({ children }) => {
   const authApi = {
     // Login
     login: async (email, password) => {
-      const response = await apiRequest('post', '/api/v1/auth/login', {
-        email,
-        password,
+      // Backend /login uses OAuth2PasswordRequestForm (form-urlencoded, "username" field)
+      const body = new URLSearchParams();
+      body.append('username', email);
+      body.append('password', password);
+
+      const response = await apiRequest('post', '/api/v1/auth/login', body, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
-      
-      if (response.token) {
-        localStorage.setItem('auth_token', response.token);
+
+      if (response.access_token) {
+        localStorage.setItem('auth_token', response.access_token);
         localStorage.setItem('user', JSON.stringify(response.user));
       }
-      
+
       return response;
     },
 
