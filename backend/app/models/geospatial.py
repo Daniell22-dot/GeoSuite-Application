@@ -46,6 +46,12 @@ class User(Base):
 
     tracks = relationship("GPSTrack", back_populates="user")
     analyses = relationship("WatershedAnalysis", back_populates="user")
+    marine_charts = relationship("MarineChart", back_populates="user")
+    hecras_analyses = relationship("HECRASAnalysis", back_populates="user")
+    tasks = relationship("Task", back_populates="user")
+    drone_surveys = relationship("DroneSurvey", back_populates="user")
+    survey_plans = relationship("SurveyPlan", back_populates="user")
+    annotations = relationship("Annotation", back_populates="user")
 
 
 class GPSTrack(Base):
@@ -117,6 +123,7 @@ class MarineChart(Base):
 
     soundings = relationship("ChartSounding", back_populates="chart", cascade="all, delete-orphan")
     contours = relationship("DepthContour", back_populates="chart", cascade="all, delete-orphan")
+    user = relationship("User", back_populates="marine_charts")
 
 
 class ChartSounding(Base):
@@ -206,7 +213,7 @@ class HECRASAnalysis(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     completed_at = Column(DateTime(timezone=True))
 
-    user = relationship("User")
+    user = relationship("User", back_populates="hecras_analyses")
     watershed = relationship("WatershedAnalysis")
 
 
@@ -225,7 +232,7 @@ class Task(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    user = relationship("User")
+    user = relationship("User", back_populates="tasks")
 
 
 # ── Drone survey models ──────────────────────────────────────────────
@@ -261,7 +268,7 @@ class DroneSurvey(Base):
     processing_started_at = Column(DateTime(timezone=True))
     processing_completed_at = Column(DateTime(timezone=True))
 
-    user = relationship("User")
+    user = relationship("User", back_populates="drone_surveys")
     images = relationship("DroneImage", back_populates="survey", cascade="all, delete-orphan")
 
 
@@ -309,7 +316,7 @@ class SurveyPlan(Base):
     result = Column(JSON)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    user = relationship("User")
+    user = relationship("User", back_populates="survey_plans")
 
 
 class Annotation(Base):
@@ -325,7 +332,7 @@ class Annotation(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    user = relationship("User")
+    user = relationship("User", back_populates="annotations")
 
 
 def init_db():
