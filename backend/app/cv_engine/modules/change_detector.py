@@ -16,7 +16,7 @@ class ChangeDetector:
 
     def __init__(self, threshold: float = 0.3):
         self.threshold = threshold
-        self.preprocessor = Preprocessor(target_size=(512, 512))
+        self.preprocessor = Preprocessor(target_size=(256, 256))
         self.diff_w1 = np.random.randn(32, 6, 3, 3) * np.sqrt(2.0 / (6 * 9))
         self.diff_b1 = np.zeros(32)
         self.diff_w2 = np.random.randn(16, 32, 3, 3) * np.sqrt(2.0 / (32 * 9))

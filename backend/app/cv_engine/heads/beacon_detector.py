@@ -62,7 +62,7 @@ class BeaconDetector:
         self.num_types = num_beacon_types
         self.backbone = CNNBackbone(in_channels=1, base_channels=32)
         self.head = BeaconHead(128, num_beacon_types, grid_size)
-        self.preprocessor = Preprocessor(target_size=(512, 512))
+        self.preprocessor = Preprocessor(target_size=(256, 256))
         self.type_names = ['iron_pin', 'concrete', 'triangle', 'unknown']
 
     def predict(self, image: np.ndarray) -> List[Dict]:
@@ -88,8 +88,8 @@ class BeaconDetector:
     def _decode_predictions(self, pred: np.ndarray, meta: dict, S: int = None) -> List[Dict]:
         if S is None:
             S = self.grid_size
-        cell_h = meta['original_shape'][0] / S if 'original_shape' in meta else 512 / S
-        cell_w = meta['original_shape'][1] / S if 'original_shape' in meta else 512 / S
+        cell_h = meta['original_shape'][0] / S if 'original_shape' in meta else 256 / S
+        cell_w = meta['original_shape'][1] / S if 'original_shape' in meta else 256 / S
         detections = []
         pred_reshaped = pred.reshape(S, S, 5 + self.num_types)
         for i in range(S):

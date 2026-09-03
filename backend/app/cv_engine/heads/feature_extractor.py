@@ -73,7 +73,7 @@ class FeatureExtractor:
         self.dec3 = FeatureDecoder(32, 32, 16)
         self.final_w = np.random.randn(num_classes, 16, 3, 3) * np.sqrt(2.0 / (16 * 9))
         self.final_b = np.zeros(num_classes)
-        self.preprocessor = Preprocessor(target_size=(512, 512))
+        self.preprocessor = Preprocessor(target_size=(256, 256))
 
     def predict(self, image: np.ndarray) -> Dict:
         processed, meta = self.preprocessor.process(image)

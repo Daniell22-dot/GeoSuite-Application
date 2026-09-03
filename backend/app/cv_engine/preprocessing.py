@@ -264,7 +264,7 @@ def pad_to_multiple(image: np.ndarray, multiple: int = 32) -> Tuple[np.ndarray, 
 
 
 class Preprocessor:
-    def __init__(self, target_size: Tuple[int, int] = (512, 512), do_deskew: bool = True):
+    def __init__(self, target_size: Tuple[int, int] = (256, 256), do_deskew: bool = True):
         self.target_size = target_size
         self.do_deskew = do_deskew
 

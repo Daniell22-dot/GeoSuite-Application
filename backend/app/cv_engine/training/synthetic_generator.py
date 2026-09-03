@@ -359,7 +359,7 @@ def _augment_perspective(
 
 def generate_parcel_batch(
     batch_size: int,
-    image_size: int = 512,
+    image_size: int = 256,
     grid_size: int = DEFAULT_GRID_SIZE,
 ) -> dict[str, Any]:
     """Generate a batch of synthetic parcel plan training samples.

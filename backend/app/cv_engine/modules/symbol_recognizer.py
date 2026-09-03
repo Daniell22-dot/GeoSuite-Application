@@ -21,7 +21,7 @@ class SymbolRecognizer:
         self.backbone = CNNBackbone(in_channels=1, base_channels=32)
         self.head_w = np.random.randn(self.num_classes + 5, 128, 1, 1) * np.sqrt(2.0 / 128)
         self.head_b = np.zeros(self.num_classes + 5)
-        self.preprocessor = Preprocessor(target_size=(512, 512))
+        self.preprocessor = Preprocessor(target_size=(256, 256))
 
     def recognize(self, image: np.ndarray) -> List[Dict]:
         processed, meta = self.preprocessor.process(image)
@@ -32,8 +32,14 @@ class SymbolRecognizer:
         features = self.backbone.forward(x, training=False)
         N, C, H, W = features.shape
         pred = conv2d(features, self.head_w, self.head_b, 1, 0)
-        pred = 1.0 / (1.0 + np.exp(-pred))
-        detections = self._decode(pred[0], meta)
+        obj_logits = pred[:, 0:1, :, :]
+        bbox_logits = pred[:, 1:5, :, :]
+        cls_logits = pred[:, 5:, :, :]
+        obj = 1.0 / (1.0 + np.exp(-obj_logits))
+        bbox = 1.0 / (1.0 + np.exp(-bbox_logits))
+        cls = self._softmax_2d(cls_logits)
+        pred_activated = np.concatenate([obj, bbox, cls], axis=1)
+        detections = self._decode(pred_activated[0], meta)
         if detections:
             boxes = np.array([[d['x1'], d['y1'], d['x2'], d['y2']] for d in detections])
             scores = np.array([d['confidence'] for d in detections])
@@ -41,11 +47,17 @@ class SymbolRecognizer:
             return [detections[i] for i in keep]
         return []
 
+    @staticmethod
+    def _softmax_2d(x: np.ndarray) -> np.ndarray:
+        x = x - np.max(x, axis=1, keepdims=True)
+        e = np.exp(x)
+        return e / (np.sum(e, axis=1, keepdims=True) + 1e-8)
+
     def _decode(self, pred: np.ndarray, meta: dict) -> List[Dict]:
         C, H, W = pred.shape
         detections = []
-        cell_h = meta['original_shape'][0] / H if 'original_shape' in meta else 512 / H
-        cell_w = meta['original_shape'][1] / W if 'original_shape' in meta else 512 / W
+        cell_h = meta['original_shape'][0] / H if 'original_shape' in meta else 256 / H
+        cell_w = meta['original_shape'][1] / W if 'original_shape' in meta else 256 / W
         for i in range(H):
             for j in range(W):
                 obj_conf = pred[0, i, j]
