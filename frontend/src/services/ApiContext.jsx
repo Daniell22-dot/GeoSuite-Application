@@ -551,6 +551,135 @@ export const ApiProvider = ({ children }) => {
     },
   };
 
+  /**
+   * Computer Vision API functions
+   */
+  const cvApi = {
+    digitizeSurveyPlan: async (file, coordinateSystem = 'cassini', zone = 'zone_3', confidenceThreshold = 0.7) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('coordinate_system', coordinateSystem);
+      formData.append('zone', zone);
+      formData.append('confidence_threshold', String(confidenceThreshold));
+      return apiRequest('post', '/api/v1/cv/digitize', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+
+    extractFeatures: async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return apiRequest('post', '/api/v1/cv/features', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+
+    detectChanges: async (fileBefore, fileAfter, threshold = 0.3) => {
+      const formData = new FormData();
+      formData.append('file_before', fileBefore);
+      formData.append('file_after', fileAfter);
+      formData.append('threshold', String(threshold));
+      return apiRequest('post', '/api/v1/cv/changes', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+
+    matchGpsTrack: async (points, roadNetworkId = null, extent = null) => {
+      return apiRequest('post', '/api/v1/cv/gps-match', {
+        points,
+        road_network_id: roadNetworkId,
+        extent,
+      });
+    },
+
+    recognizeSymbols: async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return apiRequest('post', '/api/v1/cv/symbols', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+
+    extractSoundings: async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return apiRequest('post', '/api/v1/cv/soundings', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+
+    classifyLandUse: async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return apiRequest('post', '/api/v1/cv/land-use', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+
+    extractText: async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return apiRequest('post', '/api/v1/cv/text', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+
+    fastDigitize: async (file) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return apiRequest('post', '/api/v1/cv/fast-digitize', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+
+    getModelInfo: async () => {
+      return apiRequest('get', '/api/v1/cv/models');
+    },
+
+    getCapabilities: async () => {
+      return apiRequest('get', '/api/v1/cv/capabilities');
+    },
+  };
+
+  /**
+   * Annotation API functions
+   */
+  const annotateApi = {
+    uploadImage: async (file, surveyName = '', description = '') => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('survey_name', surveyName);
+      formData.append('description', description);
+      return apiRequest('post', '/api/v1/annotate/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+
+    listImages: async () => {
+      return apiRequest('get', '/api/v1/annotate/images');
+    },
+
+    getImage: async (imageId) => {
+      return apiRequest('get', `/api/v1/annotate/image/${imageId}`);
+    },
+
+    saveAnnotations: async (imageId, annotations) => {
+      return apiRequest('post', `/api/v1/annotate/save/${imageId}`, annotations);
+    },
+
+    deleteImage: async (imageId) => {
+      return apiRequest('delete', `/api/v1/annotate/image/${imageId}`);
+    },
+
+    exportAnnotations: async (format = 'coco') => {
+      return apiRequest('get', `/api/v1/annotate/export?format=${format}`);
+    },
+
+    getStats: async () => {
+      return apiRequest('get', '/api/v1/annotate/stats');
+    },
+  };
+
   // Context value
   const contextValue = {
     // State
@@ -568,6 +697,8 @@ export const ApiProvider = ({ children }) => {
     drone: droneApi,
     transform: transformApi,
     digitize: digitizeApi,
+    cv: cvApi,
+    annotate: annotateApi,
     
     // Generic request
     request: apiRequest,
@@ -665,4 +796,20 @@ export const useTransform = () => {
 export const useDigitize = () => {
   const { digitize } = useApi();
   return digitize;
+};
+
+/**
+ * Hook for computer vision API functions
+ */
+export const useCV = () => {
+  const { cv } = useApi();
+  return cv;
+};
+
+/**
+ * Hook for annotation API functions
+ */
+export const useAnnotate = () => {
+  const { annotate } = useApi();
+  return annotate;
 };

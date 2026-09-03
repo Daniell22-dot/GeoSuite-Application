@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from app.routes import gps_routes, marine_routes, watershed_routes, file_routes, terminal_routes, weather_routes
 from app.routes import auth_routes, export_routes, monitoring_routes, task_routes, drone_routes, transform_routes
-from app.routes import cv_routes, annotate_routes, config_routes, hecras_routes
+from app.routes import cv_routes, annotate_routes, config_routes, hecras_routes, hecras_routes
 from app.config import settings
 from app.models.geospatial import init_db
 

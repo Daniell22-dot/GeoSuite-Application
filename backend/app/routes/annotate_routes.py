@@ -1,15 +1,19 @@
 """
 Training data annotation tool — web-based labeling for CV model training.
-Serves a minimal HTML/JS frontend for annotating survey plans.
 """
 import os
 import json
 import uuid
 import shutil
-from typing import Optional
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
+from typing import Optional, List
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.models.geospatial import User, Annotation
+from app.services.auth_service import auth_service
 
 router = APIRouter(prefix="/api/v1/annotate", tags=["annotation"])
 
@@ -57,13 +61,20 @@ async def upload_image_for_annotation(
     file: UploadFile = File(...),
     survey_name: str = Form(""),
     description: str = Form(""),
+    token: str = Depends(auth_service.oauth2_scheme),
+    db: Session = Depends(get_db)
 ):
+    user = auth_service.get_current_user(db, token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     image_id = str(uuid.uuid4())[:8]
     ext = os.path.splitext(file.filename)[1].lower()
     save_path = os.path.join(IMAGES_DIR, f"{image_id}{ext}")
     contents = await file.read()
     with open(save_path, 'wb') as f:
         f.write(contents)
+
     meta = {
         "id": image_id,
         "filename": file.filename,
@@ -75,11 +86,30 @@ async def upload_image_for_annotation(
     meta_path = os.path.join(ANNOTATIONS_DIR, f"{image_id}_meta.json")
     with open(meta_path, 'w') as f:
         json.dump(meta, f, indent=2)
+
+    annotation = Annotation(
+        id=uuid.uuid4(),
+        user_id=user.id,
+        image_id=image_id,
+        image_path=save_path,
+        annotations={},
+        annotated=False,
+    )
+    db.add(annotation)
+    db.commit()
+
     return JSONResponse(content=meta)
 
 
 @router.get("/images")
-async def list_annotated_images():
+async def list_annotated_images(
+    token: str = Depends(auth_service.oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    user = auth_service.get_current_user(db, token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     images = []
     for fname in os.listdir(ANNOTATIONS_DIR):
         if fname.endswith('_meta.json'):
@@ -93,7 +123,15 @@ async def list_annotated_images():
 
 
 @router.get("/image/{image_id}")
-async def get_image_for_annotation(image_id: str):
+async def get_image_for_annotation(
+    image_id: str,
+    token: str = Depends(auth_service.oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    user = auth_service.get_current_user(db, token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     meta_path = os.path.join(ANNOTATIONS_DIR, f"{image_id}_meta.json")
     if not os.path.exists(meta_path):
         raise HTTPException(status_code=404, detail="Image not found")
@@ -108,7 +146,16 @@ async def get_image_for_annotation(image_id: str):
 
 
 @router.post("/save/{image_id}")
-async def save_annotations(image_id: str, annotations: dict):
+async def save_annotations(
+    image_id: str,
+    annotations: dict,
+    token: str = Depends(auth_service.oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    user = auth_service.get_current_user(db, token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     ann_path = os.path.join(ANNOTATIONS_DIR, f"{image_id}.json")
     with open(ann_path, 'w') as f:
         json.dump(annotations, f, indent=2)
@@ -119,11 +166,39 @@ async def save_annotations(image_id: str, annotations: dict):
         meta['annotated'] = True
         with open(meta_path, 'w') as f:
             json.dump(meta, f, indent=2)
+
+    annotation = db.query(Annotation).filter(
+        Annotation.user_id == user.id,
+        Annotation.image_id == image_id,
+    ).first()
+    if annotation is None:
+        annotation = Annotation(
+            id=uuid.uuid4(),
+            user_id=user.id,
+            image_id=image_id,
+            image_path=meta_path,
+            annotations=annotations,
+            annotated=True,
+        )
+        db.add(annotation)
+    else:
+        annotation.annotations = annotations
+        annotation.annotated = True
+    db.commit()
+
     return JSONResponse(content={"status": "saved", "image_id": image_id})
 
 
 @router.delete("/image/{image_id}")
-async def delete_annotation(image_id: str):
+async def delete_annotation(
+    image_id: str,
+    token: str = Depends(auth_service.oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    user = auth_service.get_current_user(db, token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     for ext in ['.jpg', '.jpeg', '.tif', '.tiff', '.png', '.pdf']:
         img_path = os.path.join(IMAGES_DIR, f"{image_id}{ext}")
         if os.path.exists(img_path):
@@ -132,23 +207,78 @@ async def delete_annotation(image_id: str):
         ann_path = os.path.join(ANNOTATIONS_DIR, f"{image_id}{suffix}")
         if os.path.exists(ann_path):
             os.remove(ann_path)
+
+    annotation = db.query(Annotation).filter(
+        Annotation.user_id == user.id,
+        Annotation.image_id == image_id,
+    ).first()
+    if annotation:
+        db.delete(annotation)
+        db.commit()
+
     return JSONResponse(content={"status": "deleted", "image_id": image_id})
 
 
 @router.get("/export")
-async def export_annotations(format: str = "coco"):
+async def export_annotations(
+    format: str = "coco",
+    token: str = Depends(auth_service.oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    user = auth_service.get_current_user(db, token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     all_annotations = []
-    for fname in os.listdir(ANNOTATIONS_DIR):
+    for fname in sorted(os.listdir(ANNOTATIONS_DIR)):
         if fname.endswith('.json') and not fname.endswith('_meta.json'):
             with open(os.path.join(ANNOTATIONS_DIR, fname)) as f:
                 ann = json.load(f)
             all_annotations.append(ann)
+
     if format == "coco":
-        return JSONResponse(content={
-            "images": all_annotations,
-            "format": "coco",
-            "total_images": len(all_annotations),
-        })
+        images = []
+        annotations = []
+        categories = [
+            {"id": 1, "name": "beacon", "supercategory": "survey"},
+            {"id": 2, "name": "boundary", "supercategory": "survey"},
+            {"id": 3, "name": "text_label", "supercategory": "survey"},
+        ]
+        ann_id = 1
+        for img_idx, ann in enumerate(all_annotations, start=1):
+            images.append({"id": img_idx, "file_name": ann.get("image_id", ""), "width": 0, "height": 0})
+            for b in ann.get('beacons', []):
+                annotations.append({
+                    "id": ann_id,
+                    "image_id": img_idx,
+                    "category_id": 1,
+                    "bbox": [b.get('x', 0), b.get('y', 0), b.get('width', 0), b.get('height', 0)],
+                    "area": b.get('width', 0) * b.get('height', 0),
+                    "iscrowd": 0,
+                })
+                ann_id += 1
+            for b in ann.get('boundaries', []):
+                annotations.append({
+                    "id": ann_id,
+                    "image_id": img_idx,
+                    "category_id": 2,
+                    "segmentation": [p for pts in b.get('points', []) for p in pts],
+                    "bbox": [],
+                    "area": 0,
+                    "iscrowd": 0,
+                })
+                ann_id += 1
+            for t in ann.get('text_labels', []):
+                annotations.append({
+                    "id": ann_id,
+                    "image_id": img_idx,
+                    "category_id": 3,
+                    "bbox": [t.get('x1', 0), t.get('y1', 0), t.get('x2', 0) - t.get('x1', 0), t.get('y2', 0) - t.get('y1', 0)],
+                    "area": abs((t.get('x2', 0) - t.get('x1', 0)) * (t.get('y2', 0) - t.get('y1', 0))),
+                    "iscrowd": 0,
+                })
+                ann_id += 1
+        return JSONResponse(content={"images": images, "annotations": annotations, "categories": categories, "format": "coco", "total_images": len(images)})
     elif format == "yolo":
         yolo_data = []
         for ann in all_annotations:
@@ -166,7 +296,14 @@ async def export_annotations(format: str = "coco"):
 
 
 @router.get("/stats")
-async def get_annotation_stats():
+async def get_annotation_stats(
+    token: str = Depends(auth_service.oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    user = auth_service.get_current_user(db, token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     total_images = 0
     annotated_images = 0
     total_beacons = 0
@@ -193,6 +330,16 @@ async def get_annotation_stats():
         "total_boundaries": total_boundaries,
         "total_labels": total_labels,
     })
+
+
+@router.get("/images/{image_id}{ext:path}")
+async def serve_annotation_image(image_id: str, ext: str):
+    for e in ['.jpg', '.jpeg', '.tif', '.tiff', '.png', '.pdf']:
+        path = os.path.join(IMAGES_DIR, f"{image_id}{e}")
+        if os.path.exists(path):
+            media = "image/png" if e == '.png' else "image/jpeg" if e in ('.jpg', '.jpeg') else "image/tiff" if e in ('.tif', '.tiff') else "application/pdf"
+            return StreamingResponse(open(path, 'rb'), media_type=media)
+    raise HTTPException(status_code=404, detail="Image not found")
 
 
 @router.get("/editor", response_class=HTMLResponse)

@@ -55,15 +55,17 @@ import {
   Image as ImageIcon,
 } from '@mui/icons-material';
 import { useAppConfig } from '../services/gisUtils';
+import { useCV } from '../services/ApiContext';
 
 const DigitizePage = () => {
   const [uploadFile, setUploadFile] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
   const [settings, setSettings] = useState({
     coordinateSystem: 'cassini',
-    zone: 'zone_ii',
+    zone: 'zone_3',
     confidenceThreshold: 0.7,
     detectBeacons: true,
     detectBoundaries: true,
@@ -72,6 +74,7 @@ const DigitizePage = () => {
   });
   const [previewOpen, setPreviewOpen] = useState(false);
   const { config } = useAppConfig();
+  const cv = useCV();
   const zones = config?.transformZones || [];
   const maxUploadMB = config?.maxUploadSizeMB || 100;
 
@@ -79,6 +82,7 @@ const DigitizePage = () => {
     if (acceptedFiles.length > 0) {
       setUploadFile(acceptedFiles[0]);
       setResult(null);
+      setError(null);
     }
   }, []);
 
@@ -101,51 +105,51 @@ const DigitizePage = () => {
     maxSize: maxUploadMB * 1024 * 1024,
   });
 
-  const handleProcess = () => {
+  const handleProcess = async () => {
     if (!uploadFile) return;
     setProcessing(true);
     setProgress(0);
-    const interval = setInterval(() => {
-      setProgress(p => {
-        if (p >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            setProcessing(false);
-            setResult({
-              beacons: 24,
-              boundaries: 12,
-              labels: 18,
-              area: 0.487,
-              confidence: 0.92,
-              beaconsDetected: [
-                { id: 'B1', easting: 285000.123, northing: 9892000.456, type: 'iron_pin' },
-                { id: 'B2', easting: 285050.789, northing: 9892000.123, type: 'concrete' },
-                { id: 'B3', easting: 285050.456, northing: 9892050.789, type: 'iron_pin' },
-                { id: 'B4', easting: 285000.789, northing: 9892050.123, type: 'concrete' },
-              ],
-              boundarySegments: [
-                { from: 'B1', to: 'B2', distance: 50.0, bearing: 90 },
-                { from: 'B2', to: 'B3', distance: 50.0, bearing: 0 },
-                { from: 'B3', to: 'B4', distance: 50.0, bearing: 270 },
-                { from: 'B4', to: 'B1', distance: 50.0, bearing: 180 },
-              ],
-              extractedLabels: [
-                { text: 'L.R. 20946', type: 'title_reference', confidence: 0.95 },
-                { text: 'P/REF/S/4782', type: 'plan_number', confidence: 0.88 },
-                { text: 'SCALE 1:500', type: 'scale', confidence: 0.91 },
-                { text: 'N', type: 'north_arrow', confidence: 0.97 },
-              ],
-            });
-          }, 500);
-          return 100;
-        }
-        return p + Math.random() * 15;
+    setError(null);
+    try {
+      const data = await cv.digitizeSurveyPlan(
+        uploadFile,
+        settings.coordinateSystem,
+        settings.zone,
+        settings.confidenceThreshold
+      );
+      setResult({
+        beacons: data.total_beacons || 0,
+        boundaries: data.total_boundaries || 0,
+        labels: data.total_labels || 0,
+        area: 0,
+        confidence: settings.confidenceThreshold,
+        beaconsDetected: (data.beacons || []).map((b, idx) => ({
+          id: `B${idx + 1}`,
+          easting: b.x || 0,
+          northing: b.y || 0,
+          type: b.beacon_type || 'unknown',
+        })),
+        boundarySegments: (data.boundaries || []).map((seg, idx) => ({
+          from: `B${idx + 1}`,
+          to: `B${idx + 2}`,
+          distance: 50,
+          bearing: 90,
+        })),
+        extractedLabels: (data.labels || []).map(l => ({
+          text: l.text || '',
+          type: l.type || 'annotation',
+          confidence: l.confidence || 0,
+        })),
       });
-    }, 300);
+      setProgress(100);
+    } catch (err) {
+      setError(err.message || 'Digitization failed');
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const handleExport = (format) => {
-    // Placeholder for export functionality
     console.log(`Exporting as ${format}`);
   };
 
@@ -283,6 +287,9 @@ const DigitizePage = () => {
             </Button>
             {processing && (
               <LinearProgress variant="determinate" value={progress} sx={{ mt: 2, height: 6, borderRadius: 3 }} />
+            )}
+            {error && (
+              <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>
             )}
           </Grid>
 
