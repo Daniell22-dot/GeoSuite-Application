@@ -39,9 +39,9 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized access
+      // Handle unauthorized access (no /login route exists; land on home)
       localStorage.removeItem('auth_token');
-      window.location.href = '/login';
+      window.location.href = '/home';
     }
     return Promise.reject(error);
   }

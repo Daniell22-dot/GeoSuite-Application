@@ -40,10 +40,10 @@ api.interceptors.response.use(
       
       switch (status) {
         case 401:
-          // Unauthorized - clear token and redirect to login
+          // Unauthorized - clear token and redirect to home (no /login route exists)
           localStorage.removeItem('auth_token');
           localStorage.removeItem('user');
-          window.location.href = '/login';
+          window.location.href = '/home';
           break;
           
         case 403:

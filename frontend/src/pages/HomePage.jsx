@@ -11,7 +11,6 @@ import {
   CardMedia,
   Stack,
   useTheme,
-  Alpha,
 } from '@mui/material';
 import {
   Map as MapIcon,
