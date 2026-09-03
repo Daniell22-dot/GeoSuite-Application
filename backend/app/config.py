@@ -111,6 +111,10 @@ class Settings(BaseSettings):
     ODM_PATH: Optional[str] = os.getenv("ODM_PATH", "run.py")
     ODM_DOCKER: bool = os.getenv("ODM_DOCKER", "false").lower() in ("true", "1", "yes")
     DRONE_MAX_IMAGES: int = int(os.getenv("DRONE_MAX_IMAGES", "500"))
+
+    # Terminal
+    TERMINAL_SHELL: str = os.getenv("TERMINAL_SHELL", "/bin/bash")
+    TERMINAL_AUTH_REQUIRED: bool = os.getenv("TERMINAL_AUTH_REQUIRED", "true").lower() in ("true", "1", "yes")
     
     class Config:
         env_file = ".env"

@@ -11,7 +11,10 @@ const TerminalPage = () => {
   useEffect(() => {
     const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:8000';
     const wsPath = config?.terminalWsPath || '/api/v1/terminal/ws';
-    setSocketUrl(apiBase.replace(/^http/, 'ws') + wsPath);
+    const token = localStorage.getItem('auth_token');
+    const url = new URL(apiBase.replace(/^http/, 'ws') + wsPath);
+    if (token) url.searchParams.set('token', token);
+    setSocketUrl(url.toString());
   }, [config]);
 
   return (
