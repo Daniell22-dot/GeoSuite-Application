@@ -1,6 +1,21 @@
 import os
 import sys
 
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+
+from app.routes import gps_routes, marine_routes, watershed_routes, file_routes, terminal_routes, weather_routes
+from app.routes import auth_routes, export_routes, monitoring_routes, task_routes, drone_routes, transform_routes
+from app.routes import cv_routes, annotate_routes, config_routes
+from app.config import settings
+from app.models.geospatial import init_db
+
+load_dotenv()
+
 # R integration — only set if R_HOME not already configured
 if 'R_HOME' not in os.environ:
     r_home_candidates = []
@@ -23,21 +38,6 @@ if 'R_HOME' not in os.environ:
                     except Exception:
                         pass
             break
-
-from fastapi import FastAPI, Depends, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.staticfiles import StaticFiles
-from contextlib import asynccontextmanager
-from dotenv import load_dotenv
-
-from app.routes import gps_routes, marine_routes, watershed_routes, file_routes, terminal_routes, weather_routes
-from app.routes import auth_routes, export_routes, monitoring_routes, task_routes, drone_routes, transform_routes
-from app.routes import cv_routes, annotate_routes, config_routes
-from app.config import settings
-from app.models.geospatial import init_db
-
-load_dotenv()
 
 if os.name == 'nt':
     conda_bin = os.path.join(os.environ.get('CONDA_PREFIX', ''), 'Library', 'bin')

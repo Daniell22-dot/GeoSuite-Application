@@ -40,14 +40,14 @@ class TransformRequest(BaseModel):
     easting: float
     northing: float
     direction: str = "cassini_to_utm"
-    zone: str = "zone_ii"
+    zone: str = "zone_3"
     method: str = "geodetic"
 
 
 class BulkTransformRequest(BaseModel):
     coordinates: List[List[float]]
     direction: str = "cassini_to_utm"
-    zone: str = "zone_ii"
+    zone: str = "zone_3"
     method: str = "geodetic"
 
 
