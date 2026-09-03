@@ -63,7 +63,7 @@ async def upload_marine_chart(
         
         # Process chart file
         if file_ext in ['.kap', '.bsb']:
-            result = marine_service.process_kap_file(temp_path)
+            result = marine_service.process_kap_file(temp_path, chart_id=str(chart_id))
         elif file_ext in ['.dwg', '.dxf']:
             result = marine_service.process_cad_file(temp_path)
         else:
@@ -122,7 +122,7 @@ async def upload_marine_chart(
 
 @router.post("/process-kap")
 async def process_kap_file(
-    file_path: str,
+    file: UploadFile = File(...),
     token: str = Depends(auth_service.oauth2_scheme),
     db: Session = Depends(get_db)
 ):
@@ -133,19 +133,30 @@ async def process_kap_file(
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    # Check if file exists
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="File not found")
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+    
+    file_ext = os.path.splitext(file.filename)[1].lower()
+    if file_ext not in ('.kap', '.bsb'):
+        raise HTTPException(status_code=400, detail="Expected KAP/BSB file")
     
     try:
-        result = marine_service.process_kap_file(file_path)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as temp_file:
+            content = await file.read()
+            temp_file.write(content)
+            temp_path = temp_file.name
+        
+        result = marine_service.process_kap_file(temp_path)
+        os.unlink(temp_path)
         return result
     except Exception as e:
+        if 'temp_path' in locals() and os.path.exists(temp_path):
+            os.unlink(temp_path)
         raise HTTPException(status_code=500, detail=f"KAP processing failed: {str(e)}")
 
 @router.post("/process-cad")
 async def process_cad_file(
-    file_path: str,
+    file: UploadFile = File(...),
     token: str = Depends(auth_service.oauth2_scheme),
     db: Session = Depends(get_db)
 ):
@@ -156,14 +167,25 @@ async def process_cad_file(
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    # Check if file exists
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="File not found")
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file provided")
+    
+    file_ext = os.path.splitext(file.filename)[1].lower()
+    if file_ext not in ('.dwg', '.dxf'):
+        raise HTTPException(status_code=400, detail="Expected DWG/DXF file")
     
     try:
-        result = marine_service.process_cad_file(file_path)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as temp_file:
+            content = await file.read()
+            temp_file.write(content)
+            temp_path = temp_file.name
+        
+        result = marine_service.process_cad_file(temp_path)
+        os.unlink(temp_path)
         return result
     except Exception as e:
+        if 'temp_path' in locals() and os.path.exists(temp_path):
+            os.unlink(temp_path)
         raise HTTPException(status_code=500, detail=f"CAD processing failed: {str(e)}")
 
 @router.post("/merge")
