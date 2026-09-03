@@ -101,10 +101,10 @@ def _mock_digitize(filename: str, coordinate_system: str, zone: str) -> dict:
     }
 
 
-def _mock_result(base: dict, filename: str) -> dict:
+def _mock_result(base: dict, filename: str, note: str = "Mock result - CV engine unavailable") -> dict:
     base["filename"] = filename
     base.setdefault("processing_time_ms", 0)
-    base.setdefault("note", "Mock result - CV engine unavailable")
+    base.setdefault("note", note)
     return base
 
 
@@ -132,7 +132,9 @@ async def digitize_survey_plan(
         result = _mock_digitize(file.filename, coordinate_system, zone)
     else:
         result = pipeline.digitize_survey_plan(image)
-        result = _mock_result(result, file.filename)
+        result["filename"] = file.filename
+        result.setdefault("processing_time_ms", 0)
+        result.setdefault("note", "Real CV result")
         result["coordinate_system"] = coordinate_system
         result["zone"] = zone
 
@@ -175,7 +177,8 @@ async def extract_features(
         result = {"features": [], "total": 0, "note": "CV engine unavailable"}
     else:
         result = pipeline.extract_features(image)
-        result = _mock_result(result, file.filename)
+        result["filename"] = file.filename
+        result.setdefault("note", "Real CV result")
     return JSONResponse(content=result)
 
 
@@ -204,8 +207,9 @@ async def detect_changes(
         result = {"changes": [], "total_changes": 0, "note": "CV engine unavailable"}
     else:
         result = pipeline.detect_changes(img_before, img_after)
-        result = _mock_result(result, file_before.filename)
+        result["filename"] = file_before.filename
         result["filename_after"] = file_after.filename
+        result.setdefault("note", "Real CV result")
     return JSONResponse(content=result)
 
 
@@ -262,7 +266,8 @@ async def extract_soundings(file: UploadFile = File(...), token: str = Depends(a
         result = {"soundings": [], "total": 0, "note": "CV engine unavailable"}
     else:
         result = pipeline.extract_depth_soundings(image)
-        result = _mock_result(result, file.filename)
+        result["filename"] = file.filename
+        result.setdefault("note", "Real CV result")
     return JSONResponse(content=result)
 
 
@@ -283,7 +288,8 @@ async def classify_land_use(file: UploadFile = File(...), token: str = Depends(a
         result = {"classes": {}, "dominant_class": "unknown", "note": "CV engine unavailable"}
     else:
         result = pipeline.classify_land_use(image)
-        result = _mock_result(result, file.filename)
+        result["filename"] = file.filename
+        result.setdefault("note", "Real CV result")
     return JSONResponse(content=result)
 
 
@@ -333,7 +339,8 @@ async def fast_digitize(file: UploadFile = File(...), token: str = Depends(auth_
         }
     else:
         result = pipeline.fast_digitize(image)
-        result = _mock_result(result, file.filename)
+        result["filename"] = file.filename
+        result.setdefault("note", "Real CV result")
     return JSONResponse(content=result)
 
 

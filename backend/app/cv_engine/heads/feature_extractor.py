@@ -51,8 +51,6 @@ class FeatureDecoder:
         d_up, d_w1, d_b1 = conv2d_backward(dout, self._upsampled, self.up_w, self.up_b, 1, 1)
         self.grad_w1 = d_w1
         self.grad_b1 = d_b1
-        self.grad_w2 = d_w2
-        self.grad_b2 = d_b2
         d_upsampled = upsample_2x_backward(d_up, self._input_shape[2], self._input_shape[3])
         return d_upsampled, d_skip
 

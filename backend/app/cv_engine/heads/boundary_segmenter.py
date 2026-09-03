@@ -48,7 +48,6 @@ class DecoderBlock:
             d_in_concat = np.pad(d_in_concat, ((0,0),(0,0),(0,pad_h),(0,pad_w)), mode='constant')
         dout1 = relu_backward(d_in_concat, self._conv1_out_pre_relu)
         d_up, d_w1, d_b1 = conv2d_backward(dout1, self._upsampled, self.up_w, self.up_b, 1, 1)
-        d_up, d_w1, d_b1 = conv2d_backward(dout1, self._upsampled, self.up_w, self.up_b, 1, 1)
         self.grad_w1 = d_w1
         self.grad_b1 = d_b1
         self.grad_w2 = d_w2
