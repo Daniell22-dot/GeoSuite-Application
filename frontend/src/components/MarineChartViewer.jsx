@@ -28,19 +28,23 @@ import {
   Settings,
 } from '@mui/icons-material';
 import { useMarine } from '../services/ApiContext';
+import { useAppConfig } from '../services/gisUtils';
 
-// Custom icons
-const harborIcon = new L.Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
+const createSvgIcon = (color, size = 30) => {
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="${color}" stroke="white" stroke-width="2"/>
+            <circle cx="12" cy="12" r="4" fill="white"/>
+          </svg>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2],
+  });
+};
 
-const buoyIcon = new L.Icon({
-  iconUrl: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
-  iconSize: [30, 30],
-  iconAnchor: [15, 30],
-});
+const harborIcon = createSvgIcon('#ff9800', 28);
+const buoyIcon = createSvgIcon('#2196f3', 24);
 
 const MarineChartViewer = ({ chartData, onChartLoad }) => {
   const [map, setMap] = useState(null);
@@ -59,6 +63,10 @@ const MarineChartViewer = ({ chartData, onChartLoad }) => {
   });
   const mapRef = useRef();
   const { processMarineFile } = useMarine();
+  const { config } = useAppConfig();
+  const apiLayers = config?.mapLayers || [];
+  const baseLayers = apiLayers.filter(l => l.isBase);
+  const overlayLayers = apiLayers.filter(l => !l.isBase);
 
   // Initialize map
   useEffect(() => {

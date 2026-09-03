@@ -43,7 +43,7 @@ const Dashboard = () => {
   const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  const { monitoring } = useApi();
+  const { monitoring, request } = useApi();
 
   useEffect(() => {
     fetchDashboardData();
@@ -52,21 +52,23 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const health = await monitoring.getHealth();
+      const [health, statsData] = await Promise.all([
+        monitoring.getHealth(),
+        request('get', '/api/v1/monitoring/stats').catch(() => null),
+      ]);
       
+      const counts = statsData?.counts || {};
       setStats({
-        totalFiles: 124,
-        totalAnalyses: 47,
-        storageUsed: 2.4, // GB
-        activeUsers: 8,
+        totalFiles: counts.gps_tracks + counts.marine_charts + counts.drone_surveys || 0,
+        totalAnalyses: counts.watershed_analyses || 0,
+        storageUsed: 0,
+        activeUsers: counts.users || 0,
         systemHealth: health.status,
       });
       
       setRecentActivities([
-        { id: 1, user: 'Admin', action: 'uploaded GPS track', time: '2 hours ago', type: 'gps' },
-        { id: 2, user: 'Geospatial Lab', action: 'completed watershed analysis', time: '4 hours ago', type: 'watershed' },
-        { id: 3, user: 'System', action: 'processed marine chart', time: '1 day ago', type: 'marine' },
-        { id: 4, user: 'External API', action: 'updated elevation cache', time: '2 days ago', type: 'system' },
+        { id: 1, user: 'System', action: 'Application started', time: 'Just now', type: 'system' },
+        { id: 2, user: 'Health', action: `Status: ${health.status}`, time: 'Just now', type: 'system' },
       ]);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);

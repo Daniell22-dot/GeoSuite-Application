@@ -129,14 +129,23 @@ export const ApiProvider = ({ children }) => {
     // Single coordinate transform
     transformSingle: async (easting, northing, direction, zone, method) => {
       return apiRequest('post', '/api/v1/transform/single', {
-        easting, northing, direction, zone, method,
+        easting,
+        northing,
+        direction,
+        cassini_zone: zone,
+        utm_zone: 37,
+        method,
       });
     },
 
     // Bulk coordinate transform
     transformBulk: async (coordinates, direction, zone, method) => {
       return apiRequest('post', '/api/v1/transform/bulk', {
-        coordinates, direction, zone, method,
+        coordinates,
+        direction,
+        cassini_zone: zone,
+        utm_zone: 37,
+        method,
       });
     },
 

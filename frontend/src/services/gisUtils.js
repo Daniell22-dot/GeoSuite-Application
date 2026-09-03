@@ -2,6 +2,8 @@
  * GIS utility functions for coordinate transformations,
  * distance calculations, and geometric operations.
  */
+import React, { useContext } from 'react';
+import { ApiContext } from './ApiContext';
 
 /**
  * Fetch application configuration from the API.
@@ -18,6 +20,32 @@ export const fetchAppConfig = async (apiClient) => {
     console.error('Failed to fetch app config:', err);
     return null;
   }
+};
+
+/**
+ * React hook for accessing application configuration.
+ * Use inside ApiProvider.
+ */
+import { useContext } from 'react';
+import { ApiContext } from './ApiContext';
+
+export const useAppConfig = () => {
+  const { request } = useContext(ApiContext);
+  const [config, setConfig] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchAppConfig(request).then((data) => {
+      if (!cancelled) {
+        setConfig(data);
+        setLoading(false);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [request]);
+
+  return { config, loading, refresh: () => fetchAppConfig(request).then(setConfig) };
 };
 
 /**

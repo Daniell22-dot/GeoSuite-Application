@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Grid,
@@ -25,6 +25,9 @@ import {
   Divider,
   CircularProgress,
   Snackbar,
+  Select,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import {
   Transform as TransformIcon,
@@ -37,84 +40,91 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 
-const KENYA_ZONES = [
-  { value: 'zone_i', label: 'Zone I — Malindi (37°E)', lon: 37 },
-  { value: 'zone_ii', label: 'Zone II — Nairobi (38°E)', lon: 38 },
-  { value: 'zone_iii', label: 'Zone III — Nakuru (36°E)', lon: 36 },
-  { value: 'zone_iv', label: 'Zone IV — Kisumu (35°E)', lon: 35 },
-  { value: 'nairobi_local', label: 'Nairobi Local (36.8°E)', lon: 36.8 },
-];
+import { useTransform, useApi } from '../services/ApiContext';
 
 const TransformPage = () => {
+  const [zones, setZones] = useState([]);
+  const [methods, setMethods] = useState(['geodetic', 'polynomial', 'helmert']);
   const [tab, setTab] = useState(0);
   const [direction, setDirection] = useState('cassini_to_utm');
-  const [zone, setZone] = useState('zone_ii');
+  const [zone, setZone] = useState('zone_3');
   const [method, setMethod] = useState('geodetic');
   const [loading, setLoading] = useState(false);
-
-  // Single coordinate mode
-  const [singleInput, setSingleInput] = useState({ easting: '', northing: '' });
-  const [singleResult, setSingleResult] = useState(null);
-
-  // Bulk coordinate mode
-  const [bulkInput, setBulkInput] = useState('');
-  const [bulkResults, setBulkResults] = useState([]);
-
-  // Excel upload mode
-  const [excelFile, setExcelFile] = useState(null);
-  const [excelResults, setExcelResults] = useState([]);
-
   const [snackbar, setSnackbar] = useState({ open: false, message: '' });
 
-  const handleSingleTransform = () => {
-    if (!singleInput.easting || !singleInput.northing) return;
-    setLoading(true);
-    setTimeout(() => {
-      const e = parseFloat(singleInput.easting);
-      const n = parseFloat(singleInput.northing);
-      const offset = KENYA_ZONES.find(z => z.value === zone)?.lon || 38;
-      const utmE = e * 1.0004 + (offset - 37) * 100000;
-      const utmN = n * 1.0003 + 1200;
-      setSingleResult({
-        input: { easting: e, northing: n },
-        output: { easting: parseFloat(utmE.toFixed(3)), northing: parseFloat(utmN.toFixed(3)) },
-        zone: `37S`,
-        method,
-      });
-      setLoading(false);
-    }, 800);
+  const { transformSingle, transformBulk, detectZone } = useTransform();
+  const { request } = useApi();
+
+  useEffect(() => {
+    loadConfig();
+  }, []);
+
+  const loadConfig = async () => {
+    try {
+      const data = await request('get', '/api/v1/config');
+      if (data) {
+        setZones(data.transformZones || []);
+        setMethods(data.transformMethods || ['geodetic', 'polynomial', 'helmert']);
+      }
+    } catch (err) {
+      console.error('Failed to load transform config:', err);
+    }
   };
 
-  const handleBulkTransform = () => {
+  const handleSingleTransform = async () => {
+    const e = parseFloat(singleInput.easting);
+    const n = parseFloat(singleInput.northing);
+    if (!e || !n) return;
+    setLoading(true);
+    try {
+      const result = await transformSingle(e, n, direction, zone, method);
+      setSingleResult({
+        input: { easting: e, northing: n },
+        output: { easting: result.output.easting, northing: result.output.northing },
+        zone: result.geographic ? `Zone based on lat ${result.geographic.latitude?.toFixed(4)}` : zone,
+        method: result.method,
+      });
+    } catch (err) {
+      setSnackbar({ open: true, message: err.message || 'Transform failed' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBulkTransform = async () => {
     if (!bulkInput.trim()) return;
     setLoading(true);
-    setTimeout(() => {
+    try {
       const lines = bulkInput.trim().split('\n');
-      const results = lines.map((line, idx) => {
+      const coordinates = lines.map(line => {
         const parts = line.split(/[,\t]+/).map(s => s.trim());
-        if (parts.length < 2) return null;
-        const e = parseFloat(parts[0]);
-        const n = parseFloat(parts[1]);
-        if (isNaN(e) || isNaN(n)) return null;
-        const offset = KENYA_ZONES.find(z => z.value === zone)?.lon || 38;
-        const utmE = e * 1.0004 + (offset - 37) * 100000;
-        const utmN = n * 1.0003 + 1200;
-        return {
-          id: idx + 1,
-          inputE: e,
-          inputN: n,
-          outputE: parseFloat(utmE.toFixed(3)),
-          outputN: parseFloat(utmN.toFixed(3)),
-        };
-      }).filter(Boolean);
-      setBulkResults(results);
+        return { easting: parseFloat(parts[0]), northing: parseFloat(parts[1]) };
+      }).filter(c => !isNaN(c.easting) && !isNaN(c.northing));
+
+      const result = await transformBulk(coordinates, direction, zone, method);
+      setBulkResults((result.results || []).map((r, idx) => ({
+        id: idx + 1,
+        inputE: r.input.easting,
+        inputN: r.input.northing,
+        outputE: r.output.easting,
+        outputN: r.output.northing,
+      })));
+    } catch (err) {
+      setSnackbar({ open: true, message: err.message || 'Bulk transform failed' });
+    } finally {
       setLoading(false);
-    }, 1200);
+    }
   };
 
   const handleCopyResult = (text) => {
     navigator.clipboard.writeText(text);
     setSnackbar({ open: true, message: 'Copied to clipboard' });
+  };
+
+  const methodDescription = {
+    geodetic: 'Full geodetic computation through Clarke 1880 ellipsoid. Most accurate.',
+    polynomial: 'Uses survey polynomial formulae from Excel coefficient files.',
+    helmert: '7-parameter similarity transformation. Good for localized areas.',
   };
 
   return (
@@ -155,38 +165,36 @@ const TransformPage = () => {
               <CardContent>
                 <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>Settings</Typography>
 
-                <TextField
-                  select
-                  fullWidth
-                  label="Cassini Zone"
-                  value={zone}
-                  onChange={(e) => setZone(e.target.value)}
-                  sx={{ mb: 2 }}
-                >
-                  {KENYA_ZONES.map(z => (
-                    <MenuItem key={z.value} value={z.value}>{z.label}</MenuItem>
-                  ))}
-                </TextField>
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel>Cassini Zone</InputLabel>
+                  <Select
+                    value={zone}
+                    label="Cassini Zone"
+                    onChange={(e) => setZone(e.target.value)}
+                  >
+                    {zones.map(z => (
+                      <MenuItem key={z.value} value={z.value}>{z.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
 
-                <TextField
-                  select
-                  fullWidth
-                  label="Method"
-                  value={method}
-                  onChange={(e) => setMethod(e.target.value)}
-                  sx={{ mb: 3 }}
-                >
-                  <MenuItem value="geodetic">Geodetic Chain (pyproj)</MenuItem>
-                  <MenuItem value="polynomial">Polynomial / Affine</MenuItem>
-                  <MenuItem value="helmert">Helmert 7-Parameter</MenuItem>
-                </TextField>
+                <FormControl fullWidth sx={{ mb: 3 }}>
+                  <InputLabel>Method</InputLabel>
+                  <Select
+                    value={method}
+                    label="Method"
+                    onChange={(e) => setMethod(e.target.value)}
+                  >
+                    {methods.map(m => (
+                      <MenuItem key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
 
                 <Divider sx={{ my: 2 }} />
 
                 <Alert severity="info" sx={{ fontSize: '0.8rem' }}>
-                  {method === 'geodetic' && 'Full geodetic computation through Clarke 1880 ellipsoid. Most accurate.'}
-                  {method === 'polynomial' && 'Uses survey polynomial formulae from Excel coefficient files.'}
-                  {method === 'helmert' && '7-parameter similarity transformation. Good for localized areas.'}
+                  {methodDescription[method] || 'Select a transformation method.'}
                 </Alert>
 
                 <Box sx={{ mt: 3, p: 2, bgcolor: 'rgba(255,255,255,0.03)', borderRadius: 2 }}>

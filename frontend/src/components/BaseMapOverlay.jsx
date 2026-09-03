@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TileLayer, LayersControl } from 'react-leaflet';
 import { Box, Typography, Switch, FormControlLabel, Slider, Chip } from '@mui/material';
+import { useAppConfig } from '../services/gisUtils';
 
 const { BaseLayer, Overlay } = LayersControl;
 
@@ -12,6 +13,11 @@ const BaseMapOverlay = ({ onLayerChange }) => {
     satellite: false,
   });
   const [opacity, setOpacity] = useState(0.7);
+  const { config } = useAppConfig();
+
+  const apiLayers = config?.mapLayers || [];
+  const baseLayers = apiLayers.filter(l => l.isBase);
+  const overlayLayers = apiLayers.filter(l => !l.isBase);
 
   const handleOverlayToggle = (layer) => {
     const newOverlays = { ...overlays, [layer]: !overlays[layer] };
@@ -23,13 +29,6 @@ const BaseMapOverlay = ({ onLayerChange }) => {
     setOpacity(newValue / 100);
     if (onLayerChange) onLayerChange({ ...overlays, opacity: newValue / 100 });
   };
-
-  const baseLayers = [
-    { name: 'Carto Dark', url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png' },
-    { name: 'Topo', url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png' },
-    { name: 'Satellite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' },
-    { name: 'Street', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png' },
-  ];
 
   return (
     <Box className="glass-panel" sx={{ p: 2 }}>
@@ -45,7 +44,7 @@ const BaseMapOverlay = ({ onLayerChange }) => {
               key={layer.name}
               label={layer.name}
               size="small"
-              onClick={() => console.log(`Switch to ${layer.name}`)}
+              onClick={() => {}}
               variant="outlined"
               sx={{ borderColor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' } }}
             />
@@ -56,17 +55,17 @@ const BaseMapOverlay = ({ onLayerChange }) => {
       <Box sx={{ mb: 2.5 }}>
         <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 1 }}>Overlays</Typography>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          {['Terrain', 'Hillshade', 'Satellite'].map((name) => (
+          {overlayLayers.map((name) => (
             <FormControlLabel
-              key={name}
+              key={name.name}
               control={
                 <Switch
-                  checked={overlays[name.toLowerCase()]}
-                  onChange={() => handleOverlayToggle(name.toLowerCase())}
+                  checked={overlays[name.name.toLowerCase()] || false}
+                  onChange={() => handleOverlayToggle(name.name.toLowerCase())}
                   size="small"
                 />
               }
-              label={<Typography variant="body2">{name}</Typography>}
+              label={<Typography variant="body2">{name.name}</Typography>}
             />
           ))}
         </Box>
@@ -88,49 +87,32 @@ const BaseMapOverlay = ({ onLayerChange }) => {
   );
 };
 
-export const MapLayers = ({ overlays = {}, opacity = 0.5 }) => {
+export const MapLayers = ({ overlays = {}, opacity = 0.5, layers: propLayers }) => {
+  const { config } = useAppConfig();
+  const apiLayers = propLayers || config?.mapLayers || [];
+  const baseLayers = apiLayers.filter(l => l.isBase);
+  const overlayLayers = apiLayers.filter(l => !l.isBase);
+
   return (
     <LayersControl position="topright">
-      <BaseLayer checked name="Dark Matter">
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-        />
-      </BaseLayer>
-
-      <BaseLayer name="World Imagery">
-        <TileLayer
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-          attribution='&copy; Esri'
-        />
-      </BaseLayer>
-
-      <BaseLayer name="OpenTopoMap">
-        <TileLayer
-          url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-          attribution='&copy; OpenTopoMap contributors'
-        />
-      </BaseLayer>
-
-      {overlays.hillshade && (
-        <Overlay checked name="Hillshade">
+      {baseLayers.map((layer, idx) => (
+        <BaseLayer key={layer.name} checked={idx === 0} name={layer.name}>
           <TileLayer
-            url="https://server.arcgisonline.com/ArcGIS/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}"
-            attribution='&copy; Esri'
+            url={layer.url}
+            attribution={layer.attribution}
+          />
+        </BaseLayer>
+      ))}
+
+      {overlayLayers.map((layer) => (
+        <Overlay key={layer.name} checked={overlays[layer.name.toLowerCase()]} name={layer.name}>
+          <TileLayer
+            url={layer.url}
+            attribution={layer.attribution}
             opacity={opacity}
           />
         </Overlay>
-      )}
-
-      {overlays.terrain && (
-        <Overlay name="Terrain">
-          <TileLayer
-            url="https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png"
-            attribution='&copy; Stamen Design'
-            opacity={opacity}
-          />
-        </Overlay>
-      )}
+      ))}
     </LayersControl>
   );
 };
