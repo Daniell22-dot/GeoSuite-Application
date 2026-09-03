@@ -61,10 +61,20 @@ const TransformPage = () => {
 
   const loadConfig = async () => {
     try {
-      const data = await request('get', '/api/v1/config');
-      if (data) {
-        setZones(data.transformZones || []);
-        setMethods(data.transformMethods || ['geodetic', 'polynomial', 'helmert']);
+      const [zonesData, configData] = await Promise.all([
+        request('get', '/api/v1/transform/zones').catch(() => null),
+        request('get', '/api/v1/config').catch(() => null),
+      ]);
+      if (zonesData?.cassini_zones) {
+        const zoneList = Object.entries(zonesData.cassini_zones).map(([key, val]) => ({
+          value: key,
+          label: `${val.name} (${val.central_meridian}°E)`,
+          description: val.description,
+        }));
+        setZones(zoneList);
+      }
+      if (zonesData?.methods) {
+        setMethods(zonesData.methods);
       }
     } catch (err) {
       console.error('Failed to load transform config:', err);

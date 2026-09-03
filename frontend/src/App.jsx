@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -19,11 +19,100 @@ import TransformPage from './pages/TransformPage';
 import DigitizePage from './pages/DigitizePage';
 
 // Services
-import { ApiProvider, useApi } from './services/ApiContext';
+import { ApiProvider } from './services/ApiContext';
 import { useAppConfig } from './services/gisUtils';
 
 // Icons
 import { Terrain as TerrainIcon } from '@mui/icons-material';
+
+const theme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#0a84ff',
+      light: '#409fff',
+      dark: '#0060df',
+    },
+    secondary: {
+      main: '#5e5ce6',
+      light: '#7d7aff',
+      dark: '#4845d2',
+    },
+    background: {
+      default: '#0f172a',
+      paper: 'rgba(30, 41, 59, 0.7)',
+    },
+    divider: 'rgba(255, 255, 255, 0.08)',
+    text: {
+      primary: '#f8fafc',
+      secondary: '#94a3b8',
+    },
+  },
+  typography: {
+    fontFamily: '"Inter", "Outfit", "Roboto", sans-serif',
+    h1: { fontWeight: 700, fontFamily: 'Outfit' },
+    h2: { fontWeight: 700, fontFamily: 'Outfit' },
+    h3: { fontWeight: 700, fontFamily: 'Outfit' },
+    h4: { fontWeight: 600, fontFamily: 'Outfit' },
+    h5: { fontWeight: 600, fontFamily: 'Outfit' },
+    h6: { fontWeight: 600, fontFamily: 'Outfit' },
+    button: { textTransform: 'none', fontWeight: 500 },
+  },
+  shape: {
+    borderRadius: 12,
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          scrollbarColor: "rgba(255,255,255,0.1) transparent",
+          "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
+            width: 8,
+          },
+          "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
+            borderRadius: 8,
+            backgroundColor: "rgba(255,255,255,0.1)",
+          },
+          "&::-webkit-scrollbar-thumb:focus, & *::-webkit-scrollbar-thumb:focus": {
+            backgroundColor: "rgba(255,255,255,0.2)",
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          boxShadow: 'none',
+          '&:hover': { boxShadow: '0 4px 12px rgba(10, 132, 255, 0.3)' },
+        },
+        containedPrimary: {
+          background: 'linear-gradient(135deg, #0a84ff 0%, #0060df 100%)',
+        }
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+          backgroundColor: 'rgba(30, 41, 59, 0.7)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 16,
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          background: 'rgba(255, 255, 255, 0.03)',
+        },
+      },
+    },
+  },
+});
 
 const AppInner = () => {
   const [activeView, setActiveView] = useState('home');

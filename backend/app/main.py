@@ -2,17 +2,27 @@ import os
 import sys
 
 # R integration — only set if R_HOME not already configured
-if 'R_HOME' not in os.environ and settings.R_HOME:
-    if os.path.exists(settings.R_HOME):
-        os.environ['R_HOME'] = settings.R_HOME
-        r_bin = os.path.join(settings.R_HOME, 'bin', 'x64' if os.name == 'nt' else '')
-        if os.path.exists(r_bin):
-            os.environ['PATH'] = r_bin + os.pathsep + os.environ.get('PATH', '')
-            if hasattr(os, 'add_dll_directory'):
-                try:
-                    os.add_dll_directory(r_bin)
-                except Exception:
-                    pass
+if 'R_HOME' not in os.environ:
+    r_home_candidates = []
+    if settings.R_HOME:
+        r_home_candidates.append(settings.R_HOME)
+    r_home_candidates.extend([
+        '/usr/lib/R',
+        '/usr/local/lib/R',
+        '/opt/R',
+    ])
+    for candidate in r_home_candidates:
+        if os.path.exists(candidate):
+            os.environ['R_HOME'] = candidate
+            r_bin = os.path.join(candidate, 'bin', 'x64' if os.name == 'nt' else '')
+            if os.path.exists(r_bin):
+                os.environ['PATH'] = r_bin + os.pathsep + os.environ.get('PATH', '')
+                if hasattr(os, 'add_dll_directory'):
+                    try:
+                        os.add_dll_directory(r_bin)
+                    except Exception:
+                        pass
+            break
 
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -55,9 +65,9 @@ async def lifespan(app: FastAPI):
     print(" Shutting down GeoSuite Backend...")
 
 app = FastAPI(
-    title="GeoSuite API",
+    title=f"{settings.APP_NAME} API",
     description="Complete Geospatial Processing Platform with GPS, Marine Charts, and Watershed Modeling",
-    version="2.0.0",
+    version=settings.APP_VERSION,
     lifespan=lifespan
 )
 

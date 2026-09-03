@@ -972,7 +972,7 @@ class ExportService:
         metadata = {
             'export_date': datetime.now().isoformat(),
             'source': 'GeoSuite',
-            'software_version': '2.0.0',
+            'software_version': settings.APP_VERSION,
             'data_summary': self._generate_data_summary(data)
         }
         
