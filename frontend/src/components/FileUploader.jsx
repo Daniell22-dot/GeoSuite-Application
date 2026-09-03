@@ -178,7 +178,7 @@ const FileUploader = ({ onFileProcessed, maxFiles = 10, acceptMultiple = true })
             : 'Select or drag files here'}
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          GPX, KML, GeoJSON, TIFF, HGT
+          GPX, KML, GeoJSON, CSV, TIFF, HGT, ASC
         </Typography>
       </Box>
 
