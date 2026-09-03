@@ -29,6 +29,7 @@ import {
 } from '@mui/icons-material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { useWatershed } from '../services/ApiContext';
+import { useAppConfig } from '../services/gisUtils';
 
 const WatershedTools = ({ demData, onAnalysisComplete }) => {
   const [map, setMap] = useState(null);
@@ -38,6 +39,8 @@ const WatershedTools = ({ demData, onAnalysisComplete }) => {
   const [threshold, setThreshold] = useState(1000);
   const [mapZoom, setMapZoom] = useState(2);
   const { delineateWatershed, extractStreams, calculateFlowPath } = useWatershed();
+  const { config } = useAppConfig();
+  const baseTile = (config?.mapLayers || []).find(l => l.name === 'Dark Matter')?.url || 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
 
   useEffect(() => {
     if (map) {
@@ -107,7 +110,7 @@ const WatershedTools = ({ demData, onAnalysisComplete }) => {
         {/* Map Workspace */}
         <Box sx={{ flex: 2, position: 'relative', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
           <MapContainer center={[0, 0]} zoom={mapZoom} style={{ height: '100%', width: '100%' }} whenCreated={setMap} zoomControl={false}>
-            <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png" attribution="&copy; CARTO" />
+            <TileLayer url={baseTile} attribution="&copy; CARTO" />
             {analysisState.results && (
               <>
                 {layers.watershed && analysisState.results.watershed?.boundary && (

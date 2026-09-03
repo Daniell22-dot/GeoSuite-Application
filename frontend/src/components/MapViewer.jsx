@@ -31,6 +31,7 @@ import {
 } from '@mui/icons-material';
 import { MapLayers } from './BaseMapOverlay';
 import { calculateDistance } from '../services/gisUtils';
+import { useAppConfig } from '../services/gisUtils';
 
 // Fix for Leaflet default icons
 delete L.Icon.Default.prototype._getIconUrl;
@@ -65,6 +66,7 @@ const MapViewer = ({
   const [map, setMap] = useState(null);
   const [selectedFeature, setSelectedFeature] = useState(null);
   const mapRef = useRef();
+  const { config } = useAppConfig();
 
   const calculateDataBounds = () => {
     const bounds = { north: -90, south: 90, east: -180, west: 180 };
@@ -155,7 +157,7 @@ const MapViewer = ({
         whenCreated={setMap}
         zoomControl={false}
       >
-        <MapLayers />
+        <MapLayers layers={config?.mapLayers} />
         <ScaleControl position="bottomleft" imperial={false} />
         <ZoomControl position="bottomright" />
         

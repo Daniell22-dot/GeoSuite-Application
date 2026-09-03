@@ -9,19 +9,23 @@ import {
   WaterDrop as DropIcon,
   LocationOn as LocationIcon
 } from '@mui/icons-material';
-import axios from 'axios';
+import { useAppConfig } from '../services/gisUtils';
 
-const WeatherWidget = ({ city = 'Nairobi,KE' }) => {
+const WeatherWidget = ({ city: cityProp }) => {
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const { config } = useAppConfig();
+  const city = cityProp || config?.weatherDefaultCity || 'Nairobi,KE';
+  const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-        const response = await axios.get(`${apiUrl}/api/v1/weather/current?q=${city}`);
-        setWeather(response.data);
+        const response = await fetch(`${apiBase}/api/v1/weather/current?q=${encodeURIComponent(city)}`);
+        if (!response.ok) throw new Error('Weather fetch failed');
+        const data = await response.json();
+        setWeather(data);
         setError(false);
       } catch (err) {
         console.error('Weather fetch error:', err);
@@ -32,10 +36,9 @@ const WeatherWidget = ({ city = 'Nairobi,KE' }) => {
     };
 
     fetchWeather();
-    // Refresh every 10 minutes
     const interval = setInterval(fetchWeather, 600000);
     return () => clearInterval(interval);
-  }, [city]);
+  }, [city, apiBase]);
 
   const getWeatherIcon = (id) => {
     if (id >= 200 && id < 300) return <BoltIcon sx={{ color: '#bf5af2' }} />;

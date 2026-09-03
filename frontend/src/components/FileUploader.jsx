@@ -26,6 +26,7 @@ import {
   Terrain as DemIcon,
 } from '@mui/icons-material';
 import { useApi } from '../services/ApiContext';
+import { useAppConfig } from '../services/gisUtils';
 
 const FileUploader = ({ onFileProcessed, maxFiles = 10, acceptMultiple = true }) => {
   const [files, setFiles] = useState([]);
@@ -33,6 +34,8 @@ const FileUploader = ({ onFileProcessed, maxFiles = 10, acceptMultiple = true })
   const [progress, setProgress] = useState({});
   const [error, setError] = useState(null);
   const { gps, marine, watershed } = useApi();
+  const { config } = useAppConfig();
+  const maxSize = (config?.maxUploadSizeMB || 100) * 1024 * 1024;
 
   const getFileIcon = (fileType) => {
     switch (fileType?.toLowerCase()) {

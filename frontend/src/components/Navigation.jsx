@@ -30,6 +30,7 @@ import {
   Architecture as ToolIcon,
 } from '@mui/icons-material';
 import WeatherWidget from './WeatherWidget';
+import { useAppConfig } from '../services/gisUtils';
 
 const drawerWidth = 260;
 
@@ -37,6 +38,7 @@ const Navigation = ({ activeView, setActiveView }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
+  const { config } = useAppConfig();
 
   const menuItems = [
     { text: 'Overview', icon: <HomeIcon />, path: '/home' },
@@ -86,7 +88,7 @@ const Navigation = ({ activeView, setActiveView }) => {
           <TerrainIcon />
         </Avatar>
         <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: -0.5, fontFamily: 'Outfit' }}>
-          GeoSuite
+          {config?.appName || 'GeoSuite'}
         </Typography>
       </Box>
 
