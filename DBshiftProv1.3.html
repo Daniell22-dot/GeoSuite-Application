@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBShift Pro | PostgreSQL Management & Migration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-main: #0a0c10;
+            --bg-card: #161b22;
+            --accent: #3fb950;
+            --border: #30363d;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: #c9d1d9;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .input-field {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            width: 100%;
+            transition: all 0.2s;
+            color: white;
+            font-size: 13px;
+        }
+
+        .input-field:focus {
+            border-color: #58a6ff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            color: #8b949e;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sidebar-item:hover, .sidebar-item.active {
+            background: #21262d;
+            color: white;
+        }
+
+        .sidebar-item.active {
+            box-shadow: inset 2px 0 0 #58a6ff;
+        }
+
+        .terminal {
+            background: #010409;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            height: 180px;
+            overflow-y: auto;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .btn-primary {
+            background: #238636;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover { background: #2ea043; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .data-grid th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            background: #0d1117;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #8b949e;
+        }
+
+        .data-grid td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <nav class="border-b border-gray-800 px-6 py-3 flex items-center justify-between bg-[#161b22] z-50">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-1.5 rounded-lg shadow-lg">
+                <i class="fas fa-database text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-white text-sm leading-tight">DBShift <span class="text-blue-400">Pro</span></h1>
+                <p class="text-[9px] text-gray-500 uppercase font-black tracking-widest">Management & Migration</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span class="text-[10px] font-bold text-emerald-500 uppercase">Engine Online</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 border-r border-gray-800 bg-[#0d1117] p-4 flex flex-col gap-1">
+            <div class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 px-4">Workspace</div>
+            <div onclick="switchView('migration')" id="nav-migration" class="sidebar-item active">
+                <i class="fas fa-rocket w-4"></i> Migration Engine
+            </div>
+            <div onclick="switchView('explorer')" id="nav-explorer" class="sidebar-item">
+                <i class="fas fa-folder-tree w-4"></i> Data Explorer
+            </div>
+            <div onclick="switchView('extensions')" id="nav-extensions" class="sidebar-item">
+                <i class="fas fa-puzzle-piece w-4"></i> Extension Store
+            </div>
+            <div onclick="switchView('hosting')" id="nav-hosting" class="sidebar-item">
+                <i class="fas fa-cloud w-4"></i> Instant Hosting
+            </div>
+            
+            <div class="mt-auto border-t border-gray-800 pt-4">
+                <div class="sidebar-item">
+                    <i class="fas fa-gear w-4"></i> Settings
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="flex-1 overflow-y-auto p-8 relative">
+            
+            <!-- VIEW: MIGRATION -->
+            <section id="view-migration" class="view-content">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Migration Engine</h2>
+                        <p class="text-gray-400 text-sm">Move workloads between PostgreSQL clusters.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Source -->
+                    <div class="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-upload text-orange-400"></i> Source Database
+                        </h3>
+                        <div class="space-y-3">
+                            <input type="text" id="src-name" class="input-field" placeholder="Database Name">
+                            <input type="password" id="src-pass" class="input-field" placeholder="Admin Password">
+                            <div class="flex gap-2">
+                                <input type="text" class="input-field flex-1" placeholder="Host (e.g. localhost)">
+                                <input type="text" class="input-field w-20" placeholder="5432">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Destination -->
+                    <div class="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-download text-emerald-400"></i> Destination Database
+                        </h3>
+                        <div class="space-y-3">
+                            <input type="text" id="dest-name" class="input-field" placeholder="Database Name">
+                            <input type="password" id="dest-pass" class="input-field" placeholder="Admin Password">
+                            <div class="flex gap-2">
+                                <input type="text" class="input-field flex-1" placeholder="Target Host">
+                                <input type="text" class="input-field w-20" placeholder="5432">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between bg-[#161b22] border border-[#30363d] rounded-xl p-4 mb-6">
+                    <button onclick="simulateAction('Testing Connections...', 'success')" class="text-xs font-bold text-blue-400 hover:underline px-4">Verify Handshake</button>
+                    <button onclick="startMigration()" class="btn-primary text-sm flex items-center gap-2">
+                        <i class="fas fa-play"></i> Start Pipeline
+                    </button>
+                </div>
+            </section>
+
+            <!-- VIEW: EXPLORER -->
+            <section id="view-explorer" class="view-content hidden">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Data Explorer</h2>
+                        <p class="text-gray-400 text-sm">Interactive table browsing and querying.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="bg-[#21262d] p-2 rounded-lg border border-gray-700 hover:text-white transition-colors"><i class="fas fa-rotate"></i></button>
+                        <button class="bg-blue-600 px-4 py-2 rounded-lg text-xs font-bold text-white hover:bg-blue-700">New Query</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-6">
+                    <div class="col-span-1 border border-gray-800 rounded-xl bg-[#0d1117] p-4 overflow-y-auto h-[400px]">
+                        <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Tables</h4>
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2 p-2 rounded hover:bg-gray-800 cursor-pointer text-sm text-gray-300">
+                                <i class="fas fa-table text-blue-400"></i> users_v2
+                            </div>
+                            <div class="flex items-center gap-2 p-2 rounded hover:bg-gray-800 cursor-pointer text-sm text-gray-300">
+                                <i class="fas fa-table text-blue-400"></i> transactions_log
+                            </div>
+                            <div class="flex items-center gap-2 p-2 rounded hover:bg-gray-800 cursor-pointer text-sm text-gray-300">
+                                <i class="fas fa-table text-blue-400"></i> analytics_snapshot
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-3 border border-gray-800 rounded-xl bg-[#161b22] overflow-hidden">
+                        <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#0d1117]">
+                            <span class="text-xs font-mono text-blue-400">SELECT * FROM public.users_v2 LIMIT 100</span>
+                            <span class="text-[10px] text-gray-500 uppercase font-bold">3 Rows Found</span>
+                        </div>
+                        <table class="w-full data-grid">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Created_At</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-300">
+                                <tr>
+                                    <td>1</td>
+                                    <td class="text-blue-400">admin_root</td>
+                                    <td>admin@system.io</td>
+                                    <td><span class="px-2 py-0.5 bg-red-500/10 text-red-500 rounded text-[10px] font-bold">SUPER</span></td>
+                                    <td class="text-gray-500">2024-01-01</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td class="text-blue-400">dev_lead</td>
+                                    <td>dev@system.io</td>
+                                    <td><span class="px-2 py-0.5 bg-blue-500/10 text-blue-500 rounded text-[10px] font-bold">ENGINEER</span></td>
+                                    <td class="text-gray-500">2024-01-02</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td class="text-blue-400">guest_user</td>
+                                    <td>test@guest.com</td>
+                                    <td><span class="px-2 py-0.5 bg-gray-500/10 text-gray-500 rounded text-[10px] font-bold">READ</span></td>
+                                    <td class="text-gray-500">2024-01-05</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: EXTENSIONS -->
+            <section id="view-extensions" class="view-content hidden">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-white">Extension Store</h2>
+                    <p class="text-gray-400 text-sm">Enhance your PostgreSQL capabilities with one click.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- PostGIS -->
+                    <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-6 hover:border-blue-500/50 transition-all flex flex-col group">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-4">
+                            <i class="fas fa-map-location-dot text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-1">PostGIS</h4>
+                        <p class="text-xs text-gray-500 mb-6 leading-relaxed">Spatial and Geographic objects for PostgreSQL. Support for location queries.</p>
+                        <button onclick="installExt('PostGIS')" class="mt-auto w-full py-2 bg-gray-800 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors">Install Extension</button>
+                    </div>
+                    <!-- Timescale -->
+                    <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-6 hover:border-blue-500/50 transition-all flex flex-col group">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-4">
+                            <i class="fas fa-clock text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-1">TimescaleDB</h4>
+                        <p class="text-xs text-gray-500 mb-6 leading-relaxed">Scalable time-series data handling. Perfect for metrics and monitoring.</p>
+                        <button onclick="installExt('TimescaleDB')" class="mt-auto w-full py-2 bg-gray-800 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors">Install Extension</button>
+                    </div>
+                    <!-- Citus -->
+                    <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-6 hover:border-blue-500/50 transition-all flex flex-col group">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 mb-4">
+                            <i class="fas fa-share-nodes text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-1">Citus</h4>
+                        <p class="text-xs text-gray-500 mb-6 leading-relaxed">Transforms Postgres into a distributed database across multiple nodes.</p>
+                        <button onclick="installExt('Citus')" class="mt-auto w-full py-2 bg-gray-800 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors">Install Extension</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: HOSTING -->
+            <section id="view-hosting" class="view-content hidden">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Instant Managed Hosting</h2>
+                        <p class="text-gray-400 text-sm">Deploy an isolated PostgreSQL cluster in seconds.</p>
+                    </div>
+                </div>
+
+                <div class="max-w-xl mx-auto text-center py-12 px-6 bg-[#161b22] border border-gray-800 rounded-3xl">
+                    <div class="w-20 h-20 rounded-3xl bg-blue-600 flex items-center justify-center text-white text-3xl mx-auto mb-6 shadow-2xl shadow-blue-500/20">
+                        <i class="fas fa-cloud-arrow-up"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">No Destination? No Problem.</h3>
+                    <p class="text-sm text-gray-500 mb-8">Deploy a high-performance instance on our infrastructure and migrate your local data there instantly.</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="p-4 bg-gray-900 rounded-2xl border border-gray-800 text-left">
+                            <div class="text-[10px] text-gray-500 font-bold uppercase mb-1">Micro Plan</div>
+                            <div class="text-white font-bold">$0.00 <span class="text-gray-600 text-[10px]">/hr</span></div>
+                            <div class="text-[9px] text-gray-400 mt-2">1 vCPU • 2GB RAM • 5GB Storage</div>
+                        </div>
+                        <div class="p-4 bg-blue-900/20 rounded-2xl border border-blue-500/30 text-left">
+                            <div class="text-[10px] text-blue-400 font-bold uppercase mb-1">Standard</div>
+                            <div class="text-white font-bold">$0.02 <span class="text-gray-600 text-[10px]">/hr</span></div>
+                            <div class="text-[9px] text-blue-300/60 mt-2">2 vCPU • 8GB RAM • 50GB Storage</div>
+                        </div>
+                    </div>
+
+                    <button onclick="simulateAction('Provisioning Postgres v16 instance...', 'process')" class="w-full btn-primary py-4 text-sm tracking-widest uppercase font-black">Provision Instance</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Global Console -->
+    <div class="h-44 bg-[#010409] border-t border-gray-800 p-4 shrink-0 flex flex-col">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+                <div class="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Active Operations Log</span>
+            </div>
+            <button onclick="document.getElementById('terminal').innerHTML = ''" class="text-[10px] text-gray-600 hover:text-white uppercase font-bold">Purge Log</button>
+        </div>
+        <div id="terminal" class="terminal custom-scrollbar mono">
+            <div class="text-gray-600"># System initialized at <span id="boot-time"></span></div>
+            <div class="text-blue-400"># READY: Select a workspace module to begin database lifecycle management.</div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('boot-time').innerText = new Date().toISOString();
+
+        function log(message, type = 'default') {
+            const term = document.getElementById('terminal');
+            const div = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString([], { hour12: false });
+            
+            let color = 'text-gray-500';
+            if (type === 'success') color = 'text-green-400';
+            if (type === 'error') color = 'text-red-400';
+            if (type === 'process') color = 'text-blue-300';
+            
+            div.className = `${color} mb-1`;
+            div.innerHTML = `<span class="opacity-30 text-white">[${timestamp}]</span> ${message}`;
+            term.appendChild(div);
+            term.scrollTop = term.scrollHeight;
+        }
+
+        function switchView(view) {
+            // Hide all
+            document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            
+            // Show selected
+            document.getElementById(`view-${view}`).classList.remove('hidden');
+            document.getElementById(`nav-${view}`).classList.add('active');
+            
+            log(`Switched to ${view.toUpperCase()} module.`);
+        }
+
+        async function startMigration() {
+            const src = document.getElementById('src-name').value;
+            const dest = document.getElementById('dest-name').value;
+            
+            if(!src || !dest) {
+                log("VALIDATION ERROR: Source or Destination DB names are required.", "error");
+                return;
+            }
+
+            log(`MIGRATION TASK INITIATED: [${src}] -> [${dest}]`, "process");
+            await sleep(1000);
+            log("Dumping Schema: Creating table definitions and sequences...");
+            await sleep(1500);
+            log("Piping Data: Binary stream opened (SSL Secured)...");
+            await sleep(1200);
+            log("Indexing: Re-calculating constraints and primary keys...");
+            await sleep(2000);
+            log(`MIGRATION COMPLETE. [${src}] is now live on destination cluster.`, "success");
+        }
+
+        async function installExt(name) {
+            log(`ACTION: Requesting CREATE EXTENSION "${name.toLowerCase()}";`, "process");
+            await sleep(1200);
+            log(`EXTENSION SUCCESS: "${name}" is now active in the search_path.`, "success");
+        }
+
+        function simulateAction(msg, type) {
+            log(msg, type);
+        }
+
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    </script>
+</body>
+</html>

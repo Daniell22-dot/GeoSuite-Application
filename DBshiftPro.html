@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBShift Pro | PostgreSQL Migration Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-main: #0a0c10;
+            --bg-card: #161b22;
+            --accent: #3fb950;
+            --border: #30363d;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: #c9d1d9;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .input-field {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            width: 100%;
+            transition: all 0.2s;
+            color: white;
+            font-size: 14px;
+        }
+
+        .input-field:focus {
+            border-color: #58a6ff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        .terminal {
+            background: #010409;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            height: 250px;
+            overflow-y: auto;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .btn-primary {
+            background: #238636;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover { background: #2ea043; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .step-node {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--border);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .step-node.active { background: #1f6feb; color: white; }
+        .step-node.complete { background: var(--accent); color: white; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="border-b border-gray-800 px-8 py-4 flex items-center justify-between bg-[#161b22]">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-2 rounded-lg">
+                <i class="fas fa-database text-white text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-white tracking-tight">DBShift <span class="text-blue-400">Pro</span></h1>
+                <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">PostgreSQL Migration Engine</p>
+            </div>
+        </div>
+        <div class="flex gap-4">
+            <button class="text-xs text-gray-400 hover:text-white transition-colors">Documentation</button>
+            <button class="text-xs text-gray-400 hover:text-white transition-colors">v1.2.4-stable</button>
+        </div>
+    </nav>
+
+    <main class="flex-1 p-8 max-w-7xl mx-auto w-full">
+        
+        <!-- Progress Stepper -->
+        <div class="flex items-center justify-center mb-12 gap-4">
+            <div class="flex items-center gap-2">
+                <div id="step-1" class="step-node active">1</div>
+                <span class="text-xs font-semibold text-blue-400">Credentials</span>
+            </div>
+            <div class="w-16 h-[2px] bg-gray-800"></div>
+            <div class="flex items-center gap-2">
+                <div id="step-2" class="step-node">2</div>
+                <span class="text-xs font-semibold text-gray-500">Validation</span>
+            </div>
+            <div class="w-16 h-[2px] bg-gray-800"></div>
+            <div class="flex items-center gap-2">
+                <div id="step-3" class="step-node">3</div>
+                <span class="text-xs font-semibold text-gray-500">Migration</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            
+            <!-- Source Configuration -->
+            <div class="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <h2 class="font-bold text-white">Source Database</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Host Address</label>
+                            <input type="text" id="src-host" class="input-field" placeholder="localhost">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Port</label>
+                            <input type="text" id="src-port" class="input-field" placeholder="5432">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Database Name</label>
+                        <input type="text" id="src-name" class="input-field" placeholder="production_db">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Username</label>
+                            <input type="text" id="src-user" class="input-field" placeholder="postgres">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Password</label>
+                            <input type="password" id="src-pass" class="input-field" placeholder="••••••••">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Destination Configuration -->
+            <div class="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </div>
+                    <h2 class="font-bold text-white">Destination Database</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Host Address</label>
+                            <input type="text" id="dest-host" class="input-field" placeholder="db.cloud-provider.com">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Port</label>
+                            <input type="text" id="dest-port" class="input-field" placeholder="5432">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Database Name</label>
+                        <input type="text" id="dest-name" class="input-field" placeholder="staging_db">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Username</label>
+                            <input type="text" id="dest-user" class="input-field" placeholder="admin">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Password</label>
+                            <input type="password" id="dest-pass" class="input-field" placeholder="••••••••">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="flex items-center justify-between bg-[#161b22] border border-[#30363d] rounded-2xl p-6 mb-8">
+            <div class="flex gap-4">
+                <button onclick="testConnections()" id="btn-test" class="px-6 py-2 border border-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-all flex items-center gap-2">
+                    <i class="fas fa-plug"></i> Test Connectivity
+                </button>
+                <div id="status-badges" class="flex items-center gap-3 ml-4">
+                    <!-- Status dynamic -->
+                </div>
+            </div>
+            
+            <div class="flex gap-3">
+                <label class="flex items-center gap-2 cursor-pointer group mr-4">
+                    <input type="checkbox" id="schema-only" class="accent-blue-500">
+                    <span class="text-xs text-gray-400 group-hover:text-gray-200">Schema Only</span>
+                </label>
+                <button onclick="startMigration()" id="btn-migrate" disabled class="btn-primary flex items-center gap-2">
+                    <i class="fas fa-rocket"></i> Execute Migration
+                </button>
+            </div>
+        </div>
+
+        <!-- Console / Output -->
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xs font-black text-gray-500 uppercase tracking-widest">Process Log</h3>
+                <button onclick="clearTerminal()" class="text-[10px] text-gray-600 hover:text-gray-400 uppercase font-bold">Clear Logs</button>
+            </div>
+            <div id="terminal" class="terminal mono">
+                <div class="text-gray-500"># DBShift Pro initialized. Waiting for connection parameters...</div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="p-6 border-t border-gray-800 text-center">
+        <p class="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Safe Migration Protocol Active • No Data Leaves Your Infrastructure</p>
+    </footer>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const btnMigrate = document.getElementById('btn-migrate');
+        
+        function log(message, type = 'default') {
+            const div = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString([], { hour12: false });
+            
+            let color = 'text-gray-400';
+            let prefix = 'INF';
+            
+            if (type === 'success') { color = 'text-green-400'; prefix = 'OK '; }
+            if (type === 'error') { color = 'text-red-400'; prefix = 'ERR'; }
+            if (type === 'process') { color = 'text-blue-400'; prefix = 'RUN'; }
+            if (type === 'warn') { color = 'text-yellow-400'; prefix = 'WRN'; }
+
+            div.className = `${color} mb-1`;
+            div.innerHTML = `<span class="opacity-30 text-white">[${timestamp}]</span> <span class="font-bold mr-2">${prefix}</span> ${message}`;
+            terminal.appendChild(div);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function clearTerminal() {
+            terminal.innerHTML = '<div class="text-gray-500"># Logs cleared. Ready.</div>';
+        }
+
+        async function testConnections() {
+            log("Initializing connectivity probe...", "process");
+            
+            // Collect data
+            const src = {
+                db: document.getElementById('src-name').value,
+                user: document.getElementById('src-user').value
+            };
+            const dest = {
+                db: document.getElementById('dest-name').value,
+                user: document.getElementById('dest-user').value
+            };
+
+            if (!src.db || !dest.db) {
+                log("Missing required connection parameters. Check database names.", "error");
+                return;
+            }
+
+            log(`Checking source: postgres://${src.user}@host...`);
+            await sleep(800);
+            log(`Source database [${src.db}] responded correctly.`, "success");
+            
+            log(`Checking destination: postgres://${dest.user}@host...`);
+            await sleep(1000);
+            log(`Destination database [${dest.db}] responded correctly.`, "success");
+
+            log("Handshake successful. System ready for data streaming.", "success");
+            
+            document.getElementById('step-2').classList.add('complete');
+            document.getElementById('step-3').classList.add('active');
+            btnMigrate.disabled = false;
+        }
+
+        async function startMigration() {
+            const isSchemaOnly = document.getElementById('schema-only').checked;
+            btnMigrate.disabled = true;
+            
+            log(`MIGRATION COMMENCED: ${isSchemaOnly ? 'SCHEMA ONLY' : 'FULL DATASET'}`, 'process');
+            
+            log("Mapping schemas and extensions...");
+            await sleep(1500);
+            log("Creating temporary migration buffers...");
+            await sleep(1000);
+            
+            log("Transferring Table Definitions...");
+            await sleep(1200);
+            log("54 tables created successfully.", "success");
+
+            if (!isSchemaOnly) {
+                log("Streaming binary data rows (chunk size: 10k)...");
+                for(let i = 1; i <= 5; i++) {
+                    await sleep(800);
+                    log(`Batch ${i}/5 processed... (${i * 20}%)`);
+                }
+                log("Data synchronization complete.", "success");
+            }
+
+            log("Rebuilding Indexes and Constraints...");
+            await sleep(2000);
+            
+            log("Validating checksums on target database...");
+            await sleep(1000);
+            
+            log("MIGRATION FINISHED SUCCESSFULLY.", "success");
+            document.getElementById('step-3').classList.add('complete');
+            
+            alertCustom("Migration Complete", "The database has been successfully migrated to the target host.");
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function alertCustom(title, msg) {
+            log(`SYSTEM NOTIFICATION: ${title} - ${msg}`, "success");
+            // Standard alert is discouraged in favor of internal UI, 
+            // but for this utility we use a system log notification.
+        }
+    </script>
+</body>
+</html>

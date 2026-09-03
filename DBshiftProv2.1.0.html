@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBShift Pro | PostgreSQL Management & Migration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-main: #0a0c10;
+            --bg-card: #161b22;
+            --accent: #3fb950;
+            --border: #30363d;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: #c9d1d9;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .input-field {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            width: 100%;
+            transition: all 0.2s;
+            color: white;
+            font-size: 13px;
+        }
+
+        .input-field:focus {
+            border-color: #58a6ff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            color: #8b949e;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sidebar-item:hover, .sidebar-item.active {
+            background: #21262d;
+            color: white;
+        }
+
+        .sidebar-item.active {
+            box-shadow: inset 2px 0 0 #58a6ff;
+        }
+
+        .terminal {
+            background: #010409;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            height: 180px;
+            overflow-y: auto;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .btn-primary {
+            background: #238636;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover { background: #2ea043; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .data-grid th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            background: #0d1117;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #8b949e;
+        }
+
+        .data-grid td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .table-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #8b949e;
+            transition: 0.2s;
+        }
+
+        .table-item:hover {
+            background: #21262d;
+            color: #58a6ff;
+        }
+
+        .table-item.selected {
+            background: #1f6feb22;
+            color: #58a6ff;
+            font-weight: 600;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <nav class="border-b border-gray-800 px-6 py-3 flex items-center justify-between bg-[#161b22] z-50">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-1.5 rounded-lg shadow-lg">
+                <i class="fas fa-database text-white text-lg"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-white text-sm leading-tight">DBShift <span class="text-blue-400">Pro</span></h1>
+                <p class="text-[9px] text-gray-500 uppercase font-black tracking-widest">Management & Migration</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div class="flex flex-col items-end mr-4">
+                <span class="text-[10px] text-gray-500 font-bold">CONNECTED TO</span>
+                <span id="header-db-name" class="text-xs text-blue-400 font-mono">None</span>
+            </div>
+            <div class="flex items-center gap-2 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span class="text-[10px] font-bold text-emerald-500 uppercase">Engine Online</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 border-r border-gray-800 bg-[#0d1117] p-4 flex flex-col gap-1">
+            <div class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 px-4">Workspace</div>
+            <div onclick="switchView('migration')" id="nav-migration" class="sidebar-item active">
+                <i class="fas fa-rocket w-4"></i> Migration Engine
+            </div>
+            <div onclick="switchView('explorer')" id="nav-explorer" class="sidebar-item">
+                <i class="fas fa-folder-tree w-4"></i> Data Explorer
+            </div>
+            <div onclick="switchView('extensions')" id="nav-extensions" class="sidebar-item">
+                <i class="fas fa-puzzle-piece w-4"></i> Extension Store
+            </div>
+            <div onclick="switchView('hosting')" id="nav-hosting" class="sidebar-item">
+                <i class="fas fa-server w-4"></i> Server Hosting
+            </div>
+            
+            <div class="mt-auto border-t border-gray-800 pt-4">
+                <div class="sidebar-item text-xs italic">
+                    <i class="fas fa-shield-halved w-4"></i> No SQL injection detected
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="flex-1 overflow-y-auto p-8 relative bg-[#0a0c10]">
+            
+            <!-- VIEW: MIGRATION -->
+            <section id="view-migration" class="view-content">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white tracking-tight">Migration Engine</h2>
+                        <p class="text-gray-400 text-sm">Transfer data across local or cloud PostgreSQL clusters.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Source -->
+                    <div class="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-upload text-orange-400"></i> Source Database
+                        </h3>
+                        <div class="space-y-3">
+                            <input type="text" id="src-name" class="input-field" placeholder="Database Name">
+                            <input type="password" id="src-pass" class="input-field" placeholder="Admin Password">
+                            <div class="flex gap-2">
+                                <input type="text" id="src-host" class="input-field flex-1" placeholder="Host (localhost)">
+                                <input type="text" id="src-port" class="input-field w-20" placeholder="5432">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Destination -->
+                    <div class="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-download text-emerald-400"></i> Destination Database
+                        </h3>
+                        <div class="space-y-3">
+                            <input type="text" id="dest-name" class="input-field" placeholder="Database Name">
+                            <input type="password" id="dest-pass" class="input-field" placeholder="Admin Password">
+                            <div class="flex gap-2">
+                                <input type="text" id="dest-host" class="input-field flex-1" placeholder="Target Host">
+                                <input type="text" id="dest-port" class="input-field w-20" placeholder="5432">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between bg-[#161b22] border border-[#30363d] rounded-xl p-4 mb-6">
+                    <button onclick="testConnections()" class="text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors px-4">
+                        <i class="fas fa-vial mr-1"></i> Verify Connection
+                    </button>
+                    <button onclick="startMigration()" id="btn-migrate" disabled class="btn-primary text-sm flex items-center gap-2 opacity-50 cursor-not-allowed">
+                        <i class="fas fa-play"></i> Start Pipeline
+                    </button>
+                </div>
+            </section>
+
+            <!-- VIEW: EXPLORER -->
+            <section id="view-explorer" class="view-content hidden">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Data Explorer</h2>
+                        <p class="text-gray-400 text-sm">Interactive schema browser and live data view.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="refreshTables()" class="bg-[#21262d] px-3 py-2 rounded-lg border border-gray-700 hover:text-white text-xs font-bold flex items-center gap-2">
+                            <i class="fas fa-arrows-rotate"></i> Refresh Tables
+                        </button>
+                        <button class="bg-blue-600 px-4 py-2 rounded-lg text-xs font-bold text-white hover:bg-blue-700">SQL Editor</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-6">
+                    <!-- Table List -->
+                    <div class="col-span-1 border border-gray-800 rounded-xl bg-[#0d1117] p-2 h-[450px] flex flex-col">
+                        <div class="p-3">
+                            <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Tables in <span id="explorer-db-name" class="text-blue-400">None</span></h4>
+                            <input type="text" class="input-field py-1.5 mb-4" placeholder="Filter tables...">
+                        </div>
+                        <div id="table-list-container" class="flex-1 overflow-y-auto px-2 space-y-1">
+                            <div class="text-center py-10">
+                                <i class="fas fa-database text-gray-700 text-3xl mb-3"></i>
+                                <p class="text-[10px] text-gray-600 uppercase font-bold">Connect to source to see tables</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table Data View -->
+                    <div class="col-span-3 border border-gray-800 rounded-xl bg-[#161b22] overflow-hidden flex flex-col h-[450px]">
+                        <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-[#0d1117]">
+                            <div class="flex items-center gap-3">
+                                <span id="current-table-name" class="text-sm font-bold text-white">No Table Selected</span>
+                                <span class="px-2 py-0.5 bg-gray-800 rounded text-[10px] font-mono text-gray-400 uppercase">Public</span>
+                            </div>
+                            <span id="row-count" class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">0 Rows</span>
+                        </div>
+                        <div class="flex-1 overflow-auto custom-scrollbar">
+                            <table class="w-full data-grid" id="main-data-table">
+                                <thead id="table-header">
+                                    <!-- Dynamic -->
+                                </thead>
+                                <tbody id="table-body" class="text-gray-300">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                            <div id="empty-table-state" class="flex flex-col items-center justify-center h-full text-gray-600">
+                                <i class="fas fa-table-list text-5xl mb-4 opacity-10"></i>
+                                <p class="text-sm">Select a table from the sidebar to view records</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: EXTENSIONS -->
+            <section id="view-extensions" class="view-content hidden">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-white">Extension Marketplace</h2>
+                    <p class="text-gray-400 text-sm">Install modules directly to your target database without writing SQL.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-6 hover:border-blue-500/50 transition-all flex flex-col">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-4">
+                            <i class="fas fa-earth-americas text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-1">PostGIS</h4>
+                        <p class="text-xs text-gray-500 mb-6 leading-relaxed">Spatial and Geographic objects. Enables location-based queries and mapping data.</p>
+                        <button onclick="installExt('PostGIS')" class="mt-auto w-full py-2 bg-gray-800 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors">Install Extension</button>
+                    </div>
+                    <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-6 hover:border-blue-500/50 transition-all flex flex-col">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-4">
+                            <i class="fas fa-bolt text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-1">pg_stat_statements</h4>
+                        <p class="text-xs text-gray-500 mb-6 leading-relaxed">Track planning and execution statistics for all SQL statements executed by the server.</p>
+                        <button onclick="installExt('pg_stat_statements')" class="mt-auto w-full py-2 bg-gray-800 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors">Install Extension</button>
+                    </div>
+                    <div class="bg-[#161b22] border border-gray-800 rounded-2xl p-6 hover:border-blue-500/50 transition-all flex flex-col">
+                        <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 mb-4">
+                            <i class="fas fa-fingerprint text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-1">pgcrypto</h4>
+                        <p class="text-xs text-gray-500 mb-6 leading-relaxed">Cryptographic functions for PostgreSQL. Great for hashing passwords in the DB layer.</p>
+                        <button onclick="installExt('pgcrypto')" class="mt-auto w-full py-2 bg-gray-800 rounded-lg text-xs font-bold hover:bg-blue-600 transition-colors">Install Extension</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: HOSTING -->
+            <section id="view-hosting" class="view-content hidden">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Dedicated DB Server</h2>
+                        <p class="text-gray-400 text-sm">Provision a secure environment to host your database.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-6 mb-8">
+                    <div class="col-span-2 bg-[#161b22] border border-gray-800 rounded-3xl p-8">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">System Provisioning</h3>
+                                <p class="text-xs text-gray-500">Target server specifications for your new cluster.</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">CPU Cores</label>
+                                    <div class="flex gap-2">
+                                        <button class="flex-1 py-3 rounded-xl border border-blue-500 bg-blue-500/10 text-blue-400 font-bold">2 vCPUs</button>
+                                        <button class="flex-1 py-3 rounded-xl border border-gray-700 bg-gray-800 text-gray-500 font-bold">4 vCPUs</button>
+                                        <button class="flex-1 py-3 rounded-xl border border-gray-700 bg-gray-800 text-gray-500 font-bold">8 vCPUs</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Memory (RAM)</label>
+                                    <div class="flex gap-2">
+                                        <button class="flex-1 py-3 rounded-xl border border-gray-700 bg-gray-800 text-gray-500 font-bold">4 GB</button>
+                                        <button class="flex-1 py-3 rounded-xl border border-blue-500 bg-blue-500/10 text-blue-400 font-bold">8 GB</button>
+                                        <button class="flex-1 py-3 rounded-xl border border-gray-700 bg-gray-800 text-gray-500 font-bold">16 GB</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Storage Engine</label>
+                                <div class="p-4 bg-gray-900 border border-gray-800 rounded-xl flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fas fa-microchip text-blue-500"></i>
+                                        <span class="text-sm font-bold text-white">NVMe SSD (Ultra-low Latency)</span>
+                                    </div>
+                                    <span class="text-xs text-emerald-500 font-bold">+500 GB Available</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="provisionServer()" class="w-full mt-10 btn-primary py-4 text-sm font-black uppercase tracking-widest">Deploy Infrastructure</button>
+                    </div>
+
+                    <div class="bg-[#0d1117] border border-gray-800 rounded-3xl p-6">
+                        <h4 class="text-xs font-black text-gray-500 uppercase mb-4 tracking-widest">Server Health</h4>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-[#161b22] border border-gray-800 rounded-xl">
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-gray-400">Disk Usage</span>
+                                    <span class="text-[10px] font-bold text-blue-400">12%</span>
+                                </div>
+                                <div class="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
+                                    <div class="w-[12%] h-full bg-blue-500"></div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-[#161b22] border border-gray-800 rounded-xl">
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-gray-400">Load Avg</span>
+                                    <span class="text-[10px] font-bold text-emerald-400">0.05</span>
+                                </div>
+                                <div class="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
+                                    <div class="w-[5%] h-full bg-emerald-500"></div>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-[#161b22] border border-gray-800 rounded-xl">
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-[10px] font-bold text-gray-400">IOPS</span>
+                                    <span class="text-[10px] font-bold text-amber-400">Normal</span>
+                                </div>
+                                <div class="text-[9px] text-gray-500 mt-2">Active connections: 4</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Global Console -->
+    <div class="h-44 bg-[#010409] border-t border-gray-800 p-4 shrink-0 flex flex-col">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+                <div class="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Process Stream</span>
+            </div>
+            <button onclick="document.getElementById('terminal').innerHTML = ''" class="text-[10px] text-gray-600 hover:text-white uppercase font-bold">Clear</button>
+        </div>
+        <div id="terminal" class="terminal custom-scrollbar mono">
+            <div class="text-gray-600"># DBShift Pro v2.1.0-Managed Initialized.</div>
+        </div>
+    </div>
+
+    <script>
+        // Mock State
+        let currentDB = null;
+        let tables = [
+            { name: 'accounts', rows: 1240, cols: ['id', 'user_id', 'balance', 'currency'] },
+            { name: 'orders', rows: 45032, cols: ['id', 'amount', 'status', 'created_at', 'customer_id'] },
+            { name: 'products', rows: 890, cols: ['sku', 'name', 'price', 'stock_qty', 'category'] },
+            { name: 'system_logs', rows: 120, cols: ['id', 'event', 'severity', 'timestamp'] }
+        ];
+
+        function log(message, type = 'default') {
+            const term = document.getElementById('terminal');
+            const div = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString([], { hour12: false });
+            let color = 'text-gray-500';
+            if (type === 'success') color = 'text-green-400';
+            if (type === 'error') color = 'text-red-400';
+            if (type === 'process') color = 'text-blue-300';
+            div.className = `${color} mb-1`;
+            div.innerHTML = `<span class="opacity-30 text-white">[${timestamp}]</span> ${message}`;
+            term.appendChild(div);
+            term.scrollTop = term.scrollHeight;
+        }
+
+        function switchView(view) {
+            document.querySelectorAll('.view-content').forEach(v => v.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(`view-${view}`).classList.remove('hidden');
+            document.getElementById(`nav-${view}`).classList.add('active');
+            log(`Navigation: Switched to ${view.toUpperCase()}`);
+        }
+
+        async function testConnections() {
+            const name = document.getElementById('src-name').value;
+            if(!name) {
+                log("ERROR: Enter a source database name to verify connectivity.", "error");
+                return;
+            }
+            log(`PROBING: Checking host postgres@${name}...`, "process");
+            await sleep(1000);
+            currentDB = name;
+            document.getElementById('header-db-name').innerText = name;
+            document.getElementById('explorer-db-name').innerText = name;
+            document.getElementById('btn-migrate').disabled = false;
+            document.getElementById('btn-migrate').classList.remove('opacity-50', 'cursor-not-allowed');
+            log(`SUCCESS: Connected to ${name}. 4 tables found. Extensions verified.`, "success");
+            
+            // Automatically populate tables in explorer
+            refreshTables();
+        }
+
+        function refreshTables() {
+            const container = document.getElementById('table-list-container');
+            if(!currentDB) {
+                log("Refresh aborted: No active database connection.", "warn");
+                return;
+            }
+            
+            log(`Fetching table definitions from [${currentDB}] catalog...`, "process");
+            container.innerHTML = '';
+            tables.forEach(table => {
+                const div = document.createElement('div');
+                div.className = "table-item";
+                div.innerHTML = `<i class="fas fa-table text-blue-500 opacity-50"></i> <span>${table.name}</span>`;
+                div.onclick = () => selectDataTable(table, div);
+                container.appendChild(div);
+            });
+            log(`Explorer populated with ${tables.length} tables.`, "success");
+        }
+
+        function selectDataTable(table, el) {
+            document.querySelectorAll('.table-item').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+            
+            document.getElementById('empty-table-state').classList.add('hidden');
+            document.getElementById('current-table-name').innerText = `Table: ${table.name}`;
+            document.getElementById('row-count').innerText = `${table.rows} Rows Total`;
+            
+            const head = document.getElementById('table-header');
+            const body = document.getElementById('table-body');
+            
+            // Generate Header
+            head.innerHTML = `<tr>${table.cols.map(c => `<th>${c}</th>`).join('')}</tr>`;
+            
+            // Generate Mock Data Rows
+            body.innerHTML = '';
+            for(let i = 0; i < 5; i++) {
+                const row = document.createElement('tr');
+                row.innerHTML = table.cols.map(c => `<td>Sample_${c}_${i+1}</td>`).join('');
+                body.appendChild(row);
+            }
+            log(`Loaded preview for table [${table.name}]`);
+        }
+
+        async function startMigration() {
+            log(`PIPELINE START: Synchronizing [${currentDB}] with target...`, "process");
+            await sleep(2000);
+            log("Migration complete. All tables verified on destination.", "success");
+        }
+
+        async function installExt(name) {
+            log(`DB-CMD: CREATE EXTENSION "${name.toLowerCase()}";`, "process");
+            await sleep(800);
+            log(`Success: Extension "${name}" installed without code intervention.`, "success");
+        }
+
+        async function provisionServer() {
+            log("DEPLOYMENT: Ordering new Linux-PostgreSQL node...", "process");
+            await sleep(1500);
+            log("SERVER UP: IP 157.245.12.91. Provisioning Postgres v16.4...", "success");
+            await sleep(1000);
+            log("DB READY: Hosting environment initialized. You can now migrate here.", "success");
+        }
+
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    </script>
+</body>
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForgeDB Pro | Visual Database Architect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-deep: #05070a;
+            --bg-surface: #0d1117;
+            --bg-card: #161b22;
+            --accent-blue: #58a6ff;
+            --accent-purple: #a371f7;
+            --accent-green: #3fb950;
+            --border: #30363d;
+            --text-main: #c9d1d9;
+            --text-dim: #8b949e;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Navigation */
+        .sidebar-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: var(--text-dim);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-btn:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+        .sidebar-btn.active {
+            background: rgba(88, 166, 255, 0.1);
+            color: var(--accent-blue);
+            box-shadow: inset 3px 0 0 var(--accent-blue);
+        }
+
+        /* Canvas & Grid */
+        .canvas-area {
+            background-color: var(--bg-deep);
+            background-image: 
+                linear-gradient(rgba(48, 54, 61, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(48, 54, 61, 0.2) 1px, transparent 1px);
+            background-size: 40px 40px;
+            position: relative;
+            cursor: grab;
+        }
+        .canvas-area:active { cursor: grabbing; }
+
+        /* Table Nodes */
+        .db-table-node {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 280px;
+            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.6);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: absolute;
+            z-index: 10;
+        }
+
+        .db-table-node:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 15px 40px -5px rgba(0,0,0,0.8), 0 0 10px rgba(88, 166, 255, 0.2);
+            z-index: 20;
+        }
+
+        .node-header {
+            background: #21262d;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        .column-row {
+            padding: 8px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            border-bottom: 1px solid #21262d;
+            background: transparent;
+            transition: background 0.1s;
+        }
+        .column-row:hover { background: rgba(255, 255, 255, 0.02); }
+
+        /* UI Elements */
+        .glass {
+            background: rgba(13, 17, 23, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-blue { background: var(--accent-blue); color: #05070a; }
+        .btn-purple { background: var(--accent-purple); color: white; }
+
+        .loader {
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            width: 14px; height: 14px;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #relationship-svg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
+    </style>
+</head>
+<body class="custom-scrollbar">
+
+    <!-- Header -->
+    <header class="h-16 border-b border-gray-800 bg-[#0d1117] flex items-center justify-between px-6 shrink-0 z-50">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg rotate-3">
+                <i class="fas fa-database text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-white text-base tracking-tight">ForgeDB <span class="text-blue-400 font-mono">ELITE</span></h1>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Local Architect Active</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <div id="ai-indicator" class="hidden px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-[10px] text-purple-400 font-black flex items-center gap-2">
+                <div class="loader"></div> PROCESSING SCHEMA
+            </div>
+            <div class="h-8 w-[1px] bg-gray-800 mx-2"></div>
+            <button onclick="exportSQL()" class="text-xs font-bold text-gray-400 hover:text-white px-2">
+                <i class="fas fa-code mr-1"></i> Export
+            </button>
+            <button onclick="openAI()" class="btn-action btn-purple shadow-lg shadow-purple-900/20 active:scale-95">
+                <i class="fas fa-wand-magic-sparkles"></i> AI Architect
+            </button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 border-r border-gray-800 bg-[#0d1117] p-4 flex flex-col gap-1 z-40">
+            <div class="flex items-center justify-between mb-4 px-2">
+                <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Explorer</span>
+                <button onclick="addNewTable()" class="text-blue-500 hover:text-blue-400 text-xs"><i class="fas fa-plus-circle"></i></button>
+            </div>
+            
+            <nav class="space-y-1">
+                <div onclick="setView('canvas')" id="nav-canvas" class="sidebar-btn active"><i class="fas fa-map w-5"></i> ERD Designer</div>
+                <div onclick="setView('tables')" id="nav-tables" class="sidebar-btn"><i class="fas fa-table-list w-5"></i> Table Manager</div>
+                <div onclick="setView('sql')" id="nav-sql" class="sidebar-btn"><i class="fas fa-terminal w-5"></i> SQL Generator</div>
+            </nav>
+
+            <div class="mt-8">
+                <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-2 block mb-3">Project History</span>
+                <div id="history-list" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar px-2">
+                    <div class="text-[11px] text-gray-600 italic">No saved versions yet.</div>
+                </div>
+            </div>
+
+            <div class="mt-auto p-4 glass rounded-2xl">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center text-xs font-bold text-blue-400">
+                        <span id="stat-tables">0</span>
+                    </div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase">Total Tables</div>
+                </div>
+                <button onclick="saveSnapshot()" class="w-full py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-[10px] font-black uppercase text-gray-300 transition-colors">
+                    Save Snapshot
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Viewport -->
+        <main class="flex-1 flex flex-col overflow-hidden relative">
+            
+            <!-- ERD CANVAS -->
+            <section id="view-canvas" class="flex-1 canvas-area overflow-hidden">
+                <svg id="relationship-svg"></svg>
+                <div id="erd-container" class="w-[3000px] h-[3000px] relative">
+                    <!-- Tables populated here -->
+                    <div id="canvas-empty" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div class="text-center opacity-20">
+                            <i class="fas fa-draw-polygon text-8xl mb-4"></i>
+                            <h2 class="text-2xl font-black italic">ARCHITECTURE VOID</h2>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Canvas Controls -->
+                <div class="absolute bottom-6 right-6 flex gap-2">
+                    <button onclick="zoomCanvas(0.9)" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-gray-400 hover:text-white"><i class="fas fa-minus"></i></button>
+                    <button onclick="zoomCanvas(1.1)" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-gray-400 hover:text-white"><i class="fas fa-plus"></i></button>
+                    <button onclick="resetCanvas()" class="w-10 h-10 glass rounded-xl flex items-center justify-center text-gray-400 hover:text-white"><i class="fas fa-compress"></i></button>
+                </div>
+            </section>
+
+            <!-- TABLE MANAGER -->
+            <section id="view-tables" class="hidden flex-1 p-8 overflow-y-auto custom-scrollbar bg-[#05070a]">
+                <div class="max-w-5xl mx-auto">
+                    <div class="flex justify-between items-end mb-8">
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-white">Schema Manager</h2>
+                            <p class="text-gray-500 mt-1">Direct editing of entities and relational mapping.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="table-search" oninput="filterTables()" placeholder="Search tables..." class="bg-[#0d1117] border border-gray-800 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                    <div id="manager-list" class="grid grid-cols-1 gap-6">
+                        <!-- Table Detail Cards -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- SQL PREVIEW -->
+            <section id="view-sql" class="hidden flex-1 p-8 flex flex-col bg-[#05070a]">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-white">Generated SQL</h2>
+                        <p class="text-gray-500">Postgres-compliant DDL statements.</p>
+                    </div>
+                    <button onclick="copySQL()" class="btn-action bg-gray-800 text-white hover:bg-gray-700">
+                        <i class="fas fa-copy"></i> Copy to Clipboard
+                    </button>
+                </div>
+                <div class="flex-1 bg-[#010409] border border-gray-800 rounded-2xl p-8 font-mono text-sm overflow-auto text-blue-300 custom-scrollbar shadow-2xl">
+                    <pre id="sql-display">-- Your architectural design will appear here...</pre>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- AI OVERLAY -->
+    <div id="ai-modal" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-[100] hidden flex items-center justify-center p-6">
+        <div class="max-w-2xl w-full">
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-purple-500/40">
+                        <i class="fas fa-brain text-2xl"></i>
+                    </div>
+                    <h2 class="text-4xl font-black text-white tracking-tighter">AI ARCHITECT</h2>
+                </div>
+                <button onclick="closeAI()" class="text-gray-500 hover:text-white text-2xl"><i class="fas fa-times"></i></button>
+            </div>
+
+            <p class="text-gray-400 mb-6 font-medium leading-relaxed">
+                Describe your application needs. The architect will design the entities, define optimal data types, and establish the primary/foreign key relationships.
+            </p>
+
+            <textarea id="ai-prompt" class="w-full bg-[#161b22] border border-gray-800 rounded-2xl p-6 text-white text-lg focus:ring-4 ring-purple-600/20 focus:outline-none h-48 mb-6" placeholder="e.g. A multi-tenant SaaS for managing law firms, including cases, clients, documents, and billable hours..."></textarea>
+
+            <button id="ai-trigger" onclick="runArchitect()" class="w-full bg-purple-600 py-5 rounded-2xl text-white font-black text-xl uppercase tracking-widest hover:bg-purple-500 transition-all shadow-2xl shadow-purple-900/40 active:scale-95 flex items-center justify-center gap-4">
+                <i class="fas fa-sparkles"></i> Build Schema
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = ""; 
+        let schema = []; 
+        let history = [];
+        let canvasZoom = 1;
+        let currentView = 'canvas';
+
+        // Initialize empty project
+        function setView(v) {
+            currentView = v;
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`view-${v}`).classList.remove('hidden');
+            document.getElementById(`nav-${v}`).classList.add('active');
+            if(v === 'sql') updateSQL();
+            if(v === 'tables') renderManager();
+            if(v === 'canvas') updateCanvas();
+        }
+
+        function openAI() { document.getElementById('ai-modal').classList.remove('hidden'); }
+        function closeAI() { document.getElementById('ai-modal').classList.add('hidden'); }
+
+        async function runArchitect() {
+            const prompt = document.getElementById('ai-prompt').value;
+            const btn = document.getElementById('ai-trigger');
+            const indicator = document.getElementById('ai-indicator');
+            if(!prompt.trim()) return;
+
+            btn.disabled = true;
+            btn.innerHTML = `<div class="loader"></div> ARCHITECTING...`;
+            indicator.classList.remove('hidden');
+
+            const system = `You are an elite DB architect. Create a valid PostgreSQL schema. 
+            Output JSON only. Use common types (UUID, VARCHAR, TIMESTAMP, TEXT, INT). 
+            Include position: {x: number, y: number} for a canvas (spread them out).
+            Format: [{"name":"t1", "x": 100, "y": 100, "cols":[{"name":"id","type":"UUID","pk":true,"fk":null}]}]`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        contents: [{parts: [{text: prompt}]}],
+                        systemInstruction: {parts: [{text: system}]},
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+                const data = await response.json();
+                schema = JSON.parse(data.candidates[0].content.parts[0].text);
+                closeAI();
+                setView('canvas');
+            } catch(e) {
+                console.error(e);
+                alert("The Architect is unavailable. Try again in a moment.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-sparkles"></i> Build Schema`;
+                indicator.classList.add('hidden');
+            }
+        }
+
+        function updateCanvas() {
+            const container = document.getElementById('erd-container');
+            const empty = document.getElementById('canvas-empty');
+            const stat = document.getElementById('stat-tables');
+            
+            if (stat) stat.innerText = schema.length;
+            
+            if(!container) return; 
+
+            if(schema.length === 0) {
+                if (empty) empty.classList.remove('hidden');
+                container.querySelectorAll('.db-table-node').forEach(n => n.remove());
+                const svg = document.getElementById('relationship-svg');
+                if (svg) svg.innerHTML = '';
+                return;
+            }
+            if (empty) empty.classList.add('hidden');
+
+            container.innerHTML = schema.map((table, idx) => `
+                <div class="db-table-node" style="left: ${table.x}px; top: ${table.y}px;" id="table-${idx}" onmousedown="dragNode(event, ${idx})">
+                    <div class="node-header">
+                        <span class="text-[10px] font-black text-blue-400 uppercase tracking-tighter">${table.name}</span>
+                        <button onclick="event.stopPropagation(); deleteTable(${idx})" class="text-gray-600 hover:text-red-500"><i class="fas fa-trash-alt text-[9px]"></i></button>
+                    </div>
+                    <div class="py-1">
+                        ${table.cols.map(col => `
+                            <div class="column-row">
+                                <span class="flex items-center gap-2">
+                                    <i class="fas ${col.pk ? 'fa-key text-yellow-500' : col.fk ? 'fa-link text-purple-400' : 'fa-circle-dot text-gray-700'} text-[8px]"></i>
+                                    <span class="${col.pk ? 'text-white' : 'text-gray-400'}">${col.name}</span>
+                                </span>
+                                <span class="text-[8px] font-mono text-gray-600">${col.type.split('(')[0]}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button onclick="event.stopPropagation(); addCol(${idx})" class="w-full py-2 bg-[#21262d] text-[9px] font-bold text-gray-500 hover:text-blue-400 uppercase border-t border-gray-800">
+                        Add Column
+                    </button>
+                </div>
+            `).join('');
+
+            setTimeout(drawLines, 50);
+        }
+
+        function dragNode(e, idx) {
+            if(e.button !== 0) return;
+            const node = document.getElementById(`table-${idx}`);
+            let startX = e.clientX;
+            let startY = e.clientY;
+            
+            function move(e) {
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                schema[idx].x += dx;
+                schema[idx].y += dy;
+                node.style.left = schema[idx].x + 'px';
+                node.style.top = schema[idx].y + 'px';
+                startX = e.clientX;
+                startY = e.clientY;
+                drawLines();
+            }
+
+            function stop() {
+                window.removeEventListener('mousemove', move);
+                window.removeEventListener('mouseup', stop);
+            }
+
+            window.addEventListener('mousemove', move);
+            window.addEventListener('mouseup', stop);
+        }
+
+        function drawLines() {
+            const svg = document.getElementById('relationship-svg');
+            if (!svg) return;
+            svg.innerHTML = '';
+            
+            schema.forEach((table, tIdx) => {
+                table.cols.forEach(col => {
+                    // FIX: Ensure col.fk is a string before calling split
+                    if(col.fk && typeof col.fk === 'string' && col.fk.includes('.')) {
+                        const targetTableName = col.fk.split('.')[0];
+                        const targetIdx = schema.findIndex(t => t.name === targetTableName);
+                        if(targetIdx !== -1) {
+                            const startX = schema[tIdx].x + 280;
+                            const startY = schema[tIdx].y + 40;
+                            const endX = schema[targetIdx].x;
+                            const endY = schema[targetIdx].y + 40;
+                            
+                            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                            const cp1 = startX + 50;
+                            const cp2 = endX - 50;
+                            path.setAttribute("d", `M ${startX} ${startY} C ${cp1} ${startY}, ${cp2} ${endY}, ${endX} ${endY}`);
+                            path.setAttribute("stroke", "#a371f7");
+                            path.setAttribute("stroke-width", "2");
+                            path.setAttribute("fill", "none");
+                            path.setAttribute("opacity", "0.4");
+                            svg.appendChild(path);
+                        }
+                    }
+                });
+            });
+        }
+
+        function renderManager() {
+            const list = document.getElementById('manager-list');
+            if (!list) return;
+            list.innerHTML = schema.map((table, tIdx) => `
+                <div class="bg-[#161b22] border border-gray-800 rounded-2xl overflow-hidden">
+                    <div class="p-6 bg-gray-900/50 flex justify-between items-center border-b border-gray-800">
+                        <div class="flex items-center gap-4">
+                            <i class="fas fa-table text-blue-500"></i>
+                            <input type="text" value="${table.name}" onchange="schema[${tIdx}].name=this.value; updateCanvas()" class="bg-transparent font-black text-xl text-white focus:outline-none">
+                        </div>
+                        <button onclick="deleteTable(${tIdx})" class="text-red-500/50 hover:text-red-500 text-xs uppercase font-bold tracking-widest">Destroy Table</button>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 gap-2">
+                        ${table.cols.map((col, cIdx) => `
+                            <div class="flex items-center gap-4 bg-[#0d1117] p-3 rounded-xl border border-gray-800/50">
+                                <input type="text" value="${col.name}" onchange="schema[${tIdx}].cols[${cIdx}].name=this.value" class="bg-transparent text-sm w-48 text-gray-300">
+                                <select onchange="schema[${tIdx}].cols[${cIdx}].type=this.value" class="bg-transparent text-xs text-blue-400">
+                                    <option value="UUID" ${col.type=='UUID'?'selected':''}>UUID</option>
+                                    <option value="VARCHAR(255)" ${col.type=='VARCHAR(255)'?'selected':''}>VARCHAR(255)</option>
+                                    <option value="INT" ${col.type=='INT'?'selected':''}>INT</option>
+                                    <option value="TIMESTAMP" ${col.type=='TIMESTAMP'?'selected':''}>TIMESTAMP</option>
+                                    <option value="BOOLEAN" ${col.type=='BOOLEAN'?'selected':''}>BOOLEAN</option>
+                                </select>
+                                <div class="flex-1 flex justify-end gap-4">
+                                    <label class="flex items-center gap-2 text-[10px] text-gray-500">PK <input type="checkbox" ${col.pk?'checked':''} onchange="schema[${tIdx}].cols[${cIdx}].pk=this.checked"></label>
+                                    <button onclick="removeCol(${tIdx}, ${cIdx})" class="text-gray-700 hover:text-red-500"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                        `).join('')}
+                        <button onclick="addCol(${tIdx})" class="mt-4 text-xs font-bold text-blue-500 hover:underline">+ Add Attribute</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateSQL() {
+            const display = document.getElementById('sql-display');
+            if (!display) return;
+            if(schema.length === 0) {
+                display.innerText = "-- Design your database to see generated SQL code.";
+                return;
+            }
+
+            let sql = `-- Generated by ForgeDB Elite Architect\n-- Project: ${new Date().toLocaleDateString()}\n\n`;
+            
+            schema.forEach(table => {
+                sql += `CREATE TABLE ${table.name} (\n`;
+                const lines = table.cols.map(c => {
+                    let l = `  ${c.name} ${c.type}`;
+                    if(c.pk) l += " PRIMARY KEY";
+                    if(c.fk && typeof c.fk === 'string' && c.fk.includes('.')) {
+                        const [fTable, fCol] = c.fk.split('.');
+                        l += ` REFERENCES ${fTable}(${fCol})`;
+                    }
+                    return l;
+                });
+                sql += lines.join(',\n');
+                sql += `\n);\n\n`;
+            });
+            display.innerText = sql;
+        }
+
+        function copySQL() {
+            const sql = document.getElementById('sql-display').innerText;
+            const temp = document.createElement('textarea');
+            temp.value = sql;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            alert("SQL copied to clipboard!");
+        }
+
+        function exportSQL() {
+            updateSQL();
+            const blob = new Blob([document.getElementById('sql-display').innerText], {type: 'text/sql'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "schema.sql";
+            a.click();
+        }
+
+        function saveSnapshot() {
+            const name = prompt("Name this snapshot:");
+            if(!name) return;
+            history.unshift({ name, timestamp: new Date().toLocaleTimeString(), data: JSON.parse(JSON.stringify(schema)) });
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            if (!list) return;
+            list.innerHTML = history.map((h, i) => `
+                <div class="flex items-center justify-between p-2 bg-gray-800/50 rounded-lg group">
+                    <div class="overflow-hidden">
+                        <div class="text-[10px] text-white font-bold truncate">${h.name}</div>
+                        <div class="text-[8px] text-gray-500">${h.timestamp}</div>
+                    </div>
+                    <button onclick="loadSnapshot(${i})" class="text-[9px] text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">RESTORE</button>
+                </div>
+            `).join('');
+        }
+
+        function loadSnapshot(i) {
+            if(confirm("Restore this version? Unsaved changes will be lost.")) {
+                schema = JSON.parse(JSON.stringify(history[i].data));
+                if(currentView === 'canvas') updateCanvas();
+                else if(currentView === 'tables') renderManager();
+            }
+        }
+
+        function zoomCanvas(factor) {
+            canvasZoom *= factor;
+            const erd = document.getElementById('erd-container');
+            if (erd) erd.style.transform = `scale(${canvasZoom})`;
+        }
+
+        function resetCanvas() {
+            canvasZoom = 1;
+            const erd = document.getElementById('erd-container');
+            if (erd) erd.style.transform = `scale(1)`;
+        }
+
+        function addNewTable() {
+            schema.push({
+                name: "new_table_" + (schema.length + 1),
+                x: 100, y: 100,
+                cols: [{ name: "id", type: "UUID", pk: true, fk: null }]
+            });
+            if(currentView === 'canvas') updateCanvas();
+            else if(currentView === 'tables') renderManager();
+        }
+
+        function deleteTable(i) {
+            if(confirm("Permanently delete this table?")) {
+                schema.splice(i, 1);
+                if(currentView === 'canvas') updateCanvas();
+                else if(currentView === 'tables') renderManager();
+            }
+        }
+
+        function addCol(i) {
+            schema[i].cols.push({ name: "attr_" + (schema[i].cols.length), type: "VARCHAR(255)", pk: false, fk: null });
+            if(currentView === 'canvas') updateCanvas();
+            else if(currentView === 'tables') renderManager();
+        }
+
+        function removeCol(tIdx, cIdx) {
+            schema[tIdx].cols.splice(cIdx, 1);
+            if(currentView === 'canvas') updateCanvas();
+            else if(currentView === 'tables') renderManager();
+        }
+
+        function filterTables() {
+            const term = document.getElementById('table-search').value.toLowerCase();
+            const list = document.getElementById('manager-list');
+            const cards = list.querySelectorAll(':scope > div');
+            cards.forEach((card, idx) => {
+                const name = schema[idx].name.toLowerCase();
+                card.style.display = name.includes(term) ? 'block' : 'none';
+            });
+        }
+
+        window.onload = () => setView('canvas');
+    </script>
+</body>
+</html>

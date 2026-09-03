@@ -1,0 +1,55 @@
+# Ignore environment files
+.env
+.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+node_modules/
+dist/
+.logs/
+# IDE files
+.vscode/
+# OS files
+.DS_Store
+geosuite.log
+# environment files
+venv/
+.sixth/
+.venv-311/
+
+# Python bytecode / cache
+__pycache__/
+*.py[cod]
+*.so
+
+# Large GIS / raster data (must be kept out of git — bloat and not reproducible)
+RAW DATA/
+Parcels/
+DATASETS/**/*.npy
+DATASETS/**/*.npz
+backend/test_data/
+cv_evaluation/
+*.tif
+*.tiff
+*.hgt
+*.asc
+*.dem
+*.img
+*.ecw
+*.sid
+*.laz
+*.las
+*.shp
+*.gdb
+*.sqlite3
+*.db
+
+# Trained model weights (large binaries — re-generate or store externally)
+backend/app/cv_models/**/*.npz
+
+# Generated / run-time artifacts
+data/
+build/
+backend/annotation_data/

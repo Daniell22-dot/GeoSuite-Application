@@ -1,0 +1,28 @@
+[general]
+name=KLISS CV Tools
+qgisMinimumVersion=3.0
+description=Computer vision tools for geospatial analysis - survey plan digitization, feature extraction, change detection, GPS matching, symbol recognition, depth sounding, land use classification, text OCR.
+version=0.1.0
+author=GeoSuite / KLISS
+email=manyasadorah48@gmail.com
+about=KLISS CV Tools provides deep learning-powered computer vision capabilities for QGIS. Includes: survey plan auto-digitization (beacon/boundary extraction), drone image feature extraction, temporal change detection, GPS track map matching, map symbol recognition, nautical chart depth sounding extraction, satellite imagery land use classification, and map text OCR.
+tracker=https://github.com/your-repo/kliss-cv/issues
+repository=https://github.com/your-repo/kliss-cv
+tags=computer vision,deep learning,survey,drone,geospatial,ocr,change detection,GPS
+homepage=https://github.com/your-repo/kliss-cv
+category=Analysis
+icon=icon.png
+experimental=True
+deprecated=False
+hasProcessingProvider=no
+changelog=
+    0.1.0 - Initial release
+        - Survey plan digitization
+        - Feature extraction
+        - Change detection
+        - GPS map matching
+        - Symbol recognition
+        - Depth sounding extraction
+        - Land use classification
+        - Text OCR
+        - Coordinate transformation

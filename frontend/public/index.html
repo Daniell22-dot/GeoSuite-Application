@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1976d2" />
+    <meta
+      name="description"
+      content="GeoSuite - Complete Geospatial Processing Platform with GPS visualization, marine charts, and watershed modeling"
+    />
+    <meta name="keywords" content="GIS, GPS, Marine Charts, Watershed, HEC-RAS, Geospatial, Mapping" />
+    <meta name="author" content="GeoSuite Team" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://geosuite.app/" />
+    <meta property="og:title" content="GeoSuite - Geospatial Processing Platform" />
+    <meta property="og:description" content="Process GPS tracks, marine charts, and watershed analysis in one integrated platform" />
+    <meta property="og:image" content="%PUBLIC_URL%/og-image.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://geosuite.app/" />
+    <meta property="twitter:title" content="GeoSuite - Geospatial Processing Platform" />
+    <meta property="twitter:description" content="Process GPS tracks, marine charts, and watershed analysis in one integrated platform" />
+    <meta property="twitter:image" content="%PUBLIC_URL%/og-image.png" />
+    
+    <!-- PWA Configuration -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+    
+    <title>GeoSuite - Geospatial Processing Platform</title>
+    
+    <!-- Environment Variables -->
+    <script>
+      window.env = {
+        REACT_APP_API_URL: process.env.REACT_APP_API_URL || 'http://localhost:8000',
+        REACT_APP_MAPBOX_TOKEN: process.env.REACT_APP_MAPBOX_TOKEN || '',
+        REACT_APP_GOOGLE_MAPS_API_KEY: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '',
+        REACT_APP_SENTRY_DSN: process.env.REACT_APP_SENTRY_DSN || '',
+        REACT_APP_VERSION: process.env.REACT_APP_VERSION || '2.0.0',
+        REACT_APP_ENVIRONMENT: process.env.REACT_APP_ENVIRONMENT || 'development'
+      };
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <div style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: white;
+        color: #333;
+        font-family: 'Roboto', sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+        z-index: 9999;
+      ">
+        <h1 style="color: #1976d2; margin-bottom: 20px;">
+           GeoSuite - Geospatial Processing Platform
+        </h1>
+        <p style="font-size: 18px; margin-bottom: 20px; max-width: 600px;">
+          You need to enable JavaScript to run this application.
+        </p>
+        <p style="color: #666; max-width: 600px;">
+          GeoSuite is a modern web application that requires JavaScript for interactive mapping,
+          file processing, and data visualization. Please enable JavaScript in your browser settings.
+        </p>
+        <div style="margin-top: 30px; padding: 20px; background: #f5f5f5; border-radius: 8px; max-width: 600px;">
+          <h3 style="margin-top: 0;">Alternative Access</h3>
+          <p>For API access without the web interface:</p>
+          <code style="background: white; padding: 10px; border-radius: 4px; display: block; margin: 10px 0;">
+            API Documentation: <a href="/api/docs" style="color: #1976d2;">/api/docs</a>
+          </code>
+          <p style="font-size: 14px; color: #666; margin-top: 10px;">
+            Contact support if you need assistance: support@geosuite.app
+          </p>
+        </div>
+      </div>
+    </noscript>
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      transition: opacity 0.3s;
+    ">
+      <div style="text-align: center;">
+        <div style="
+          width: 80px;
+          height: 80px;
+          border: 4px solid #f3f3f3;
+          border-top: 4px solid #1976d2;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin: 0 auto 20px;
+        "></div>
+        <h2 style="color: #1976d2; margin-bottom: 10px;">
+          Loading GeoSuite...
+        </h2>
+        <p style="color: #666; max-width: 400px;">
+          Initializing geospatial processing platform
+        </p>
+      </div>
+    </div>
+    
+    <!-- Root element for React -->
+    <div id="root"></div>
+    
+    <!-- Global Styles -->
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      body {
+        margin: 0;
+        font-family: 'Roboto', 'Segoe UI', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #f5f5f5;
+      }
+      
+      code {
+        font-family: 'Source Code Pro', 'Courier New', monospace;
+      }
+      
+      /* Leaflet map fixes */
+      .leaflet-container {
+        font-family: 'Roboto', sans-serif;
+      }
+      
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+      }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+    </style>
+    
+    <!-- Hide loading screen when app loads -->
+    <script>
+      window.addEventListener('load', function() {
+        var loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+          loadingScreen.style.opacity = '0';
+          setTimeout(function() {
+            loadingScreen.style.display = 'none';
+          }, 300);
+        }
+      });
+    </script>
+  </body>
+</html>

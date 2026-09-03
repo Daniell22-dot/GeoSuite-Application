@@ -1,0 +1,11 @@
+{
+  "name": "geospatial-cpp",
+  "version": "1.0.0",
+  "dependencies": [
+    "pybind11",
+    {
+      "name": "gdal",
+      "features": ["hdf5", "netcdf", "curl"]
+    }
+  ]
+}
