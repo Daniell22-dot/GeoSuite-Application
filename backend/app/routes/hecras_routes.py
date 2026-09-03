@@ -11,7 +11,6 @@ import os
 import io
 import json
 import tempfile
-import numpy as np
 
 from app.services.hecras_service import hecras_service
 from app.database import get_db

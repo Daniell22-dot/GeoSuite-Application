@@ -7,13 +7,12 @@ import os
 import tempfile
 import json
 import base64
+import io
 from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime
 import math
 
 import numpy as np
-
-from app.config import settings
 
 try:
     import matplotlib

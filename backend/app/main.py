@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from app.routes import gps_routes, marine_routes, watershed_routes, file_routes, terminal_routes, weather_routes
 from app.routes import auth_routes, export_routes, monitoring_routes, task_routes, drone_routes, transform_routes
-from app.routes import cv_routes, annotate_routes, config_routes
+from app.routes import cv_routes, annotate_routes, config_routes, hecras_routes
 from app.config import settings
 from app.models.geospatial import init_db
 
@@ -109,6 +109,7 @@ app.include_router(transform_routes.router, prefix="/api/v1/transform", tags=["C
 app.include_router(cv_routes.router, tags=["Computer Vision"])
 app.include_router(annotate_routes.router, tags=["Annotation"])
 app.include_router(config_routes.router, prefix="/api/v1/config", tags=["Config"])
+app.include_router(hecras_routes.router, prefix="/api/v1/hecras", tags=["HEC-RAS"])
 
 @app.get("/")
 async def root():
