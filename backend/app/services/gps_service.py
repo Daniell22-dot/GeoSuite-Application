@@ -6,9 +6,16 @@ import numpy as np
 from datetime import datetime
 import tempfile
 import os
+import csv
 from pyproj import Transformer, Geod
 from app.services.elevation_service import ElevationService
 from app.utils.dem_processor import DEMProcessor
+
+try:
+    from fastkml import kml as fastkml
+    fastkml_available = True
+except ImportError:
+    fastkml_available = False
 
 class GPSService:
     def __init__(self):
@@ -54,6 +61,210 @@ class GPSService:
         result["statistics"] = self._calculate_statistics(result)
         
         return result
+    
+    def parse_gps_file(self, file_path: str) -> Dict:
+        """Dispatch GPS file parsing based on extension."""
+        ext = os.path.splitext(file_path)[1].lower()
+        if ext == ".gpx":
+            return self.parse_gpx(file_path)
+        elif ext == ".kml":
+            return self._parse_kml(file_path)
+        elif ext == ".csv":
+            return self._parse_csv(file_path)
+        elif ext in (".geojson", ".json"):
+            return self._parse_geojson(file_path)
+        else:
+            raise ValueError(f"Unsupported GPS file format: {ext}")
+    
+    def _parse_kml(self, file_path: str) -> Dict:
+        """Parse KML file and extract placemarks and tracks."""
+        if not fastkml_available:
+            raise ImportError("fastkml is required for KML parsing")
+        
+        with open(file_path, "rb") as f:
+            doc = fastkml.KML()
+            doc.from_string(f.read())
+        
+        features = []
+        
+        def collect_features(obj):
+            if hasattr(obj, "features"):
+                for feature in obj.features():
+                    if hasattr(feature, "geometry") and feature.geometry:
+                        geom = feature.geometry
+                        props = {
+                            "name": feature.name or "",
+                            "description": getattr(feature, "description", "") or "",
+                        }
+                        if geom.geom_type == "Point":
+                            coords = list(geom.coords)[0]
+                            features.append({
+                                "type": "Feature",
+                                "geometry": {"type": "Point", "coordinates": [coords[0], coords[1], coords[2] if len(coords) > 2 else None]},
+                                "properties": {**props, "feature_type": "placemark"},
+                            })
+                        elif geom.geom_type == "LineString":
+                            coords = [list(c) for c in geom.coords]
+                            features.append({
+                                "type": "Feature",
+                                "geometry": {"type": "LineString", "coordinates": coords},
+                                "properties": {**props, "feature_type": "track"},
+                            })
+                    collect_features(feature)
+        
+        for root in doc.features():
+            collect_features(root)
+        
+        waypoints = []
+        tracks = []
+        routes = []
+        for feat in features:
+            geom = feat.get("geometry", {})
+            props = feat.get("properties", {})
+            if geom.get("type") == "Point":
+                coords = geom.get("coordinates", [0, 0])
+                waypoints.append({
+                    "name": props.get("name", ""),
+                    "description": props.get("description", ""),
+                    "longitude": coords[0],
+                    "latitude": coords[1],
+                    "elevation": coords[2] if len(coords) > 2 else None,
+                })
+            elif geom.get("type") == "LineString":
+                coords = geom.get("coordinates", [])
+                points = []
+                for coord in coords:
+                    points.append({
+                        "longitude": coord[0],
+                        "latitude": coord[1],
+                        "elevation": coord[2] if len(coord) > 2 else None,
+                    })
+                tracks.append({
+                    "name": props.get("name", "KML Track"),
+                    "segments": [{"points": points, "points_count": len(points)}],
+                })
+        
+        return {
+            "metadata": {"name": os.path.basename(file_path), "source": "kml"},
+            "tracks": tracks,
+            "waypoints": waypoints,
+            "routes": routes,
+            "statistics": self._calculate_statistics({
+                "tracks": tracks,
+                "waypoints": waypoints,
+                "routes": routes,
+            }),
+        }
+    
+    def _parse_csv(self, file_path: str) -> Dict:
+        """Parse CSV spot-heights. Expects columns: easting/northing/elevation or lat/lon/elevation."""
+        with open(file_path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        
+        if not rows:
+            raise ValueError("CSV file is empty")
+        
+        headers = [h.strip().lower() for h in rows[0].keys()]
+        waypoints = []
+        for row in rows:
+            vals = {k.strip().lower(): v for k, v in row.items()}
+            lat = vals.get("lat") or vals.get("latitude")
+            lon = vals.get("lon") or vals.get("long") or vals.get("longitude")
+            easting = vals.get("easting") or vals.get("x")
+            northing = vals.get("northing") or vals.get("y")
+            elev = vals.get("elevation") or vals.get("altitude") or vals.get("z") or vals.get("height")
+            if lat is not None and lon is not None:
+                waypoints.append({
+                    "name": vals.get("name", ""),
+                    "description": vals.get("description", ""),
+                    "latitude": float(lat),
+                    "longitude": float(lon),
+                    "elevation": float(elev) if elev is not None else None,
+                })
+            elif easting is not None and northing is not None:
+                transformer = Transformer.from_crs("EPSG:4326", "EPSG:4326", always_xy=True)
+                lon_f, lat_f = float(easting), float(northing)
+                waypoints.append({
+                    "name": vals.get("name", ""),
+                    "description": vals.get("description", ""),
+                    "latitude": lat_f,
+                    "longitude": lon_f,
+                    "elevation": float(elev) if elev is not None else None,
+                })
+            else:
+                continue
+        
+        if not waypoints:
+            raise ValueError("CSV does not contain recognizable coordinate columns (lat/lon or easting/northing)")
+        
+        return {
+            "metadata": {"name": os.path.basename(file_path), "source": "csv"},
+            "tracks": [],
+            "waypoints": waypoints,
+            "routes": [],
+            "statistics": {
+                "total_waypoints": len(waypoints),
+                "total_tracks": 0,
+                "total_routes": 0,
+                "total_points": len(waypoints),
+            },
+        }
+    
+    def _parse_geojson(self, file_path: str) -> Dict:
+        """Parse GeoJSON file and normalize to GPS structure."""
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        
+        waypoints = []
+        tracks = []
+        routes = []
+        
+        def extract_point_coords(geom):
+            if geom.get("type") == "Point":
+                coords = geom.get("coordinates", [0, 0])
+                return coords[0], coords[1], coords[2] if len(coords) > 2 else None
+            return None
+        
+        features = data.get("features", [])
+        for feat in features:
+            geom = feat.get("geometry", {})
+            props = feat.get("properties", {})
+            gtype = geom.get("type")
+            if gtype == "Point":
+                lon, lat, elev = extract_point_coords(geom)
+                waypoints.append({
+                    "name": props.get("name", ""),
+                    "description": props.get("description", ""),
+                    "longitude": lon,
+                    "latitude": lat,
+                    "elevation": elev,
+                })
+            elif gtype == "LineString":
+                coords = geom.get("coordinates", [])
+                points = []
+                for coord in coords:
+                    points.append({
+                        "longitude": coord[0],
+                        "latitude": coord[1],
+                        "elevation": coord[2] if len(coord) > 2 else None,
+                    })
+                tracks.append({
+                    "name": props.get("name", "GeoJSON Track"),
+                    "segments": [{"points": points, "points_count": len(points)}],
+                })
+        
+        return {
+            "metadata": {"name": os.path.basename(file_path), "source": "geojson"},
+            "tracks": tracks,
+            "waypoints": waypoints,
+            "routes": routes,
+            "statistics": self._calculate_statistics({
+                "tracks": tracks,
+                "waypoints": waypoints,
+                "routes": routes,
+            }),
+        }
     
     def _process_track(self, track) -> Dict:
         """Process a single track with segments"""
