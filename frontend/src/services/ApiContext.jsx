@@ -84,7 +84,12 @@ export const ApiProvider = ({ children }) => {
   const droneApi = {
     // Create new drone survey
     createSurvey: async (name, description) => {
-      return apiRequest('post', '/api/v1/drone/surveys', { name, description });
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description || '');
+      return apiRequest('post', '/api/v1/drone/surveys', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
     },
 
     // List all surveys

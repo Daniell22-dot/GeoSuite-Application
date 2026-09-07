@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {
   Container,
@@ -44,6 +44,7 @@ import {
   Add as AddIcon,
   Info as InfoIcon,
 } from '@mui/icons-material';
+import { useApi } from '../services/ApiContext';
 
 const STATUS_COLORS = {
   draft: 'default',
@@ -51,59 +52,70 @@ const STATUS_COLORS = {
   processing: 'warning',
   completed: 'success',
   failed: 'error',
+  ready: 'info',
 };
 
 const DroneProcessingPage = () => {
+  const { drone } = useApi();
   const [surveys, setSurveys] = useState([]);
   const [activeSurvey, setActiveSurvey] = useState(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newSurveyName, setNewSurveyName] = useState('');
   const [newSurveyDesc, setNewSurveyDesc] = useState('');
   const [uploadProgress, setUploadProgress] = useState({});
+  const [loadingSurveys, setLoadingSurveys] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
-  const onDrop = useCallback((acceptedFiles) => {
+  const refreshSurveys = useCallback(async () => {
+    try {
+      const data = await drone.listSurveys();
+      setSurveys(data.surveys || []);
+    } catch (err) {
+      setError(err.message || 'Failed to load surveys');
+    } finally {
+      setLoadingSurveys(false);
+    }
+  }, [drone]);
+
+  useEffect(() => {
+    refreshSurveys();
+  }, [refreshSurveys]);
+
+  const loadSurveyDetail = useCallback(async (surveyId) => {
+    try {
+      const detail = await drone.getSurvey(surveyId);
+      setActiveSurvey(detail);
+      return detail;
+    } catch (err) {
+      setError(err.message || 'Failed to load survey details');
+      return null;
+    }
+  }, [drone]);
+
+  const onDrop = useCallback(async (acceptedFiles) => {
     if (!activeSurvey) return;
-    acceptedFiles.forEach(file => {
-      const fakeId = `upload-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      setUploadProgress(prev => ({ ...prev, [fakeId]: 0 }));
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += Math.random() * 30;
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-          setTimeout(() => {
-            setUploadProgress(prev => {
-              const next = { ...prev };
-              delete next[fakeId];
-              return next;
-            });
-            setSurveys(prev => prev.map(s => {
-              if (s.id === activeSurvey.id) {
-                return {
-                  ...s,
-                  images: [...s.images, { name: file.name, size: file.size, status: 'uploaded' }],
-                  status: 'uploaded',
-                };
-              }
-              return s;
-            }));
-            setActiveSurvey(prev => {
-              if (prev && prev.id === activeSurvey.id) {
-                return {
-                  ...prev,
-                  images: [...prev.images, { name: file.name, size: file.size, status: 'uploaded' }],
-                  status: 'uploaded',
-                };
-              }
-              return prev;
-            });
-          }, 500);
-        }
-        setUploadProgress(prev => ({ ...prev, [fakeId]: progress }));
-      }, 200);
-    });
-  }, [activeSurvey]);
+    const surveyId = activeSurvey.survey_id || activeSurvey.id;
+    const uploadId = `upload-${Date.now()}`;
+    setUploadProgress(prev => ({ ...prev, [uploadId]: 0 }));
+
+    try {
+      const data = await drone.uploadImages(surveyId, acceptedFiles);
+      setUploadProgress(prev => ({ ...prev, [uploadId]: 100 }));
+      await refreshSurveys();
+      await loadSurveyDetail(surveyId);
+    } catch (err) {
+      setError(err.message || 'Failed to upload images');
+    } finally {
+      setTimeout(() => {
+        setUploadProgress(prev => {
+          const next = { ...prev };
+          delete next[uploadId];
+          return next;
+        });
+      }, 1000);
+    }
+  }, [activeSurvey, drone, refreshSurveys, loadSurveyDetail]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -111,40 +123,62 @@ const DroneProcessingPage = () => {
     multiple: true,
   });
 
-  const handleCreateSurvey = () => {
+  const handleCreateSurvey = async () => {
     if (!newSurveyName.trim()) return;
-    const newSurvey = {
-      id: `survey-${Date.now()}`,
-      name: newSurveyName,
-      description: newSurveyDesc,
-      status: 'draft',
-      images: [],
-      createdAt: new Date().toISOString(),
-    };
-    setSurveys(prev => [...prev, newSurvey]);
-    setActiveSurvey(newSurvey);
-    setCreateDialogOpen(false);
-    setNewSurveyName('');
-    setNewSurveyDesc('');
+    setSaving(true);
+    setError(null);
+    try {
+      const created = await drone.createSurvey(newSurveyName, newSurveyDesc);
+      await refreshSurveys();
+      if (created?.survey_id) {
+        await loadSurveyDetail(created.survey_id);
+      }
+      setCreateDialogOpen(false);
+      setNewSurveyName('');
+      setNewSurveyDesc('');
+    } catch (err) {
+      setError(err.message || 'Failed to create survey');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDeleteSurvey = (surveyId) => {
-    setSurveys(prev => prev.filter(s => s.id !== surveyId));
-    if (activeSurvey && activeSurvey.id === surveyId) setActiveSurvey(null);
+  const handleDeleteSurvey = async (surveyId) => {
+    try {
+      await drone.deleteSurvey(surveyId);
+      await refreshSurveys();
+      if (activeSurvey && (activeSurvey.survey_id || activeSurvey.id) === surveyId) {
+        setActiveSurvey(null);
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to delete survey');
+    }
   };
 
-  const handleProcessSurvey = (surveyId) => {
-    setSurveys(prev => prev.map(s =>
-      s.id === surveyId ? { ...s, status: 'processing' } : s
-    ));
-    setTimeout(() => {
+  const handleProcessSurvey = async (surveyId) => {
+    try {
       setSurveys(prev => prev.map(s =>
-        s.id === surveyId ? { ...s, status: 'completed' } : s
+        (s.survey_id || s.id) === surveyId ? { ...s, status: 'processing' } : s
       ));
-    }, 3000);
+      await drone.processSurvey(surveyId);
+      const detail = await loadSurveyDetail(surveyId);
+      if (detail) {
+        setSurveys(prev => prev.map(s =>
+          (s.survey_id || s.id) === surveyId ? { ...s, status: detail.status || 'processing' } : s
+        ));
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to start processing');
+      await refreshSurveys();
+    }
+  };
+
+  const handleSelectSurvey = (survey) => {
+    loadSurveyDetail(survey.survey_id || survey.id);
   };
 
   const formatBytes = (bytes) => {
+    if (!bytes && bytes !== 0) return '';
     if (bytes === 0) return '0 B';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
@@ -176,6 +210,12 @@ const DroneProcessingPage = () => {
           </Button>
         </Box>
 
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        )}
+
         <Grid container spacing={3}>
           {/* Survey List */}
           <Grid item xs={12} md={4}>
@@ -184,7 +224,12 @@ const DroneProcessingPage = () => {
                 <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                   Surveys ({surveys.length})
                 </Typography>
-                {surveys.length === 0 ? (
+                {loadingSurveys ? (
+                  <Box sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
+                    <LinearProgress sx={{ mb: 2 }} />
+                    <Typography variant="body2">Loading surveys...</Typography>
+                  </Box>
+                ) : surveys.length === 0 ? (
                   <Box sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
                     <FolderIcon sx={{ fontSize: 48, opacity: 0.3, mb: 1 }} />
                     <Typography variant="body2">No surveys yet</Typography>
@@ -194,10 +239,10 @@ const DroneProcessingPage = () => {
                   <List dense>
                     {surveys.map(survey => (
                       <ListItem
-                        key={survey.id}
+                        key={survey.survey_id || survey.id}
                         button
-                        selected={activeSurvey?.id === survey.id}
-                        onClick={() => setActiveSurvey(survey)}
+                        selected={activeSurvey?.survey_id === (survey.survey_id || survey.id)}
+                        onClick={() => handleSelectSurvey(survey)}
                         sx={{
                           borderRadius: 2,
                           mb: 0.5,
@@ -206,7 +251,7 @@ const DroneProcessingPage = () => {
                       >
                         <ListItemIcon sx={{ minWidth: 36 }}>
                           <Badge
-                            badgeContent={survey.images.length}
+                            badgeContent={survey.image_count || 0}
                             color="primary"
                             sx={{ '& .MuiBadge-badge': { fontSize: '0.65rem' } }}
                           >
@@ -215,7 +260,7 @@ const DroneProcessingPage = () => {
                         </ListItemIcon>
                         <ListItemText
                           primary={survey.name}
-                          secondary={survey.status}
+                          secondary={survey.description || survey.status}
                           primaryTypographyProps={{ fontSize: '0.9rem', fontWeight: 500 }}
                           secondaryTypographyProps={{ fontSize: '0.75rem' }}
                         />
@@ -223,7 +268,7 @@ const DroneProcessingPage = () => {
                           <Chip
                             label={survey.status}
                             size="small"
-                            color={STATUS_COLORS[survey.status]}
+                            color={STATUS_COLORS[survey.status] || 'default'}
                             sx={{ fontSize: '0.65rem', height: 22 }}
                           />
                         </ListItemSecondaryAction>
@@ -245,19 +290,24 @@ const DroneProcessingPage = () => {
                     <Box>
                       <Typography variant="h5" sx={{ fontWeight: 700 }}>{activeSurvey.name}</Typography>
                       <Typography variant="body2" color="text.secondary">{activeSurvey.description || 'No description'}</Typography>
+                      {activeSurvey.progress_message && (
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                          {activeSurvey.progress_message}
+                        </Typography>
+                      )}
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1 }}>
                       <Tooltip title="Process Survey">
                         <IconButton
                           color="primary"
-                          onClick={() => handleProcessSurvey(activeSurvey.id)}
-                          disabled={activeSurvey.images.length === 0 || activeSurvey.status === 'processing'}
+                          onClick={() => handleProcessSurvey(activeSurvey.survey_id || activeSurvey.id)}
+                          disabled={(activeSurvey.image_count || 0) === 0 || activeSurvey.status === 'processing'}
                         >
                           <ProcessingIcon />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Delete Survey">
-                        <IconButton color="error" onClick={() => handleDeleteSurvey(activeSurvey.id)}>
+                        <IconButton color="error" onClick={() => handleDeleteSurvey(activeSurvey.survey_id || activeSurvey.id)}>
                           <DeleteIcon />
                         </IconButton>
                       </Tooltip>
@@ -268,7 +318,7 @@ const DroneProcessingPage = () => {
                   <Box sx={{ mb: 4 }}>
                     <Stepper activeStep={
                       activeSurvey.status === 'draft' ? 0 :
-                      activeSurvey.status === 'uploaded' ? 1 :
+                      activeSurvey.status === 'uploaded' || activeSurvey.status === 'ready' ? 1 :
                       activeSurvey.status === 'processing' ? 2 :
                       activeSurvey.status === 'completed' ? 4 : 0
                     } alternativeLabel>
@@ -317,7 +367,7 @@ const DroneProcessingPage = () => {
                   ))}
 
                   {/* Image List */}
-                  {activeSurvey.images.length > 0 && (
+                  {activeSurvey.images && activeSurvey.images.length > 0 && (
                     <Box sx={{ mt: 3 }}>
                       <Typography variant="subtitle2" sx={{ mb: 1 }}>
                         <ImageIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} />
@@ -330,17 +380,19 @@ const DroneProcessingPage = () => {
                               <ImageIcon fontSize="small" sx={{ color: 'text.secondary' }} />
                             </ListItemIcon>
                             <ListItemText
-                              primary={img.name}
-                              secondary={formatBytes(img.size)}
+                              primary={img.file_name || img.name}
+                              secondary={formatBytes(img.file_size || img.size)}
                               primaryTypographyProps={{ fontSize: '0.85rem' }}
                               secondaryTypographyProps={{ fontSize: '0.7rem' }}
                             />
-                            <Chip
-                              label={img.status}
-                              size="small"
-                              color={img.status === 'uploaded' ? 'success' : 'default'}
-                              sx={{ fontSize: '0.65rem', height: 20 }}
-                            />
+                            {(img.latitude != null) && (
+                              <Chip
+                                label={`${typeof img.latitude === 'number' ? img.latitude.toFixed(4) : img.latitude}, ${typeof img.longitude === 'number' ? img.longitude.toFixed(4) : img.longitude}`}
+                                size="small"
+                                variant="outlined"
+                                sx={{ fontSize: '0.6rem', height: 20, mr: 1 }}
+                              />
+                            )}
                           </ListItem>
                         ))}
                       </List>
@@ -351,6 +403,11 @@ const DroneProcessingPage = () => {
                   {activeSurvey.status === 'processing' && (
                     <Alert severity="info" sx={{ mt: 3 }}>
                       Processing survey with OpenDroneMap... This may take several minutes depending on image count.
+                    </Alert>
+                  )}
+                  {activeSurvey.status === 'failed' && (
+                    <Alert severity="error" sx={{ mt: 3 }}>
+                      {activeSurvey.error_message || 'Processing failed. Please check the server logs.'}
                     </Alert>
                   )}
                   {activeSurvey.status === 'completed' && (
@@ -411,8 +468,8 @@ const DroneProcessingPage = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreateSurvey} disabled={!newSurveyName.trim()}>
-            Create
+          <Button variant="contained" onClick={handleCreateSurvey} disabled={!newSurveyName.trim() || saving}>
+            {saving ? 'Creating...' : 'Create'}
           </Button>
         </DialogActions>
       </Dialog>

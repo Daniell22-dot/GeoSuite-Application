@@ -11,13 +11,13 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Arial, sans-serif;
         }
-        
+
         body {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             padding: 40px;
             min-height: 100vh;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -26,29 +26,29 @@
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.1);
         }
-        
+
         .header {
             text-align: center;
             margin-bottom: 50px;
             padding-bottom: 30px;
             border-bottom: 2px solid #f0f0f0;
         }
-        
+
         h1 {
             color: #1A5F7A;
             font-size: 42px;
             margin-bottom: 10px;
         }
-        
+
         .subtitle {
             color: #666;
             font-size: 18px;
         }
-        
+
         .download-section {
             margin-bottom: 60px;
         }
-        
+
         .section-title {
             color: #2D9AA6;
             font-size: 24px;
@@ -56,14 +56,14 @@
             padding-bottom: 10px;
             border-bottom: 1px solid #e0e0e0;
         }
-        
+
         .icons-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 30px;
             margin-bottom: 40px;
         }
-        
+
         .icon-card {
             background: white;
             border-radius: 15px;
@@ -73,13 +73,13 @@
             border: 2px solid #f8f9fa;
             transition: all 0.3s ease;
         }
-        
+
         .icon-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 40px rgba(26, 95, 122, 0.15);
             border-color: #2D9AA6;
         }
-        
+
         .icon-preview {
             width: 120px;
             height: 120px;
@@ -88,20 +88,25 @@
             align-items: center;
             justify-content: center;
         }
-        
+
+        .icon-preview svg {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
         .icon-name {
             color: #333;
             font-weight: 600;
             margin-bottom: 10px;
             font-size: 16px;
         }
-        
+
         .icon-size {
             color: #666;
             font-size: 14px;
             margin-bottom: 15px;
         }
-        
+
         .download-btn {
             background: linear-gradient(135deg, #1A5F7A 0%, #2D9AA6 100%);
             color: white;
@@ -114,13 +119,14 @@
             text-decoration: none;
             display: inline-block;
             font-size: 14px;
+            margin: 2px;
         }
-        
+
         .download-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 5px 20px rgba(26, 95, 122, 0.3);
         }
-        
+
         .footer {
             text-align: center;
             margin-top: 50px;
@@ -128,7 +134,7 @@
             border-top: 2px solid #f0f0f0;
             color: #666;
         }
-        
+
         .color-palette {
             display: flex;
             gap: 20px;
@@ -136,11 +142,11 @@
             justify-content: center;
             flex-wrap: wrap;
         }
-        
+
         .color-item {
             text-align: center;
         }
-        
+
         .color-box {
             width: 60px;
             height: 60px;
@@ -149,7 +155,7 @@
             border: 2px solid white;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        
+
         .instructions {
             background: #f8f9fa;
             padding: 30px;
@@ -157,26 +163,26 @@
             margin: 40px 0;
             border-left: 5px solid #2D9AA6;
         }
-        
+
         .instructions h3 {
             color: #1A5F7A;
             margin-bottom: 15px;
         }
-        
+
         .instructions ol {
             margin-left: 20px;
             line-height: 1.8;
         }
-        
+
         @media (max-width: 768px) {
             body {
                 padding: 20px;
             }
-            
+
             .container {
                 padding: 20px;
             }
-            
+
             .icons-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
                 gap: 20px;
@@ -189,7 +195,7 @@
         <div class="header">
             <h1> GeoSuite Icon Suite</h1>
             <p class="subtitle">Complete branding package for your geospatial application</p>
-            
+
             <div class="color-palette">
                 <div class="color-item">
                     <div class="color-box" style="background: #1A5F7A;"></div>
@@ -209,25 +215,24 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="instructions">
-            <h3> How to Download These Icons:</h3>
+            <h3> How to Download Icons</h3>
             <ol>
-                <li>Right-click on any icon preview below</li>
-                <li>Select "Save image as..." or "Copy image"</li>
-                <li>Choose PNG format for best quality</li>
-                <li>Use the provided SVG code for scalable versions</li>
+                <li>Click <strong>Download SVG</strong> for scalable vector icons</li>
+                <li>Click <strong>Download PNG</strong> for raster images at the stated size</li>
+                <li>You can also right-click any icon preview and save it directly</li>
+                <li>SVG files can be edited in Figma, Adobe Illustrator, or Inkscape</li>
             </ol>
         </div>
-        
+
         <!-- APP ICONS SECTION -->
         <div class="download-section">
             <h2 class="section-title"> Primary App Icons</h2>
             <div class="icons-grid">
-                <!-- Icon 1 -->
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="120" height="120" id="app-icon-1">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="app-icon-1">
                             <defs>
                                 <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#1A5F7A"/>
@@ -244,16 +249,14 @@
                         </svg>
                     </div>
                     <div class="icon-name">Full Color App Icon</div>
-                    <div class="icon-size">512×512 • Square</div>
-                    <button class="download-btn" onclick="downloadSVG('app-icon-1', 'geosuite-app-icon.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('app-icon-1', 'geosuite-app-icon.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('app-icon-1', 'geosuite-app-icon.png', 120)">Download PNG</button>
                 </div>
-                
-                <!-- Icon 2 -->
+
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="120" height="120" id="app-icon-2">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="app-icon-2">
                             <defs>
                                 <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#0A66C2"/>
@@ -264,22 +267,18 @@
                             <circle cx="60" cy="60" r="45" fill="none" stroke="white" stroke-width="2"/>
                             <circle cx="60" cy="60" r="30" fill="none" stroke="white" stroke-width="1.5" opacity="0.7"/>
                             <circle cx="60" cy="60" r="15" fill="none" stroke="white" stroke-width="1" opacity="0.5" stroke-dasharray="3,3"/>
-                            <text x="60" y="65" text-anchor="middle" fill="white" font-family="Arial" font-size="24" font-weight="bold">
-                                GS
-                            </text>
+                            <text x="60" y="65" text-anchor="middle" fill="white" font-family="Arial" font-size="24" font-weight="bold">GS</text>
                         </svg>
                     </div>
-                    <div class="icon-name">LinkedIn Profile</div>
-                    <div class="icon-size">400×400 • Circle</div>
-                    <button class="download-btn" onclick="downloadSVG('app-icon-2', 'geosuite-linkedin.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-name">Social Profile</div>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('app-icon-2', 'geosuite-social.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('app-icon-2', 'geosuite-social.png', 120)">Download PNG</button>
                 </div>
-                
-                <!-- Icon 3 -->
+
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="120" height="120" id="app-icon-3">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="app-icon-3">
                             <defs>
                                 <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#1A5F7A"/>
@@ -288,22 +287,19 @@
                                 </linearGradient>
                             </defs>
                             <rect width="120" height="120" rx="20" fill="url(#grad3)"/>
-                            <rect x="30" y="30" width="60" height="60" rx="10" fill="rgba(255,255,255,0.1)" stroke="white" stroke-width="2" stroke-opacity="0.2"/>
-                            <polygon points="60,40 80,60 60,80 40,60" fill="white"/>
-                            <polygon points="60,50 70,60 60,70 50,60" fill="url(#grad3)"/>
+                            <polygon points="60,30 75,60 60,90 45,60" fill="white" opacity="0.9"/>
+                            <circle cx="60" cy="60" r="10" fill="#F57C00"/>
                         </svg>
                     </div>
-                    <div class="icon-name">Twitter/X Modern</div>
-                    <div class="icon-size">400×400 • Rounded</div>
-                    <button class="download-btn" onclick="downloadSVG('app-icon-3', 'geosuite-twitter.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-name">Brand Mark</div>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('app-icon-3', 'geosuite-brand-mark.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('app-icon-3', 'geosuite-brand-mark.png', 120)">Download PNG</button>
                 </div>
-                
-                <!-- Icon 4 -->
+
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="120" height="120" id="app-icon-4">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="app-icon-4">
                             <rect width="120" height="120" rx="60" fill="#24292e"/>
                             <circle cx="60" cy="60" r="45" fill="none" stroke="#2D9AA6" stroke-width="3"/>
                             <circle cx="60" cy="60" r="30" fill="none" stroke="#1A5F7A" stroke-width="2"/>
@@ -312,311 +308,384 @@
                             <circle cx="60" cy="60" r="8" fill="#F57C00"/>
                         </svg>
                     </div>
-                    <div class="icon-name">GitHub Technical</div>
-                    <div class="icon-size">420×420 • Circle</div>
-                    <button class="download-btn" onclick="downloadSVG('app-icon-4', 'geosuite-github.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-name">Technical / Open-Source</div>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('app-icon-4', 'geosuite-technical.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('app-icon-4', 'geosuite-technical.png', 120)">Download PNG</button>
                 </div>
             </div>
         </div>
-        
+
         <!-- FEATURE ICONS SECTION -->
         <div class="download-section">
             <h2 class="section-title"> Feature Icons</h2>
             <div class="icons-grid">
-                <!-- Feature 1 -->
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="120" height="120" id="feature-1">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="feature-gps">
                             <defs>
-                                <linearGradient id="grad4" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <linearGradient id="grad-gps" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#1A5F7A"/>
                                     <stop offset="100%" stop-color="#2D9AA6"/>
                                 </linearGradient>
                             </defs>
-                            <rect width="120" height="120" rx="20" fill="url(#grad4)"/>
-                            <rect x="25" y="25" width="70" height="70" rx="10" fill="none" stroke="white" stroke-width="2"/>
-                            <circle cx="40" cy="40" r="5" fill="#F57C00"/>
-                            <circle cx="80" cy="60" r="5" fill="#4CAF50"/>
-                            <circle cx="60" cy="80" r="5" fill="#2196F3"/>
+                            <rect width="120" height="120" rx="20" fill="url(#grad-gps)"/>
+                            <circle cx="60" cy="60" r="35" fill="none" stroke="white" stroke-width="2" opacity="0.4"/>
+                            <circle cx="60" cy="60" r="22" fill="none" stroke="white" stroke-width="2"/>
+                            <circle cx="60" cy="60" r="6" fill="#F57C00"/>
+                            <line x1="60" y1="25" x2="60" y2="42" stroke="white" stroke-width="2"/>
+                            <polygon points="56,42 64,42 60,48" fill="white"/>
                         </svg>
                     </div>
-                    <div class="icon-name">Map Interface</div>
-                    <div class="icon-size">64×64 • Square</div>
-                    <button class="download-btn" onclick="downloadSVG('feature-1', 'map-interface.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-name">GPS / Positioning</div>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('feature-gps', 'icon-gps.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('feature-gps', 'icon-gps.png', 120)">Download PNG</button>
                 </div>
-                
-                <!-- Feature 2 -->
+
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="120" height="120" id="feature-2">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="feature-dem">
                             <defs>
-                                <linearGradient id="grad5" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#2D9AA6"/>
-                                    <stop offset="100%" stop-color="#1A5F7A"/>
-                                </linearGradient>
-                            </defs>
-                            <rect width="120" height="120" rx="20" fill="url(#grad5)"/>
-                            <rect x="30" y="40" width="10" height="30" rx="2" fill="#F57C00"/>
-                            <rect x="50" y="30" width="10" height="40" rx="2" fill="#4CAF50"/>
-                            <rect x="70" y="20" width="10" height="50" rx="2" fill="#2196F3"/>
-                            <rect x="90" y="35" width="10" height="35" rx="2" fill="#F57C00"/>
-                            <line x1="25" y1="90" x2="95" y2="90" stroke="white" stroke-width="3"/>
-                        </svg>
-                    </div>
-                    <div class="icon-name">Data Analysis</div>
-                    <div class="icon-size">64×64 • Square</div>
-                    <button class="download-btn" onclick="downloadSVG('feature-2', 'data-analysis.svg')">
-                        Download SVG
-                    </button>
-                </div>
-                
-                <!-- Feature 3 -->
-                <div class="icon-card">
-                    <div class="icon-preview">
-                        <svg width="120" height="120" id="feature-3">
-                            <defs>
-                                <linearGradient id="grad6" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#1A5F7A"/>
-                                    <stop offset="100%" stop-color="#2D9AA6"/>
-                                </linearGradient>
-                                <linearGradient id="terrain" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <linearGradient id="grad-dem" x1="0%" y1="0%" x2="0%" y2="100%">
                                     <stop offset="0%" stop-color="#4CAF50"/>
                                     <stop offset="100%" stop-color="#2E7D32"/>
                                 </linearGradient>
                             </defs>
-                            <rect width="120" height="120" rx="20" fill="url(#grad6)"/>
-                            <path d="M 20 100 L 40 50 L 60 70 L 80 30 L 100 100" fill="url(#terrain)"/>
+                            <rect width="120" height="120" rx="20" fill="#1A5F7A"/>
+                            <path d="M 20 100 L 40 55 L 60 75 L 80 40 L 100 100" fill="url(#grad-dem)"/>
                             <line x1="20" y1="100" x2="100" y2="100" stroke="white" stroke-width="3"/>
+                            <line x1="40" y1="55" x2="40" y2="100" stroke="white" stroke-width="1" opacity="0.3"/>
+                            <line x1="60" y1="75" x2="60" y2="100" stroke="white" stroke-width="1" opacity="0.3"/>
+                            <line x1="80" y1="40" x2="80" y2="100" stroke="white" stroke-width="1" opacity="0.3"/>
                         </svg>
                     </div>
-                    <div class="icon-name">3D Terrain</div>
-                    <div class="icon-size">64×64 • Square</div>
-                    <button class="download-btn" onclick="downloadSVG('feature-3', 'terrain-3d.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-name">DEM / Terrain</div>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('feature-dem', 'icon-dem.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('feature-dem', 'icon-dem.png', 120)">Download PNG</button>
                 </div>
-                
-                <!-- Feature 4 -->
+
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="120" height="120" id="feature-4">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="feature-watershed">
                             <defs>
-                                <linearGradient id="grad7" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#4CAF50"/>
+                                <linearGradient id="grad-ws" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#2D9AA6"/>
+                                    <stop offset="100%" stop-color="#1A5F7A"/>
+                                </linearGradient>
+                            </defs>
+                            <rect width="120" height="120" rx="20" fill="url(#grad-ws)"/>
+                            <path d="M 30 30 Q 60 80 90 30" fill="none" stroke="white" stroke-width="3"/>
+                            <path d="M 45 45 Q 60 75 75 45" fill="none" stroke="#F57C00" stroke-width="2"/>
+                            <circle cx="60" cy="85" r="8" fill="#F57C00"/>
+                            <line x1="60" y1="77" x2="60" y2="30" stroke="white" stroke-width="1.5" stroke-dasharray="4,3"/>
+                        </svg>
+                    </div>
+                    <div class="icon-name">Watershed / Hydrology</div>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('feature-watershed', 'icon-watershed.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('feature-watershed', 'icon-watershed.png', 120)">Download PNG</button>
+                </div>
+
+                <div class="icon-card">
+                    <div class="icon-preview">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="feature-drone">
+                            <defs>
+                                <linearGradient id="grad-drone" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#1565C0"/>
                                     <stop offset="100%" stop-color="#2D9AA6"/>
                                 </linearGradient>
                             </defs>
-                            <rect width="120" height="120" rx="20" fill="url(#grad7)"/>
-                            <circle cx="60" cy="60" r="30" fill="none" stroke="white" stroke-width="3" stroke-dasharray="15,5"/>
-                            <path d="M 30 60 A 30 30 0 0 1 90 60" fill="none" stroke="#F57C00" stroke-width="4"/>
-                            <polygon points="85,55 95,60 85,65" fill="#F57C00"/>
+                            <rect width="120" height="120" rx="20" fill="url(#grad-drone)"/>
+                            <ellipse cx="60" cy="55" rx="28" ry="10" fill="none" stroke="white" stroke-width="2"/>
+                            <ellipse cx="60" cy="55" rx="10" ry="4" fill="#F57C00"/>
+                            <line x1="32" y1="55" x2="20" y2="35" stroke="white" stroke-width="1.5"/>
+                            <circle cx="20" cy="35" r="6" fill="none" stroke="white" stroke-width="2"/>
+                            <line x1="88" y1="55" x2="100" y2="35" stroke="white" stroke-width="1.5"/>
+                            <circle cx="100" cy="35" r="6" fill="none" stroke="white" stroke-width="2"/>
+                            <path d="M 45 75 L 60 90 L 75 75" fill="none" stroke="white" stroke-width="2"/>
                         </svg>
                     </div>
-                    <div class="icon-name">Flow Analysis</div>
-                    <div class="icon-size">64×64 • Square</div>
-                    <button class="download-btn" onclick="downloadSVG('feature-4', 'flow-analysis.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-name">Drone Survey</div>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('feature-drone', 'icon-drone.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('feature-drone', 'icon-drone.png', 120)">Download PNG</button>
                 </div>
-            </div>
-        </div>
-        
-        <!-- LOGO VARIANTS SECTION -->
-        <div class="download-section">
-            <h2 class="section-title"> Logo Variants</h2>
-            <div class="icons-grid">
-                <!-- Logo 1 -->
+
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="120" height="80" id="logo-1">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="feature-marine">
                             <defs>
-                                <linearGradient id="grad8" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <linearGradient id="grad-marine" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#1A5F7A"/>
                                     <stop offset="100%" stop-color="#2D9AA6"/>
                                 </linearGradient>
                             </defs>
-                            <rect width="80" height="80" rx="15" fill="url(#grad8)"/>
-                            <circle cx="40" cy="40" r="15" fill="none" stroke="white" stroke-width="2"/>
-                            <circle cx="40" cy="40" r="4" fill="#F57C00"/>
-                            <text x="95" y="50" font-family="Arial" font-size="24" font-weight="bold" fill="#1A5F7A">
-                                Geo<span fill="#2D9AA6">Suite</span>
-                            </text>
+                            <rect width="120" height="120" rx="20" fill="url(#grad-marine)"/>
+                            <path d="M 20 85 Q 35 70 50 85 T 80 85 T 110 85" fill="none" stroke="white" stroke-width="2"/>
+                            <path d="M 20 80 Q 35 65 50 80 T 80 80 T 110 80" fill="none" stroke="#F57C00" stroke-width="2"/>
+                            <circle cx="85" cy="45" r="12" fill="none" stroke="white" stroke-width="2"/>
+                            <line x1="85" y1="33" x2="85" y2="45" stroke="white" stroke-width="2"/>
+                            <polygon points="83,45 85,52 87,45" fill="white"/>
+                        </svg>
+                    </div>
+                    <div class="icon-name">Marine / Nautical</div>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('feature-marine', 'icon-marine.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('feature-marine', 'icon-marine.png', 120)">Download PNG</button>
+                </div>
+
+                <div class="icon-card">
+                    <div class="icon-preview">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="feature-terminal">
+                            <defs>
+                                <linearGradient id="grad-term" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#24292e"/>
+                                    <stop offset="100%" stop-color="#1A5F7A"/>
+                                </linearGradient>
+                            </defs>
+                            <rect width="120" height="120" rx="20" fill="url(#grad-term)"/>
+                            <rect x="25" y="25" width="70" height="50" rx="4" fill="none" stroke="white" stroke-width="2"/>
+                            <line x1="25" y1="40" x2="95" y2="40" stroke="white" stroke-width="1.5"/>
+                            <circle cx="32" cy="32" r="3" fill="#EF4444"/>
+                            <circle cx="40" cy="32" r="3" fill="#F57C00"/>
+                            <circle cx="48" cy="32" r="3" fill="#4CAF50"/>
+                            <text x="60" y="67" text-anchor="middle" fill="#4CAF50" font-family="monospace" font-size="14">$ _</text>
+                            <rect x="25" y="80" width="70" height="12" rx="2" fill="#0A66C2"/>
+                            <text x="60" y="90" text-anchor="middle" fill="white" font-family="Arial" font-size="10">bash</text>
+                        </svg>
+                    </div>
+                    <div class="icon-name">Terminal / Shell</div>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('feature-terminal', 'icon-terminal.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('feature-terminal', 'icon-terminal.png', 120)">Download PNG</button>
+                </div>
+
+                <div class="icon-card">
+                    <div class="icon-preview">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="feature-cv">
+                            <defs>
+                                <linearGradient id="grad-cv" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#7C3AED"/>
+                                    <stop offset="100%" stop-color="#2D9AA6"/>
+                                </linearGradient>
+                            </defs>
+                            <rect width="120" height="120" rx="20" fill="url(#grad-cv)"/>
+                            <rect x="25" y="30" width="30" height="22" rx="3" fill="none" stroke="white" stroke-width="2"/>
+                            <rect x="65" y="30" width="30" height="22" rx="3" fill="none" stroke="white" stroke-width="2"/>
+                            <line x1="40" y1="65" x2="40" y2="85" stroke="white" stroke-width="2"/>
+                            <line x1="60" y1="55" x2="60" y2="85" stroke="white" stroke-width="2"/>
+                            <line x1="80" y1="65" x2="80" y2="85" stroke="white" stroke-width="2"/>
+                            <circle cx="40" cy="90" r="3" fill="#F57C00"/>
+                            <circle cx="60" cy="90" r="3" fill="#F57C00"/>
+                            <circle cx="80" cy="90" r="3" fill="#F57C00"/>
+                        </svg>
+                    </div>
+                    <div class="icon-name">Computer Vision / AI</div>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('feature-cv', 'icon-cv.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('feature-cv', 'icon-cv.png', 120)">Download PNG</button>
+                </div>
+
+                <div class="icon-card">
+                    <div class="icon-preview">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="feature-transform">
+                            <defs>
+                                <linearGradient id="grad-tf" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#F57C00"/>
+                                    <stop offset="100%" stop-color="#2D9AA6"/>
+                                </linearGradient>
+                            </defs>
+                            <rect width="120" height="120" rx="20" fill="url(#grad-tf)"/>
+                            <circle cx="45" cy="60" r="18" fill="none" stroke="white" stroke-width="2"/>
+                            <circle cx="75" cy="60" r="18" fill="none" stroke="white" stroke-width="2"/>
+                            <path d="M 63 55 L 57 60 L 63 65" fill="none" stroke="white" stroke-width="2"/>
+                            <path d="M 57 55 L 63 60 L 57 65" fill="none" stroke="white" stroke-width="2"/>
+                            <text x="45" y="65" text-anchor="middle" fill="white" font-family="Arial" font-size="12" font-weight="bold">EN</text>
+                            <text x="75" y="65" text-anchor="middle" fill="white" font-family="Arial" font-size="12" font-weight="bold">UTM</text>
+                        </svg>
+                    </div>
+                    <div class="icon-name">Coordinate Transform</div>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('feature-transform', 'icon-transform.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('feature-transform', 'icon-transform.png', 120)">Download PNG</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOGO VARIANTS SECTION -->
+        <div class="download-section">
+            <h2 class="section-title"> Logo Variants</h2>
+            <div class="icons-grid">
+                <div class="icon-card">
+                    <div class="icon-preview">
+                        <svg width="120" height="80" viewBox="0 0 120 80" id="logo-horizontal">
+                            <defs>
+                                <linearGradient id="grad-logo1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#1A5F7A"/>
+                                    <stop offset="100%" stop-color="#2D9AA6"/>
+                                </linearGradient>
+                            </defs>
+                            <rect width="50" height="50" rx="10" fill="url(#grad-logo1)"/>
+                            <circle cx="25" cy="25" r="12" fill="none" stroke="white" stroke-width="1.5"/>
+                            <circle cx="25" cy="25" r="4" fill="#F57C00"/>
+                            <text x="65" y="32" font-family="Arial" font-size="18" font-weight="bold" fill="#1A5F7A">Geo<span fill="#2D9AA6">Suite</span></text>
                         </svg>
                     </div>
                     <div class="icon-name">Horizontal Logo</div>
-                    <div class="icon-size">600×200 • PNG/SVG</div>
-                    <button class="download-btn" onclick="downloadSVG('logo-1', 'geosuite-horizontal.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-size">120×80 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('logo-horizontal', 'geosuite-horizontal.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('logo-horizontal', 'geosuite-horizontal.png', 120)">Download PNG</button>
                 </div>
-                
-                <!-- Logo 2 -->
+
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="120" height="120" id="logo-2">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="logo-light">
                             <defs>
-                                <linearGradient id="grad9" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <linearGradient id="grad-logo2" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#ffffff"/>
                                     <stop offset="100%" stop-color="#f0f0f0"/>
                                 </linearGradient>
                             </defs>
-                            <rect width="120" height="120" rx="20" fill="url(#grad9)"/>
+                            <rect width="120" height="120" rx="20" fill="url(#grad-logo2)"/>
                             <rect x="30" y="30" width="60" height="60" rx="10" fill="#1A5F7A"/>
                             <circle cx="60" cy="60" r="20" fill="none" stroke="white" stroke-width="2"/>
                             <circle cx="60" cy="60" r="5" fill="#F57C00"/>
-                            <text x="60" y="100" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#333">
-                                GeoSuite
-                            </text>
+                            <text x="60" y="100" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#333">GeoSuite</text>
                         </svg>
                     </div>
                     <div class="icon-name">Light Mode Logo</div>
-                    <div class="icon-size">512×512 • Square</div>
-                    <button class="download-btn" onclick="downloadSVG('logo-2', 'geosuite-light.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('logo-light', 'geosuite-light.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('logo-light', 'geosuite-light.png', 120)">Download PNG</button>
                 </div>
-                
-                <!-- Logo 3 -->
+
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="120" height="120" id="logo-3">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="logo-dark">
                             <rect width="120" height="120" rx="20" fill="#1A5F7A"/>
                             <circle cx="60" cy="50" r="25" fill="none" stroke="#2D9AA6" stroke-width="3"/>
                             <circle cx="60" cy="50" r="15" fill="none" stroke="#F57C00" stroke-width="2" stroke-dasharray="5,5"/>
                             <circle cx="60" cy="50" r="6" fill="white"/>
-                            <text x="60" y="95" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold" fill="white">
-                                GEO SUITE
-                            </text>
+                            <text x="60" y="95" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold" fill="white">GEO SUITE</text>
                         </svg>
                     </div>
                     <div class="icon-name">Dark Mode Logo</div>
-                    <div class="icon-size">512×512 • Square</div>
-                    <button class="download-btn" onclick="downloadSVG('logo-3', 'geosuite-dark.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('logo-dark', 'geosuite-dark.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('logo-dark', 'geosuite-dark.png', 120)">Download PNG</button>
                 </div>
-                
-                <!-- Logo 4 -->
+
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="120" height="120" id="logo-4">
+                        <svg width="120" height="120" viewBox="0 0 120 120" id="logo-gradient">
                             <defs>
-                                <linearGradient id="grad10" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <linearGradient id="grad-logo3" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#1A5F7A"/>
                                     <stop offset="50%" stop-color="#2D9AA6"/>
                                     <stop offset="100%" stop-color="#4CAF50"/>
                                 </linearGradient>
                             </defs>
-                            <rect width="120" height="120" rx="60" fill="url(#grad10)"/>
+                            <rect width="120" height="120" rx="60" fill="url(#grad-logo3)"/>
                             <polygon points="60,30 75,60 60,90 45,60" fill="white" opacity="0.9"/>
                             <circle cx="60" cy="60" r="10" fill="#F57C00"/>
-                            <text x="60" y="115" text-anchor="middle" font-family="Arial" font-size="12" fill="white" opacity="0.8">
-                                Spatial Intelligence
-                            </text>
+                            <text x="60" y="115" text-anchor="middle" font-family="Arial" font-size="10" fill="white" opacity="0.8">Spatial Intelligence</text>
                         </svg>
                     </div>
                     <div class="icon-name">Gradient Circle</div>
-                    <div class="icon-size">400×400 • Circle</div>
-                    <button class="download-btn" onclick="downloadSVG('logo-4', 'geosuite-gradient.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-size">120×120 viewport</div>
+                    <button class="download-btn" onclick="downloadSVG('logo-gradient', 'geosuite-gradient.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('logo-gradient', 'geosuite-gradient.png', 120)">Download PNG</button>
                 </div>
             </div>
         </div>
-        
+
         <!-- FAVICON SET -->
         <div class="download-section">
             <h2 class="section-title"> Favicon Set</h2>
             <div class="icons-grid">
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="32" height="32" id="favicon-16">
+                        <svg width="32" height="32" viewBox="0 0 32 32" id="favicon-32">
                             <rect width="32" height="32" rx="5" fill="#1A5F7A"/>
                             <rect x="8" y="8" width="16" height="16" rx="3" fill="none" stroke="white" stroke-width="1.5"/>
                             <circle cx="16" cy="16" r="2" fill="#F57C00"/>
                         </svg>
                     </div>
-                    <div class="icon-name">16×16 Favicon</div>
-                    <div class="icon-size">Web browsers</div>
-                    <button class="download-btn" onclick="downloadSVG('favicon-16', 'favicon-16.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-name">32×32</div>
+                    <div class="icon-size">Browser tab</div>
+                    <button class="download-btn" onclick="downloadSVG('favicon-32', 'favicon-32.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('favicon-32', 'favicon-32.png', 32)">Download PNG</button>
                 </div>
-                
+
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="48" height="48" id="favicon-32">
+                        <svg width="48" height="48" viewBox="0 0 48 48" id="favicon-48">
                             <rect width="48" height="48" rx="8" fill="#2D9AA6"/>
                             <rect x="12" y="12" width="24" height="24" rx="5" fill="none" stroke="white" stroke-width="2"/>
                             <circle cx="24" cy="24" r="3" fill="#F57C00"/>
                             <circle cx="24" cy="24" r="8" fill="none" stroke="#F57C00" stroke-width="1" opacity="0.3"/>
                         </svg>
                     </div>
-                    <div class="icon-name">32×32 Favicon</div>
-                    <div class="icon-size">High-res browsers</div>
-                    <button class="download-btn" onclick="downloadSVG('favicon-32', 'favicon-32.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-name">48×48</div>
+                    <div class="icon-size">High-res browser</div>
+                    <button class="download-btn" onclick="downloadSVG('favicon-48', 'favicon-48.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('favicon-48', 'favicon-48.png', 48)">Download PNG</button>
                 </div>
-                
+
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="64" height="64" id="favicon-64">
+                        <svg width="64" height="64" viewBox="0 0 64 64" id="favicon-64">
                             <defs>
-                                <linearGradient id="grad11" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <linearGradient id="grad-fav" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#1A5F7A"/>
                                     <stop offset="100%" stop-color="#2D9AA6"/>
                                 </linearGradient>
                             </defs>
-                            <rect width="64" height="64" rx="12" fill="url(#grad11)"/>
+                            <rect width="64" height="64" rx="12" fill="url(#grad-fav)"/>
                             <circle cx="32" cy="32" r="20" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
                             <circle cx="32" cy="32" r="12" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
                             <circle cx="32" cy="32" r="4" fill="#F57C00"/>
                         </svg>
                     </div>
-                    <div class="icon-name">64×64 Desktop</div>
-                    <div class="icon-size">Bookmarks bar</div>
-                    <button class="download-btn" onclick="downloadSVG('favicon-64', 'favicon-64.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-name">64×64</div>
+                    <div class="icon-size">Bookmarks / desktop</div>
+                    <button class="download-btn" onclick="downloadSVG('favicon-64', 'favicon-64.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('favicon-64', 'favicon-64.png', 64)">Download PNG</button>
                 </div>
-                
+
                 <div class="icon-card">
                     <div class="icon-preview">
-                        <svg width="96" height="96" id="favicon-128">
+                        <svg width="96" height="96" viewBox="0 0 96 96" id="favicon-96">
                             <defs>
-                                <linearGradient id="grad12" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <linearGradient id="grad-fav2" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" stop-color="#1A5F7A"/>
                                     <stop offset="50%" stop-color="#2D9AA6"/>
                                     <stop offset="100%" stop-color="#4CAF50"/>
                                 </linearGradient>
                             </defs>
-                            <rect width="96" height="96" rx="20" fill="url(#grad12)"/>
+                            <rect width="96" height="96" rx="20" fill="url(#grad-fav2)"/>
                             <circle cx="48" cy="48" r="30" fill="none" stroke="white" stroke-width="3"/>
                             <circle cx="48" cy="48" r="18" fill="none" stroke="white" stroke-width="2" opacity="0.7"/>
                             <circle cx="48" cy="48" r="6" fill="#F57C00"/>
                             <circle cx="48" cy="48" r="12" fill="none" stroke="#F57C00" stroke-width="1.5" opacity="0.3"/>
                         </svg>
                     </div>
-                    <div class="icon-name">128×128 High-res</div>
-                    <div class="icon-size">Mobile/Tablet</div>
-                    <button class="download-btn" onclick="downloadSVG('favicon-128', 'favicon-128.svg')">
-                        Download SVG
-                    </button>
+                    <div class="icon-name">96×96</div>
+                    <div class="icon-size">High-res / tablet</div>
+                    <button class="download-btn" onclick="downloadSVG('favicon-96', 'favicon-96.svg')">Download SVG</button>
+                    <button class="download-btn" onclick="downloadPNG('favicon-96', 'favicon-96.png', 96)">Download PNG</button>
                 </div>
             </div>
         </div>
-        
-        <!-- BONUS: ANIMATED SVG -->
+
+        <!-- ANIMATED LOADING ICON -->
         <div class="download-section">
             <h2 class="section-title"> Animated Loading Icon</h2>
             <div class="icon-card" style="max-width: 400px; margin: 0 auto;">
                 <div class="icon-preview">
-                    <svg width="200" height="200" id="animated-icon">
+                    <svg width="200" height="200" viewBox="0 0 200 200" id="animated-icon">
                         <defs>
                             <linearGradient id="gradAnim" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#1A5F7A"/>
@@ -638,13 +707,12 @@
                     </svg>
                 </div>
                 <div class="icon-name">Animated Loading</div>
-                <div class="icon-size">200×200 • SVG Animation</div>
-                <button class="download-btn" onclick="downloadSVG('animated-icon', 'geosuite-loading.svg')">
-                    Download SVG
-                </button>
+                <div class="icon-size">200×200 viewport • SVG Animation</div>
+                <button class="download-btn" onclick="downloadSVG('animated-icon', 'geosuite-loading.svg')">Download SVG</button>
+                <button class="download-btn" onclick="downloadPNG('animated-icon', 'geosuite-loading.png', 200)">Download PNG</button>
             </div>
         </div>
-        
+
         <div class="footer">
             <p> GeoSuite Icon Package • Generated for your geospatial application</p>
             <p style="margin-top: 10px; font-size: 14px; color: #888;">
@@ -653,88 +721,92 @@
                 &copy; 2025 Daniell Manyasa. All rights reserved.
             </p>
             <address>
-    Contact us: <a href="mailto:manyasadaniel630@gmail.com">manyasadaniel630@gmail.com</a>
-  </address>
+                Contact us: <a href="mailto:manyasadaniel630@gmail.com">manyasadaniel630@gmail.com</a>
+            </address>
         </div>
     </div>
 
     <script>
         function downloadSVG(svgId, filename) {
             const svg = document.getElementById(svgId);
+            if (!svg) return;
             const serializer = new XMLSerializer();
             let source = serializer.serializeToString(svg);
-            
-            // Add namespace
-            if(!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)){
+
+            if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
                 source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
             }
-            if(!source.match(/^<svg[^>]+"http:\/\/www\.w3\.org\/1999\/xlink"/)){
+            if (!source.match(/^<svg[^>]+"http:\/\/www\.w3\.org\/1999\/xlink"/)) {
                 source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
             }
-            
-            // Add XML declaration
+
             source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
-            
-            // Convert to blob
             const blob = new Blob([source], {type: 'image/svg+xml;charset=utf-8'});
             const url = URL.createObjectURL(blob);
-            
-            // Create download link
             const downloadLink = document.createElement('a');
             downloadLink.href = url;
             downloadLink.download = filename;
-            
-            // Trigger download
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
-            
-            // Clean up
-            setTimeout(() => {
-                URL.revokeObjectURL(url);
-            }, 100);
+            setTimeout(() => URL.revokeObjectURL(url), 100);
         }
-        
-        // Also enable right-click download
+
+        function downloadPNG(svgId, filename, size) {
+            const svg = document.getElementById(svgId);
+            if (!svg) return;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const serializer = new XMLSerializer();
+            const data = serializer.serializeToString(svg);
+            const img = new Image();
+            const svgBlob = new Blob([data], {type: 'image/svg+xml;charset=utf-8'});
+            const url = URL.createObjectURL(svgBlob);
+
+            img.onload = function() {
+                canvas.width = size || img.width;
+                canvas.height = size || img.height;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const pngUrl = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = pngUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            };
+            img.src = url;
+        }
+
         document.querySelectorAll('.icon-preview svg').forEach(svg => {
             svg.addEventListener('contextmenu', function(e) {
                 e.preventDefault();
                 const id = this.id;
                 const name = id ? id.replace(/-/g, '_') + '.png' : 'geosuite_icon.png';
-                
-                // Convert SVG to PNG for download
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                const data = new XMLSerializer().serializeToString(this);
+                const serializer = new XMLSerializer();
+                const data = serializer.serializeToString(this);
                 const img = new Image();
-                const svgBlob = new Blob([data], {type: 'image/svg+xml;charset=utf-8'});
-                const url = URL.createObjectURL(svgBlob);
-                
+                const blob = new Blob([data], {type: 'image/svg+xml;charset=utf-8'});
+                const url = URL.createObjectURL(blob);
+
                 img.onload = function() {
-                    canvas.width = this.width;
-                    canvas.height = this.height;
+                    canvas.width = this.width || 120;
+                    canvas.height = this.height || 120;
                     ctx.drawImage(img, 0, 0);
-                    
                     const pngUrl = canvas.toDataURL('image/png');
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = pngUrl;
-                    downloadLink.download = name;
-                    downloadLink.click();
-                    
+                    const link = document.createElement('a');
+                    link.href = pngUrl;
+                    link.download = name;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
                     URL.revokeObjectURL(url);
                 };
-                
                 img.src = url;
             });
-        });
-        
-        // Alert user about right-click functionality
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                if (confirm('Tip: You can also right-click any icon to save as PNG!\n\nClick OK to continue browsing.')) {
-                    // User acknowledged
-                }
-            }, 2000);
         });
     </script>
 </body>
