@@ -34,14 +34,13 @@ from app.cv_engine.training.train import (
     train_feature_extractor,
 )
 from app.cv_engine.training.synthetic_generator import (
-    _build_yolo_targets,
-    GRID_SIZE,
+    DEFAULT_GRID_SIZE,
     YOLO_CHANNELS,
 )
 
 DATASET_DIR = os.path.join(REPO_ROOT, 'DATASETS', 'kenya_training', 'train')
 SAVE_DIR = os.path.join(REPO_ROOT, 'backend', 'app', 'cv_models')
-GRID = GRID_SIZE
+GRID = DEFAULT_GRID_SIZE
 SEED = 42
 TEST_SPLIT = 7
 
@@ -265,7 +264,7 @@ def evaluate_test_split(train_fn_products, dataset, test_idx):
     bb_bd, head = train_fn_products['beacon']
     raw = head.forward(bb_bd.forward(x, training=False))
     S = raw.shape[2]
-    pred_conf = 1.0 / (1.0 + np.exp(-raw[:, 0, :, :]))
+    pred_conf = raw[:, 0, :, :]
     gt_targets = np.array([t for t in test_targets])
     if S != gt_targets.shape[1] or S != gt_targets.shape[2]:
         from app.cv_engine.preprocessing import resize_bilinear
