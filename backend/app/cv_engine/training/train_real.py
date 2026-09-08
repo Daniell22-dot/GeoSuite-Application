@@ -6,7 +6,8 @@ derives beacon labels heuristically (compact dark marker cores in the drawn
 boundary lines), splits the patches into a train/test partition (deterministic
 seed), trains boundary_segmenter, beacon_detector and feature_extractor with a
 compatible batch source, evaluates on the held-out test split, and saves the
-trained weights into backend/app/cv_models/.
+trained weights into backend/cv_models/ (flat, app-loadable) and
+backend/app/cv_models/<name>/ (Models folder layout).
 
 Pure NumPy — no external ML framework.
 """
@@ -33,6 +34,7 @@ from app.cv_engine.training.synthetic_generator import (
 
 DATASET_DIR = os.path.join(REPO_ROOT, 'DATASETS', 'kenya_training', 'train')
 SAVE_DIR = os.path.join(REPO_ROOT, 'backend', 'app', 'cv_models')
+APP_MODEL_DIR = os.path.join(REPO_ROOT, 'backend', 'cv_models')
 GRID = DEFAULT_GRID_SIZE
 SEED = 42
 TEST_SPLIT = 7
@@ -234,6 +236,97 @@ class RealBatchSource:
 
 
 # ---------------------------------------------------------------------------
+# Save in the exact format the inference pipeline loads (head classes' keys)
+# ---------------------------------------------------------------------------
+
+def _verify_pipeline_format(products: dict) -> bool:
+    """Load the trained weights back via the exact heads pipeline.py uses.
+
+    If any of the three heads raises while loading, the stored weights are not
+    compatible with the running app and we refuse to keep them as final.
+    """
+    try:
+        from app.cv_engine.heads.boundary_segmenter import BoundarySegmenter
+        from app.cv_engine.heads.beacon_detector import BeaconDetector
+        from app.cv_engine.heads.feature_extractor import FeatureExtractor
+
+        b = BoundarySegmenter(num_classes=3)
+        b.load_weights(os.path.join(APP_MODEL_DIR, 'boundary_segmenter'))
+        d = BeaconDetector()
+        d.load_weights(os.path.join(APP_MODEL_DIR, 'beacon_detector'))
+        f = FeatureExtractor()
+        f.load_weights(os.path.join(APP_MODEL_DIR, 'feature_extractor'))
+        return True
+    except Exception as exc:  # noqa: BLE001
+        print(f"[WARN] Pipeline-format verification failed: {exc}")
+        return False
+
+
+def _save_subdir_format(products: dict) -> None:
+    """Save into backend/app/cv_models/<name>/ — the repo 'Models folder' layout."""
+    bb, dec1, dec2, dec3, fw, fb = products['boundary']
+    bdir = os.path.join(SAVE_DIR, 'boundary_segmenter')
+    os.makedirs(bdir, exist_ok=True)
+    np.savez_compressed(os.path.join(bdir, 'backbone.npz'),
+                        **{f'param_{i}': p for i, p in enumerate(bb.parameters())})
+    np.savez_compressed(os.path.join(bdir, 'decoder.npz'),
+                        **{'final_w': fw, 'final_b': fb,
+                           **{f'dec_{i}': p for i, p in enumerate(
+                               dec1.parameters() + dec2.parameters() + dec3.parameters())}})
+
+    bb_bd, head = products['beacon']
+    edir = os.path.join(SAVE_DIR, 'beacon_detector')
+    os.makedirs(edir, exist_ok=True)
+    np.savez_compressed(os.path.join(edir, 'backbone.npz'),
+                        **{f'param_{i}': p for i, p in enumerate(bb_bd.parameters())})
+    np.savez_compressed(os.path.join(edir, 'head.npz'),
+                        **{f'head_{i}': p for i, p in enumerate(head.parameters())})
+
+    bbf, fdec1, fdec2, fdec3, ffw, ffb = products['feature']
+    fdir = os.path.join(SAVE_DIR, 'feature_extractor')
+    os.makedirs(fdir, exist_ok=True)
+    np.savez_compressed(os.path.join(fdir, 'backbone.npz'),
+                        **{f'param_{i}': p for i, p in enumerate(bbf.parameters())})
+    np.savez_compressed(os.path.join(fdir, 'decoder.npz'),
+                        **{'final_w': ffw, 'final_b': ffb,
+                           **{f'dec_{i}': p for i, p in enumerate(
+                               fdec1.parameters() + fdec2.parameters() + fdec3.parameters())}})
+
+
+def save_pipeline_format(products: dict) -> None:
+    """Write weights where the running app looks: backend/cv_models/<name>_*.npz.
+
+    pipeline.py calls each head's load_weights(path) with
+    path = backend/cv_models/<name>, so the head appends '_backbone.npz',
+    '_decoder.npz' / '_head.npz'. Key names match each head's loader.
+    """
+    os.makedirs(APP_MODEL_DIR, exist_ok=True)
+    bb, dec1, dec2, dec3, fw, fb = products['boundary']
+    np.savez_compressed(os.path.join(APP_MODEL_DIR, 'boundary_segmenter_backbone.npz'),
+                        **{f'param_{i}': p for i, p in enumerate(bb.parameters())})
+    np.savez_compressed(os.path.join(APP_MODEL_DIR, 'boundary_segmenter_decoder.npz'),
+                        **{'final_w': fw, 'final_b': fb,
+                           **{f'dec_{i}': p for i, p in enumerate(
+                               dec1.parameters() + dec2.parameters() + dec3.parameters())}})
+
+    bb_bd, head = products['beacon']
+    np.savez_compressed(os.path.join(APP_MODEL_DIR, 'beacon_detector_backbone.npz'),
+                        **{f'param_{i}': p for i, p in enumerate(bb_bd.parameters())})
+    np.savez_compressed(os.path.join(APP_MODEL_DIR, 'beacon_detector_head.npz'),
+                        **{f'head_{i}': p for i, p in enumerate(head.parameters())})
+
+    bbf, fdec1, fdec2, fdec3, ffw, ffb = products['feature']
+    np.savez_compressed(os.path.join(APP_MODEL_DIR, 'feature_extractor_backbone.npz'),
+                        **{f'param_{i}': p for i, p in enumerate(bbf.parameters())})
+    np.savez_compressed(os.path.join(APP_MODEL_DIR, 'feature_extractor_decoder.npz'),
+                        **{'final_w': ffw, 'final_b': ffb,
+                           **{f'dec_{i}': p for i, p in enumerate(
+                               fdec1.parameters() + fdec2.parameters() + fdec3.parameters())}})
+
+    _save_subdir_format(products)
+
+
+# ---------------------------------------------------------------------------
 # Evaluation on held-out split
 # ---------------------------------------------------------------------------
 
@@ -243,9 +336,6 @@ def evaluate_test_split(train_fn_products, dataset, test_idx):
     print("=" * 60)
     results = {}
     image_size = dataset['images'][0].shape[0]
-    test_images = [dataset['images'][i] for i in test_idx]
-    test_bmasks = [dataset['boundary_masks'][i] for i in test_idx]
-    test_fmasks = [dataset['feature_masks'][i] for i in test_idx]
     test_targets = [dataset['beacon_targets'][i] for i in test_idx]
 
     batch_source = RealBatchSource(test_idx, dataset['images'], dataset['boundary_masks'],
@@ -432,6 +522,15 @@ def main():
         'feature': feature_models,
     }
 
+    save_pipeline_format(products)
+    print("\nSaved weights:")
+    for name in ('boundary_segmenter', 'beacon_detector', 'feature_extractor'):
+        print(f"  app dir  : {os.path.join(APP_MODEL_DIR, name)}_*.npz")
+        print(f"  models   : {os.path.join(SAVE_DIR, name)}/")
+
+    if not _verify_pipeline_format(products):
+        print("[ERROR] Pipeline-format verification FAILED — model files may be unusable.")
+
     results = evaluate_test_split(products, dataset, test_idx)
 
     results['meta'] = {
@@ -447,9 +546,7 @@ def main():
         'total_time_seconds': round(time.time() - t0, 1),
     }
 
-    out_json = os.path.join(SAVE_DIR, '..', '..', '..', '..', 'cv_evaluation',
-                            'evaluation_real_test.json')
-    out_json = os.path.normpath(out_json)
+    out_json = os.path.join(REPO_ROOT, 'cv_evaluation', 'evaluation_real_test.json')
     os.makedirs(os.path.dirname(out_json), exist_ok=True)
     with open(out_json, 'w') as f:
         json.dump(results, f, indent=2)
