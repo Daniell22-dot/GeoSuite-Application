@@ -192,7 +192,7 @@ const DroneProcessingPage = () => {
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, fontFamily: 'Outfit', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Typography variant="h4" sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <DroneIcon sx={{ color: 'primary.main', fontSize: 36 }} />
               Drone Survey Processing
             </Typography>

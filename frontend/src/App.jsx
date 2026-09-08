@@ -49,17 +49,23 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Inter", "Outfit", "Roboto", sans-serif',
-    h1: { fontWeight: 700, fontFamily: 'Outfit' },
-    h2: { fontWeight: 700, fontFamily: 'Outfit' },
-    h3: { fontWeight: 700, fontFamily: 'Outfit' },
-    h4: { fontWeight: 600, fontFamily: 'Outfit' },
-    h5: { fontWeight: 600, fontFamily: 'Outfit' },
-    h6: { fontWeight: 600, fontFamily: 'Outfit' },
-    button: { textTransform: 'none', fontWeight: 500 },
+    fontFamily: '"Droid Sans", "Ubuntu", "Segoe UI", "Roboto", sans-serif',
+    h1: { fontWeight: 700, fontSize: '2rem', lineHeight: 1.2 },
+    h2: { fontWeight: 700, fontSize: '1.6rem', lineHeight: 1.25 },
+    h3: { fontWeight: 700, fontSize: '1.4rem', lineHeight: 1.3 },
+    h4: { fontWeight: 600, fontSize: '1.15rem', lineHeight: 1.35 },
+    h5: { fontWeight: 600, fontSize: '1rem', lineHeight: 1.4 },
+    h6: { fontWeight: 600, fontSize: '0.9rem', lineHeight: 1.45 },
+    subtitle1: { fontSize: '0.85rem' },
+    subtitle2: { fontSize: '0.78rem' },
+    body1: { fontSize: '0.825rem' },
+    body2: { fontSize: '0.75rem' },
+    button: { textTransform: 'none', fontWeight: 500, fontSize: '0.8rem' },
+    caption: { fontSize: '0.7rem' },
+    overline: { fontSize: '0.65rem' },
   },
   shape: {
-    borderRadius: 12,
+    borderRadius: 3,
   },
   components: {
     MuiCssBaseline: {
@@ -82,32 +88,75 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
+          borderRadius: 3,
           boxShadow: 'none',
-          '&:hover': { boxShadow: '0 4px 12px rgba(10, 132, 255, 0.3)' },
+          minHeight: 32,
+          '&:hover': { boxShadow: 'none' },
         },
         containedPrimary: {
-          background: 'linear-gradient(135deg, #0a84ff 0%, #0060df 100%)',
-        }
+          background: '#0a84ff',
+        },
+        sizeLarge: {
+          minHeight: 38,
+          padding: '0.5rem 1.5rem',
+        },
       },
     },
     MuiPaper: {
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          backgroundColor: 'rgba(30, 41, 59, 0.7)',
-          backdropFilter: 'blur(12px)',
+          backgroundColor: 'rgba(30, 41, 59, 0.72)',
           border: '1px solid rgba(255, 255, 255, 0.08)',
-          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.25)',
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 16,
+          borderRadius: 3,
           border: '1px solid rgba(255, 255, 255, 0.08)',
-          background: 'rgba(255, 255, 255, 0.03)',
+          background: 'rgba(30, 41, 59, 0.72)',
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 3,
+          minHeight: 32,
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          fontSize: '0.8rem',
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          height: 24,
+          fontSize: '0.7rem',
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          fontSize: '0.75rem',
+          borderColor: 'rgba(255, 255, 255, 0.08)',
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          fontSize: '0.8rem',
+          minHeight: 40,
         },
       },
     },
@@ -151,30 +200,34 @@ const AppInner = () => {
             </Routes>
           </Container>
           
-          <Box
-            component="footer"
-            sx={{
-              py: 3,
-              px: 4,
-              mt: 'auto',
-              borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-              background: 'rgba(15, 23, 42, 0.4)',
-              backdropFilter: 'blur(10px)',
-            }}
-          >
-            <Container maxWidth="xl">
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <TerrainIcon sx={{ color: 'primary.main', fontSize: 20 }} />
-                  <Typography variant="body2" sx={{ fontWeight: 600, fontFamily: 'Outfit', color: 'text.secondary' }}>
-                    {config?.appName || 'GeoSuite'} v{config?.appVersion || '2.0'}
-                  </Typography>
-                </Box>
-                <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', opacity: 0.7 }}>
-                  SURVEY • DRONE • TRANSFORM • GPS • MARINE • WATERSHED • {new Date().getFullYear()}
+          <Box component="footer" className="qgis-statusbar">
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0, overflow: 'hidden' }}>
+              <Box className="sb-item">
+                <TerrainIcon sx={{ color: 'primary.main', fontSize: 16 }} />
+                <Box component="span" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                  {config?.appName || 'GeoSuite'} v{config?.appVersion || '2.0'}
                 </Box>
               </Box>
-            </Container>
+              <Box className="sb-sep" />
+              <Box className="sb-item">
+                <Box component="span">CRS</Box>
+                <Box component="span" sx={{ color: 'primary.light' }}>EPSG:21037</Box>
+                <Box component="span" sx={{ opacity: 0.7 }}>Arc 1960 / UTM zone 37S</Box>
+              </Box>
+              <Box className="sb-sep" />
+              <Box className="sb-item sb-coord">X 285 000.000</Box>
+              <Box className="sb-item sb-coord">Y 9 892 000.000</Box>
+              <Box className="sb-item sb-coord">Lat 0.000000°</Box>
+              <Box className="sb-item sb-coord">Lon 36.000000°</Box>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box className="sb-item">Scale 1:2 500</Box>
+              <Box className="sb-sep" />
+              <Box className="sb-item">100%</Box>
+              <Box className="sb-sep" />
+              <Box className="sb-item"></Box>
+              <Box className="sb-item">© {new Date().getFullYear()}</Box>
+            </Box>
           </Box>
         </Box>
       </Box>

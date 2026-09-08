@@ -72,7 +72,7 @@ const GpsPage = () => {
     <Container maxWidth="xl" className="animate-fade-in">
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <Box>
-          <Typography variant="h3" sx={{ fontWeight: 700, fontFamily: 'Outfit', mb: 1 }}>
+          <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
             GPS Analysis
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400 }}>
@@ -97,7 +97,7 @@ const GpsPage = () => {
           <Box className="glass-panel" sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
                 <HistoryIcon sx={{ color: 'text.secondary' }} />
-                <Typography variant="h6" sx={{ fontFamily: 'Outfit' }}>Recent Tracks</Typography>
+                <Typography variant="h6" sx={{}}>Recent Tracks</Typography>
             </Box>
             
             {recentFiles.length === 0 ? (
@@ -159,7 +159,7 @@ const GpsPage = () => {
             <Grid item xs={12} lg={8}>
               <Box className="glass-panel" sx={{ p: 3 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                  <Typography variant="h6" sx={{ fontFamily: 'Outfit' }}>Elevation Profile</Typography>
+                  <Typography variant="h6" sx={{}}>Elevation Profile</Typography>
                   {processedData && (
                     <Stack direction="row" spacing={1}>
                       <Button size="small" startIcon={<DownloadIcon />} variant="outlined">CSV</Button>
@@ -173,7 +173,7 @@ const GpsPage = () => {
             
             <Grid item xs={12} lg={4}>
               <Box className="glass-panel" sx={{ p: 3, height: '100%' }}>
-                <Typography variant="h6" sx={{ mb: 3, fontFamily: 'Outfit' }}>Track Stats</Typography>
+                <Typography variant="h6" sx={{ mb: 3 }}>Track Stats</Typography>
                 {processedData ? (
                   <Stack spacing={2.5}>
                     <StatItem 

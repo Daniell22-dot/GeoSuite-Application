@@ -51,6 +51,10 @@ const TransformPage = () => {
   const [method, setMethod] = useState('geodetic');
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '' });
+  const [singleInput, setSingleInput] = useState({ easting: '', northing: '' });
+  const [singleResult, setSingleResult] = useState(null);
+  const [bulkInput, setBulkInput] = useState('');
+  const [bulkResults, setBulkResults] = useState([]);
 
   const { transformSingle, transformBulk, detectZone } = useTransform();
   const { request } = useApi();
@@ -143,7 +147,7 @@ const TransformPage = () => {
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, fontFamily: 'Outfit', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Typography variant="h4" sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <TransformIcon sx={{ color: 'primary.main', fontSize: 36 }} />
               Coordinate Transformation
             </Typography>

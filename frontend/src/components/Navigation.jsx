@@ -87,7 +87,7 @@ const Navigation = ({ activeView, setActiveView }) => {
         >
           <TerrainIcon />
         </Avatar>
-        <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: -0.5, fontFamily: 'Outfit' }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: -0.5 }}>
           {config?.appName || 'GeoSuite'}
         </Typography>
       </Box>

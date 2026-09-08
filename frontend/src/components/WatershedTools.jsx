@@ -71,7 +71,7 @@ const WatershedTools = ({ demData, onAnalysisComplete }) => {
       {/* Header & Global Controls */}
       <Box className="glass-panel" sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Stack direction="row" spacing={3} alignItems="center">
-          <Typography variant="subtitle2" sx={{ fontFamily: 'Outfit', fontWeight: 600, letterSpacing: 1, color: 'primary.light' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 600, letterSpacing: 1, color: 'primary.light' }}>
             WATERSHED ENGINE
           </Typography>
           <Stack direction="row" spacing={1}>
@@ -138,7 +138,7 @@ const WatershedTools = ({ demData, onAnalysisComplete }) => {
               <Box sx={{ position: 'absolute', inset: 0, zIndex: 999, bgcolor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
                  <Box sx={{ textAlign: 'center', p: 3, borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)', bgcolor: 'rgba(15,23,42,0.8)' }}>
                     <Water sx={{ fontSize: 40, color: 'primary.main', mb: 2, opacity: 0.8 }} />
-                    <Typography variant="h6" sx={{ fontFamily: 'Outfit' }}>Set Pour Point</Typography>
+                    <Typography variant="h6" sx={{}}>Set Pour Point</Typography>
                     <Typography variant="caption" color="text.secondary">Select the outlet location on the map to begin delineation.</Typography>
                  </Box>
               </Box>
@@ -193,7 +193,7 @@ const WatershedTools = ({ demData, onAnalysisComplete }) => {
 const AnalysisStat = ({ label, value }) => (
   <Grid item xs={6}>
     <Box sx={{ p: 1.5, borderRadius: '8px', bgcolor: 'rgba(255,255,255,0.02)' }}>
-      <Typography variant="h6" sx={{ fontFamily: 'Outfit', fontWeight: 600, fontSize: '1rem' }}>{value}</Typography>
+      <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '0.9rem' }}>{value}</Typography>
       <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem', letterSpacing: 0.5 }}>{label}</Typography>
     </Box>
   </Grid>

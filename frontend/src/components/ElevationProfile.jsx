@@ -96,7 +96,7 @@ const ElevationProfile = ({ elevationData, trackData }) => {
     return (
       <Box className="glass-panel" sx={{ p: 4, textAlign: 'center', minHeight: 300, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <TimelineIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2, opacity: 0.5 }} />
-        <Typography variant="h6" sx={{ fontFamily: 'Outfit' }}>Profile Pending</Typography>
+        <Typography variant="h6" sx={{}}>Profile Pending</Typography>
         <Typography variant="body2" color="text.secondary">Upload data to visualize vertical topology.</Typography>
       </Box>
     );
@@ -105,7 +105,7 @@ const ElevationProfile = ({ elevationData, trackData }) => {
   return (
     <Box className="glass-panel" sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="subtitle1" sx={{ fontFamily: 'Outfit', fontWeight: 600, letterSpacing: 1 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, letterSpacing: 1 }}>
           ELEVATION PROFILE
         </Typography>
         <Stack direction="row" spacing={1}>
@@ -161,7 +161,7 @@ const StatCard = ({ icon, label, value }) => (
   <Grid item xs={6} sm={3}>
     <Box sx={{ bgcolor: 'rgba(255,255,255,0.02)', p: 2, borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
       <Box sx={{ mb: 1, opacity: 0.8 }}>{icon}</Box>
-      <Typography variant="h6" sx={{ fontFamily: 'Outfit', fontWeight: 600, fontSize: '1.1rem' }}>{value}</Typography>
+      <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1rem' }}>{value}</Typography>
       <Typography variant="caption" sx={{ color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</Typography>
     </Box>
   </Grid>

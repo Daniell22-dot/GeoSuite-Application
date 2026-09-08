@@ -32,7 +32,7 @@ const BaseMapOverlay = ({ onLayerChange }) => {
 
   return (
     <Box className="glass-panel" sx={{ p: 2 }}>
-      <Typography variant="subtitle2" sx={{ mb: 2, fontFamily: 'Outfit', color: 'primary.light' }}>
+      <Typography variant="subtitle2" sx={{ mb: 2, color: 'primary.light' }}>
         MAP CONFIGURATION
       </Typography>
       

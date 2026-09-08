@@ -86,7 +86,7 @@ const WeatherWidget = ({ city: cityProp }) => {
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, fontFamily: 'Outfit', color: 'text.primary', lineHeight: 1 }}>
+            <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary', lineHeight: 1 }}>
               {Math.round(weather.temp)}°
             </Typography>
             <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5 }}>

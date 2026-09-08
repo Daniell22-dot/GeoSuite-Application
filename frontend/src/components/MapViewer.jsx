@@ -199,7 +199,7 @@ const MapViewer = ({
          <Fade in>
            <Box className="glass-panel" sx={{ position: 'absolute', bottom: 30, left: 30, zIndex: 1000, p: 2, minWidth: 200 }}>
              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-               <Typography variant="subtitle2" sx={{ fontFamily: 'Outfit' }}>FEATURE DATA</Typography>
+               <Typography variant="subtitle2" sx={{}}>FEATURE DATA</Typography>
                <IconButton size="small" onClick={() => setSelectedFeature(null)}><CloseIcon fontSize="inherit" /></IconButton>
              </Box>
              <Typography variant="body2" color="text.secondary">
@@ -221,7 +221,7 @@ const MapViewer = ({
           }}
         >
           <GpsIcon sx={{ fontSize: 60, color: 'primary.main', mb: 3, opacity: 0.8 }} />
-          <Typography variant="h5" sx={{ fontFamily: 'Outfit', fontWeight: 600, mb: 1 }}>Analysis Workspace Ready</Typography>
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>Analysis Workspace Ready</Typography>
           <Typography variant="body2" sx={{ opacity: 0.7, maxWidth: 320, textAlign: 'center' }}>
             Upload a geospatial file in the sidebar to begin high-performance processing.
           </Typography>

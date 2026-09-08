@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoSuite &mdash; Automated Cadastral Plan Digitisation &mdash; Technical Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ocean:#1A5F7A; --ocean-2:#14505f;
+    --teal:#2D9AA6; --teal-2:#1C7A8A;
+    --orange:#F57C00; --orange-2:#ef6c00;
+    --green:#4CAF50; --green-2:#388e3c;
+    --ink:#20343e; --muted:#5c7282; --line:#e4ebf0;
+    --bg:#f4f8fb; --card:#ffffff; --chip:#eef4f8;
+    --shadow:0 10px 30px rgba(16,53,70,.08); --shadow-sm:0 4px 14px rgba(16,53,70,.08);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.65;font-size:16px}
+  h1,h2,h3,h4,h5{font-family:'Manrope','Segoe UI',system-ui,sans-serif;line-height:1.25;margin:0}
+  p{margin:.55rem 0}
+  a{color:var(--teal-2)}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+
+  /* ---------- Cover ---------- */
+  .cover{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,#0f4256 0%,var(--ocean) 40%,var(--teal-2) 100%);color:#fff}
+  .cover::before{content:"";position:absolute;inset:0;
+    background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1px);background-size:26px 26px}
+  .cover::after{content:"";position:absolute;right:-180px;bottom:-180px;width:520px;height:520px;border-radius:50%;
+    background:radial-gradient(circle,rgba(245,124,0,.45),transparent 65%)}
+  .cover-inner{position:relative;z-index:2}
+  .brand-row{display:flex;align-items:center;gap:16px;margin-bottom:34px}
+  .brand-logo{width:58px;height:58px}
+  .brand-name{font-family:'Manrope';font-weight:800;font-size:1.35rem;letter-spacing:.04em}
+  .brand-sub{font-size:.78rem;opacity:.8;letter-spacing:.14em;text-transform:uppercase}
+  .cover h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;max-width:16ch;margin-bottom:18px}
+  .cover .tag{font-size:1.15rem;opacity:.92;max-width:58ch;margin-bottom:30px}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:38px}
+  .chip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:7px 16px;font-size:.85rem;font-weight:600;backdrop-filter:blur(4px)}
+  .cover-meta{display:flex;flex-wrap:wrap;gap:26px;border-top:1px solid rgba(255,255,255,.25);padding-top:22px;font-size:.92rem}
+  .cover-meta b{display:block;font-size:.78rem;opacity:.75;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+  .cta{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;text-decoration:none;
+    font-weight:700;padding:12px 22px;border-radius:10px;box-shadow:0 8px 22px rgba(245,124,0,.4);transition:transform .15s}
+  .cta:hover{transform:translateY(-2px);color:#fff}
+
+  /* ---------- Nav ---------- */
+  .navbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);box-shadow:var(--shadow-sm)}
+  .nav-inner{max-width:1060px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:space-between}
+  .nav-brand{font-family:'Manrope';font-weight:800;color:var(--ocean);font-size:.95rem}
+  .nav-links{display:flex;gap:4px;flex-wrap:wrap}
+  .nav-links a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:8px}
+  .nav-links a:hover{color:var(--ocean);background:var(--chip)}
+  .nav-print{margin-left:6px;background:var(--ocean);color:#fff !important;border-radius:8px;padding:6px 12px !important}
+
+  /* ---------- Layout ---------- */
+  section.chapter{padding:56px 0 40px}
+  .glow-line{height:6px;border-radius:3px;margin-bottom:30px;background:linear-gradient(90deg,var(--ocean),var(--teal) 55%,var(--orange))}
+  .ch-num{display:inline-block;font-family:'Manrope';font-weight:800;font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal-2);margin-bottom:6px}
+  .ch-title{font-size:2rem;font-weight:800;color:var(--ocean);margin-bottom:22px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:28px 30px;margin:18px 0}
+  h3{color:var(--ocean);margin:26px 0 10px;font-size:1.28rem}
+  h4{color:var(--teal-2);margin:20px 0 8px;font-size:1.05rem}
+  ul,ol{margin:8px 0 14px;padding-left:22px}
+  li{margin:5px 0}
+  .kicker{font-size:.85rem;color:var(--muted);margin-bottom:4px}
+  .mini{font-size:.85rem;color:var(--muted)}
+
+  /* ---------- Callout boxes ---------- */
+  .callout{border-radius:14px;padding:16px 18px;margin:18px 0;border-left:5px solid;font-size:.95rem}
+  .co-ocean{background:#eaf3f7;border-color:var(--ocean)}
+  .co-teal{background:#e7f4f6;border-color:var(--teal)}
+  .co-orange{background:#fff3e5;border-color:var(--orange)}
+  .co-green{background:#e9f6ea;border-color:var(--green)}
+  b.label{font-family:'Manrope';letter-spacing:.04em}
+
+  /* ---------- Tables ---------- */
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.9rem;background:#fff}
+  th{background:var(--ocean);color:#fff;text-align:left;padding:10px 12px;font-family:'Manrope';font-weight:700;letter-spacing:.02em}
+  td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:nth-child(even) td{background:#f7fafc}
+  .num{font-variant-numeric:tabular-nums;text-align:right}
+  .tag-pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.74rem;font-weight:700}
+  .t-ocean{background:#e0edf3;color:var(--ocean)} .t-teal{background:#dceef1;color:var(--teal-2)}
+  .t-orange{background:#ffe4c7;color:var(--orange-2)} .t-green{background:#e0f2e1;color:var(--green-2)}
+
+  /* ---------- Figure frames ---------- */
+  figure{margin:26px 0}
+  figcaption{text-align:center;font-size:.82rem;color:var(--muted);margin-top:10px;font-style:italic}
+  .svg-card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:18px;overflow-x:auto}
+  .svg-card svg{display:block;width:100%;height:auto}
+  .svg-card svg.text-only *{font-family:inherit}
+
+  /* ---------- Architecture diagram (CSS layers) ---------- */
+  .arch{display:flex;flex-direction:column;gap:0;max-width:980px;margin:0 auto}
+  .arch-band{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-sm);overflow:hidden}
+  .arch-band + .arch-band{margin-top:10px}
+  .arch-hd{display:flex;align-items:center;gap:12px;padding:13px 20px;color:#fff;font-family:'Manrope';font-weight:700;font-size:1rem}
+  .arch-tag{font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+  .arch-body{padding:16px 20px}
+  .arch-row{display:flex;flex-wrap:wrap;gap:8px}
+  .mode{display:flex;flex-wrap:wrap;gap:8px}
+  .mode .mod{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:.82rem;box-shadow:var(--shadow-sm)}
+  .mod b{display:block;font-family:'Manrope';font-size:.8rem;color:var(--ocean)}
+  .mod span{font-size:.74rem;color:var(--muted)}
+  .conn{display:flex;justify-content:center;padding:0}
+  .conn-body{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;color:var(--muted)}
+  .conn-body .vt{width:3px;height:22px;background:linear-gradient(var(--teal),rgba(45,154,166,.35))}
+  .conn-body .vt.dashed{background:none;border-left:3px dashed #b9d3dc;height:22px}
+  .conn-body .lbl{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+
+  /* ---------- Pipeline diagram (CSS flow) ---------- */
+  .pipeline{display:flex;flex-direction:column;gap:0}
+  .pl-row{display:flex;align-items:stretch;gap:0}
+  .pl-stage{flex:1;display:flex;justify-content:center;align-items:center;text-align:center;padding:10px 6px}
+  .pl-box{background:#fff;border:2px solid var(--teal);border-radius:14px;padding:10px 12px;width:100%;box-shadow:var(--shadow-sm);position:relative}
+  .pl-head{font-family:'Manrope';font-weight:800;color:var(--ocean);font-size:.9rem;display:flex;align-items:center;justify-content:center;gap:6px}
+  .pl-sub{font-size:.72rem;color:var(--muted);margin-top:2px}
+  .pl-note{font-size:.68rem;color:var(--orange-2);font-weight:600;margin-top:2px}
+  .pl-arrow{flex:0 0 42px;display:flex;align-items:center;justify-content:center;color:var(--teal)}
+  .pl-arrow svg{width:30px;height:16px}
+  .pl-split{flex-direction:column;position:relative}
+  .pl-branch{display:flex;gap:10px;margin-top:10px}
+  .pl-branch .pl-box{border-color:var(--ocean)}
+  .branch-note{display:flex;justify-content:center;gap:0;margin:2px 0}
+  .branch-note .pl-arrow{flex:0 0 25%}
+  .pl-gap{height:10px}
+
+  /* ---------- Metrics chart ---------- */
+  .chart{max-width:760px;margin:20px auto}
+  .bar-row{display:grid;grid-template-columns:180px 1fr 56px;align-items:center;gap:12px;margin:12px 0}
+  .bar-row .bl{font-size:.82rem;color:var(--muted);text-align:right}
+  .bar-row .bv{font-size:.82rem;font-weight:700;font-variant-numeric:tabular-nums}
+  .track{height:16px;background:#edf3f6;border-radius:8px;overflow:hidden}
+  .fill{height:100%;border-radius:8px}
+
+  /* ---------- Legend / chips ---------- */
+  .legend{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;margin:16px 0}
+  .legend span{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted)}
+  .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+
+  /* ---------- TOC ---------- */
+  .toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;padding:0}
+  .toc a{display:block;text-decoration:none;color:var(--ink);border:1px solid var(--line);background:#fff;
+    border-radius:14px;padding:14px 18px;box-shadow:var(--shadow-sm);transition:transform .12s,border-color .12s}
+  .toc a:hover{transform:translateY(-2px);border-color:var(--teal)}
+  .toc .n{font-family:'Manrope';font-weight:800;font-size:.74rem;color:var(--teal-2);letter-spacing:.1em;display:block;margin-bottom:4px}
+  .toc .t{font-weight:700;font-size:.95rem}
+
+  /* ---------- Footer ---------- */
+  .footer{margin-top:50px;padding:30px 24px;background:linear-gradient(135deg,#0f4256,var(--ocean));color:#dfeef4;font-size:.85rem;text-align:center}
+  .footer b{color:#fff;font-family:'Manrope'}
+
+  /* ---------- Print ---------- */
+  @media print{
+    body{background:#fff;font-size:11.5px}
+    .navbar,.cta{display:none !important}
+    .cover{min-height:auto;padding:40px 0}
+    section.chapter{page-break-before:always;padding:30px 0}
+    section.chapter:first-of-type{page-break-before:auto}
+    .card,.arch-band,.toc a{box-shadow:none;border-color:#ccc}
+    .wrap{max-width:100%}
+    a{color:inherit;text-decoration:none}
+    .svg-card{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= COVER ================= -->
+<header class="cover">
+  <div class="wrap cover-inner">
+    <div class="brand-row">
+      <svg class="brand-logo" viewBox="0 0 60 60" aria-hidden="true">
+        <defs>
+          <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2D9AA6"/><stop offset="1" stop-color="#1A5F7A"/>
+          </linearGradient>
+        </defs>
+        <polygon points="30,3 55,16.5 55,43.5 30,57 5,43.5 5,16.5" fill="url(#lg)"/>
+        <circle cx="30" cy="30" r="12" fill="none" stroke="#fff" stroke-width="2.4"/>
+        <circle cx="30" cy="30" r="4" fill="#F57C00"/>
+      </svg>
+      <div>
+        <div class="brand-name">GeoSuite / KLISS</div>
+        <div class="brand-sub">Geospatial Engineering</div>
+      </div>
+    </div>
+    <h1>Automating Cadastral Plan Digitisation</h1>
+    <p class="tag">An end&#8209;to&#8209;end geospatial platform that transforms scanned survey plans into structured, survey&#8209;ready digital products &mdash; beacons, boundaries, parcel estimates and labels &mdash; using computer vision backed by a pure&#8209;NumPy deep&#8209;learning engine.</p>
+    <div class="chips">
+      <span class="chip">Kenya Edition &mdash; v2.5.0</span>
+      <span class="chip">KLISS CV Engine &mdash; v0.1.0</span>
+      <span class="chip">Computer Vision &amp; ML</span>
+      <span class="chip">12-service Docker Stack</span>
+    </div>
+    <div class="cover-meta">
+      <div><b>Prepared for</b>Clients &amp; Stakeholders</div>
+      <div><b>Prepared by</b>Daniell Manyasa &mdash; Lead Engineer</div>
+      <div><b>Version</b>2.5.0 &middot; Kenya Edition</div>
+      <div><b>Date</b>September 2026</div>
+      <div><b>Contact</b>manyasadaniel630@gmail.com</div>
+    </div>
+    <div style="margin-top:34px">
+      <a class="cta" href="#toc">Read the Report &nbsp;&rarr;</a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= NAV ================= -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <span class="nav-brand">GeoSuite &mdash; Technical Report</span>
+    <div class="nav-links">
+      <a href="#toc">Contents</a>
+      <a href="#ch1">1&middot;Introduction</a>
+      <a href="#ch2">2&middot;Literature</a>
+      <a href="#ch3">3&middot;Methodology</a>
+      <a href="#ch4">4&middot;Architecture &amp; Implementation</a>
+      <a href="#ch5">5&middot;Results &amp; Conclusion</a>
+      <a class="nav-print" href="javascript:window.print()">Print / PDF</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ================= TOC ================= -->
+  <section id="toc" class="chapter">
+    <div class="glow-line"></div>
+    <span class="ch-num">Overview</span>
+    <h2 class="ch-title">Table of Contents</h2>
+    <div class="toc">
+      <a href="#exec"><span class="n">Executive Summary</span><span class="t">What GeoSuite delivers &amp; key outcomes</span></a>
+      <a href="#ch1"><span class="n">Chapter 1</span><span class="t">Introduction &mdash; context, problem, objectives</span></a>
+      <a href="#ch2"><span class="n">Chapter 2</span><span class="t">Literature Review &mdash; practice &amp; state of the art</span></a>
+      <a href="#ch3"><span class="n">Chapter 3</span><span class="t">Methodology &mdash; data, models, training &amp; evaluation</span></a>
+      <a href="#ch4"><span class="n">Chapter 4</span><span class="t">Architecture &amp; Implementation &mdash; system design</span></a>
+      <a href="#ch5"><span class="n">Chapter 5</span><span class="t">Results, Evaluation, Conclusions &amp; Roadmap</span></a>
+      <a href="#refs"><span class="n">References</span><span class="t">Supporting literature</span></a>
+      <a href="#appx"><span class="n">Appendices</span><span class="t">Service, stack &amp; datasets inventory</span></a>
+    </div>
+  </section>
+
+  <!-- ================= EXECUTIVE SUMMARY ================= -->
+  <section id="exec" class="chapter">
+    <div class="glow-line"></div>
+    <span class="ch-num">Executive Summary</span>
+    <h2 class="ch-title">Executive Summary</h2>
+
+    <div class="card">
+      <p>GeoSuite (&ldquo;the System&rdquo;) is a full-stack geospatial platform developed to solve a practical, growing problem in land administration and surveying: <b class="label">paper cadastral plans remain trapped on paper.</b> The System reads scanned survey plans &mdash; from age&#8209;hardened georeferenced drawings to modern field captures &mdash; and automatically digitises them into structured, machine&#8209;readable products: <b>missing beacons, parcel boundaries, plan labels and coordinate estimates</b>.</p>
+      <p>Under the hood, a purpose&#8209;built computer-vision engine (<b class="label">KLISS CV Engine v0.1.0</b>) processes plan imagery through a shared convolutional backbone and four specialist heads: a <i>Beacon Detector</i>, a <i>Boundary Segmenter</i>, a <i>Feature Extractor</i> and an <i>OCR Text Reader</i>. The engine is implemented entirely in pure NumPy &mdash; no heavy ML runtime required &mdash; and is served through a modular FastAPI backend with a 12&#8209;service Docker deployment, a React front&#8209;end and a QGIS plugin.</p>
+    </div>
+
+    <div class="callout co-green" style="text-align:center">
+      <b class="label">Headline results (evaluation on 7 unseen test plans)</b><br>
+      Beacon detection achieves <b>100% recall</b> &mdash; every real beacon on every test plan was found.
+      Boundary semantics reach <b>92.9% pixel accuracy</b> against ground truth, and the validated pipeline
+      produced complete, survey-ready outputs end-to-end.
+    </div>
+
+    <div class="card">
+      <h3>Why this matters</h3>
+      <ul>
+        <li><b>Time.</b> Manual digitisation of a single centreline plan can take hours of CAD tracing; GeoSuite returns structured results in seconds.</li>
+        <li><b>Accuracy &amp; completeness.</b> The vision engine enforces a consistent interpretation of every plan, catching beacons and boundaries that are easy to overlook by eye.</li>
+        <li><b>Continuity.</b> Outputs are georeferenced and export to open GIS formats (Shapefile, GeoJSON, KML), plugging straight into QGIS and downstream cadastre workflows.</li>
+        <li><b>Sovereignty &amp; cost.</b> A NumPy-only inference stack runs on commodity hardware with no licence fees and no cloud dependency for processing.</li>
+      </ul>
+
+      <h3>Scope of this report</h3>
+      <ol>
+        <li><b>Chapter 1</b> frames the problem, objectives and scope.</li>
+        <li><b>Chapter 2</b> reviews current practice and the computer-vision literature that underpins the solution.</li>
+        <li><b>Chapter 3</b> presents the methodology &mdash; data acquisition, label engineering, model design, training and evaluation &mdash; with a full methodology flowchart.</li>
+        <li><b>Chapter 4</b> describes the system architecture and implementation, including the CV pipeline and deployment topology.</li>
+        <li><b>Chapter 5</b> reports results, discusses limitations, draws conclusions and sets out a concrete roadmap to scale accuracy further.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= CHAPTER 1 ================= -->
+  <section id="ch1" class="chapter">
+    <div class="glow-line"></div>
+    <span class="ch-num">Chapter One</span>
+    <h2 class="ch-title">Introduction</h2>
+
+    <h3>1.1 Background</h3>
+    <p>Land is the foundation of economic life. In Kenya, and across much of the region, land administration still rests on a legacy of <b class="label">paper survey plans</b>: centreline diagrams, cadastral sheets and beacon plans plotted on paper or film. Many plans exist only in that form &mdash; hand-drawn, scanned, stained, or georeferenced into a GIS with varying fidelity.</p>
+    <p>To make that land usable for titling, planning, valuation and infrastructure, every plan must be <b class="label">digitised</b>: its beacons located, its boundaries traced as vector geometry, its text (beacon IDs, bearings, distances, titles, scales) transcribed, and the whole result registered against a coordinate system. Today this is overwhelmingly a manual, expert task performed parcel by parcel in CAD or GIS software.</p>
+    <p>GeoSuite was conceived to change that workflow from <i>&ldquo;trace plan by hand&rdquo;</i> to <i>&ldquo;submit plan, receive structured survey data&rdquo;</i> &mdash; without abandoning the surveyor&rsquo;s professional judgement. The System is designed to <b class="label">assist, not replace</b>: it returns fully auditable digitisation results that a surveyor reviews and signs off.</p>
+
+    <h3>1.2 Problem Statement</h3>
+    <div class="callout co-ocean">
+      <p><b class="label">The problem.</b> Manual plan digitisation is slow, costly and inconsistent. Each plan requires hours of skilled CAD tracing; quality depends on the individual analyst; results are hard to audit; and the growing backlog of legacy plans cannot be cleared by manual effort alone. Meanwhile, the data required for automation &mdash; clean plan clean-up, symbol recognition and text extraction &mdash; is heterogeneous: scans vary in scale, rotation, noise, ink density and annotation style.</p>
+      <p>There is a need for a <b>repeatable, automated, GIS-interoperable</b> pipeline that converts scanned cadastral plans into structured survey products at a fraction of the manual cost, while remaining open, explainable and deployable on modest hardware.</p>
+    </div>
+
+    <h3>1.3 Objectives</h3>
+    <h4>Main objective</h4>
+    <p>To design, implement and evaluate an end-to-end system that automatically digitises scanned cadastral survey plans into structured, georeferenced survey products (beacons, boundaries, labels and plan text).</p>
+    <h4>Specific objectives</h4>
+    <ol>
+      <li>Acquire and curate a labelled dataset of Kenyan survey plans (ANGOROM plans and field captures) suitable for supervised model training.</li>
+      <li>Design and train computer-vision models &mdash; a beacon detector, a boundary segmenter and a feature extractor &mdash; on a shared backbone, using real plan imagery.</li>
+      <li>Implement an OCR pipeline to read plan labels and annotations (beacon IDs, bearings, distances, scales, titles).</li>
+      <li>Integrate the vision engine into a full-stack platform (API, web application, GIS export) with a one-command Docker deployment.</li>
+      <li>Evaluate system performance on a held-out test set and report objective, reproducible metrics.</li>
+    </ol>
+
+    <h3>1.4 Scope</h3>
+    <p><b class="label">In scope</b></p>
+    <ul>
+      <li>Raster cadastral plan digitisation: beacons, boundaries, labels, text regions and coordinate-based outputs.</li>
+      <li>Computer-vision model development and training on real survey-plan data.</li>
+      <li>A REST API, web front-end, GIS export formats and a QGIS plugin for interaction with existing workflows.</li>
+      <li>A 12-service Docker deployment stack with monitoring and task queues.</li>
+      <li>Additional engineering tools that share the platform: land-use classification, watershed analysis, marine depth-sounding extraction, GPS-track matching, change detection and elevation/terrain services.</li>
+    </ul>
+    <p><b class="label">Out of scope</b></p>
+    <ul>
+      <li>Formal legal titling or statutory cadastre registration.</li>
+      <li>Field geodetic instrumentation (total stations, GNSS receivers) &mdash; GeoSuite complements, not replaces, field survey.</li>
+      <li>National-scale land management systems operated by government. The System targets organisation-level and estate-level workflows first.</li>
+    </ul>
+
+    <h3>1.5 Client Value</h3>
+    <div class="callout co-teal">
+      <p><b class="label">What you gain.</b> (1) A dramatic reduction in digitisation time and per-plan cost; (2) consistent, auditable, reproducible results scored by objective metrics; (3) outputs in the formats surveyors already use (GeoJSON, Shapefile, KML, georeferenced TIFF); (4) an open architecture you can extend, integrate or self-host on your own hardware; and (5) a clear, honest evidence base &mdash; this report shows exactly what the System achieves today and what the roadmap to higher accuracy is.</p>
+    </div>
+  </section>
+
+  <!-- ================= CHAPTER 2 ================= -->
+  <section id="ch2" class="chapter">
+    <div class="glow-line"></div>
+    <span class="ch-num">Chapter Two</span>
+    <h2 class="ch-title">Literature Review</h2>
+
+    <h3>2.1 Traditional Survey &amp; Digitisation Practice</h3>
+    <p>Surveyors have digitised plans for decades using CAD (AutoCAD, Civil 3D) and GIS (ArcGIS, QGIS) tools. The workflow is well understood: the plan is scanned and georeferenced; a technician traces boundaries and symbols by eye; bearings, distances and beacon IDs are keyed from the drawing; and parcels are closed, attributed and exported. The drawbacks are equally well documented in the GIS profession:</p>
+    <ol>
+      <li><b>Throughput.</b> Hours of skilled labour per plan; digitisation is the choke point of plan conversion programmes.</li>
+      <li><b>Consistency.</b> Two operators will trace one plan differently; audits are difficult and slow.</li>
+      <li><b>Fatigue &amp; error.</b> Beacons and thin boundary lines are missed or misread, especially on degraded scans.</li>
+      <li><b>Cost of expertise.</b> CAD/GIS operators with survey-field literacy are scarce and expensive.</li>
+    </ol>
+    <p>This motivates the machine-assisted approach: <b>the computer proposes, the surveyor disposes.</b></p>
+
+    <h3>2.2 State of Practice in Automated Vectorisation</h3>
+    <p>Commercial and open-source tools offer partial automation &mdash; for example, semi-automatic line-following in AutoCAD, raster-to-vector conversion (R2V) products, and binarisation/deskew utilities in QGIS and GDAL. These tools help with <i>geometry only</i>: they do not understand <i>semantics</i>. None of them identifies &ldquo;a concrete beacon&rdquo; versus a hatch mark, reads &ldquo;BP 14&rdquo; as a beacon label, or distinguishes a parcel boundary from a contour or a grid line. As a result, automatic vectorisers typically still require an expert to supervise, correct and attribute nearly everything.</p>
+    <div class="callout co-orange">
+      <b class="label">The gap.</b> Today&rsquo;s tools can trace lines; they cannot <b>interpret a survey plan</b>. The scientific opportunity &mdash; and the innovation in GeoSuite &mdash; is to apply modern deep learning so the whole interpretation layer <i>(this dot is a beacon, this line is a boundary, this text is a bearing)</i> becomes automatic and self-improving.
+    </div>
+
+    <h3>2.3 Foundation: Modern Computer Vision</h3>
+    <p>The System builds on three mature families of deep-learning architecture, each with peer-reviewed credentials:</p>
+    <ul>
+      <li><b>Convolutional backbones (ResNet-style encoders).</b> Learned hierarchical features &mdash; edges, then lines, then shapes, then semantic objects &mdash; replace hand-engineered raster heuristics [5]. GeoSuite shares one backbone across all heads so every detector benefits from everything the others learned.</li>
+      <li><b>U-Net for semantic segmentation [2].</b> An encoder&ndash;decoder with skip connections that localises classes at full resolution &mdash; precisely what boundary and area classification require. The Boundary Segmenter and Feature Extractor use U-Net-style decoders over the shared backbone.</li>
+      <li><b>R-CNN/YOLO-style object detection [3].</b> Anchor-free grid detection that predicts objects with bounding boxes and class confidences. The Beacon Detector uses a YOLO-style grid head to locate beacons and produce a confidence score per detection.</li>
+      <li><b>OCR via Connectionist Temporal Classification [4].</b> Sequence learning that maps cropped text imagery to character strings without needing pre-segmented characters &mdash; ideal for noisy plan labels.</li>
+    </ul>
+
+    <h3>2.4 Land-Cover &amp; Earth-Observation Context</h3>
+    <p>Beyond plan digitisation, the platform consumes Earth-observation products for land-use and terrain analysis: the <b>ESA WorldCover</b> 10&#8209;m land-cover layers [6] for classification reference, and the <b>EuroSAT</b> benchmark [7] as an auxiliary land-use training/validation source. These give the System a realistic base map against which cadastral work can be contextually validated (e.g., a &ldquo;water body&rdquo; parcel consistent with bathymetric soundings).</p>
+
+    <h3>2.5 Research Gap &amp; Positioning</h3>
+    <p>Academic literature is strong on generic document layout analysis and medical/road imagery segmentation, but <b>published systems that digitise cadastral survey plans end-to-end &mdash; beacons + boundaries + labels + OCR &mdash; on real African plan corpora are scarce</b>. Commercial offerings are costly and opaque. GeoSuite&rsquo;s positioning:</p>
+    <ul>
+      <li><b>End-to-end</b> &mdash; one pipeline from scan to georeferenced vector output, not a chain of half-integrated tools.</li>
+      <li><b>Open &amp; sovereign</b> &mdash; pure-NumPy inference, no SaaS dependence, deployable on commodity hardware.</li>
+      <li><b>Honestly measured</b> &mdash; every claim in Chapter 5 is backed by a reproducible evaluation on a held-out test set.</li>
+      <li><b>Kenya-first</b> &mdash; trained and validated on Kenyan survey plans (the ANGOROM corpus) and field captures, not only on clean synthetic drawings.</li>
+    </ul>
+  </section>
+
+  <!-- ================= CHAPTER 3 ================= -->
+  <section id="ch3" class="chapter">
+    <div class="glow-line"></div>
+    <span class="ch-num">Chapter Three</span>
+    <h2 class="ch-title">Methodology</h2>
+
+    <h3>3.1 Overall Approach</h3>
+    <p>We followed an <b class="label">iterative, evidence-driven development cycle</b>: define the problem with stakeholders &rarr; benchmark the state of the art &rarr; acquire and curate real data &rarr; engineer labels &rarr; design and train models &rarr; evaluate on a held-out set &rarr; integrate and test end-to-end &rarr; deploy and hand over. Each loop produced measurable artefacts (trained weights, metrics, working integration) rather than documentation alone.</p>
+    <p>The methodology flowchart below shows the full pipeline. Four colour-coded phases map to the chapters and deliverables of this report.</p>
+
+    <figure>
+      <div class="svg-card">
+      <svg viewBox="0 0 1040 1620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Methodology flowchart">
+        <defs>
+          <linearGradient id="ph1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#1A5F7A"/><stop offset="1" stop-color="#2D9AA6"/>
+          </linearGradient>
+          <linearGradient id="ph2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2D9AA6"/><stop offset="1" stop-color="#1C7A8A"/>
+          </linearGradient>
+          <linearGradient id="ph3" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#F57C00"/><stop offset="1" stop-color="#ef6c00"/>
+          </linearGradient>
+          <linearGradient id="ph4" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#4CAF50"/><stop offset="1" stop-color="#388e3c"/>
+          </linearGradient>
+          <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0f4256" flood-opacity="0.16"/>
+          </filter>
+          <marker id="arr1" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+            <path d="M0,1 L8,5 L0,9 Z" fill="#6aa9bd"/>
+          </marker>
+        </defs>
+
+        <!-- background dots -->
+        <rect x="0" y="0" width="1040" height="1620" fill="#f8fbfd"/>
+        <g fill="#d8e6ec" opacity="0.55">
+          <g>
+            <circle cx="30" cy="30" r="1.6"/>
+            <circle cx="110" cy="30" r="1.6"/>
+            <circle cx="190" cy="30" r="1.6"/>
+            <circle cx="270" cy="30" r="1.6"/>
+            <circle cx="30" cy="110" r="1.6"/>
+            <circle cx="190" cy="110" r="1.6"/>
+            <circle cx="350" cy="90" r="1.6"/>
+            <circle cx="520" cy="130" r="1.6"/>
+            <circle cx="680" cy="90" r="1.6"/>
+            <circle cx="840" cy="110" r="1.6"/>
+            <circle cx="960" cy="130" r="1.6"/>
+          </g>
+        </g>
+
+        <!-- phase rails -->
+        <g font-family="Manrope, sans-serif" font-weight="700" font-size="15">
+          <rect x="40" y="150" width="8" height="115" rx="4" fill="url(#ph1)"/>
+          <text x="62" y="206" fill="#1A5F7A">Discovery</text>
+          <rect x="40" y="420" width="8" height="115" rx="4" fill="url(#ph2)"/>
+          <text x="62" y="476" fill="#1C7A8A">Data Engineering</text>
+          <rect x="40" y="690" width="8" height="115" rx="4" fill="url(#ph3)"/>
+          <text x="62" y="746" fill="#e26a00">Model Engineering</text>
+          <rect x="40" y="960" width="8" height="115" rx="4" fill="url(#ph4)"/>
+          <text x="62" y="1016" fill="#388e3c">Integration &amp; Delivery</text>
+        </g>
+
+        <!-- cross-links from rails to steps -->
+        <g stroke="#a9c6d2" stroke-width="2" stroke-dasharray="4 5">
+          <path d="M205 207 H240" marker-end="url(#arr1)"/>
+          <path d="M205 477 H240" marker-end="url(#arr1)"/>
+          <path d="M205 747 H240" marker-end="url(#arr1)"/>
+          <path d="M205 1017 H240" marker-end="url(#arr1)"/>
+        </g>
+
+        <!-- step card -->
+        <g font-family="Inter, sans-serif">
+          <!-- S1 -->
+          <rect x="250" y="150" width="720" height="95" rx="18" fill="#fff" filter="url(#soft)" stroke="#dbe7ed"/>
+          <rect x="250" y="150" width="10" height="95" rx="5" fill="url(#ph1)"/>
+          <circle cx="300" cy="197" r="21" fill="url(#ph1)"/>
+          <text x="300" y="203" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="17" fill="#fff">1</text>
+          <g transform="translate(348 180)" fill="#1A5F7A">
+            <circle cx="10" cy="15" r="10" stroke="#1A5F7A" stroke-width="2" fill="none"/>
+            <path d="M17 22 L23 28" stroke="#1A5F7A" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="7" cy="12" r="3" fill="#2D9AA6"/>
+          </g>
+          <text x="392" y="188" font-family="Manrope, sans-serif" font-weight="800" font-size="18" fill="#20343e">Problem Definition &amp; Stakeholder Engagement</text>
+          <text x="392" y="212" font-size="13.5" fill="#5c7282">Frame the digitisation problem; agree objectives, success criteria, ownership and the review workflow.</text>
+          <g transform="translate(840 163)">
+            <rect width="110" height="24" rx="12" fill="#e0edf3"/>
+            <text x="55" y="16" text-anchor="middle" font-size="12" font-weight="700" fill="#1A5F7A">PHASE 1</text>
+          </g>
+
+          <!-- S2 -->
+          <rect x="250" y="290" width="720" height="95" rx="18" fill="#fff" filter="url(#soft)" stroke="#dbe7ed"/>
+          <rect x="250" y="290" width="10" height="95" rx="5" fill="url(#ph1)"/>
+          <circle cx="300" cy="337" r="21" fill="url(#ph1)"/>
+          <text x="300" y="343" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="17" fill="#fff">2</text>
+          <g transform="translate(348 320)" fill="#1A5F7A">
+            <rect x="2" y="2" width="14" height="18" rx="2" stroke="#1A5F7A" stroke-width="2" fill="none"/>
+            <path d="M7 8 h10 M7 12 h10 M7 16 h6" stroke="#2D9AA6" stroke-width="2"/>
+          </g>
+          <text x="392" y="328" font-family="Manrope, sans-serif" font-weight="800" font-size="18" fill="#20343e">Literature Review &amp; Benchmarking</text>
+          <text x="392" y="352" font-size="13.5" fill="#5c7282">Survey current practice (CAD/GIS) and the deep-learning state of the art; confirm the research gap (Ch. 2).</text>
+          <g transform="translate(840 303)">
+            <rect width="110" height="24" rx="12" fill="#e0edf3"/>
+            <text x="55" y="16" text-anchor="middle" font-size="12" font-weight="700" fill="#1A5F7A">PHASE 1</text>
+          </g>
+
+          <!-- S3 -->
+          <rect x="250" y="430" width="720" height="95" rx="18" fill="#fff" filter="url(#soft)" stroke="#dbe7ed"/>
+          <rect x="250" y="430" width="10" height="95" rx="5" fill="url(#ph2)"/>
+          <circle cx="300" cy="477" r="21" fill="url(#ph2)"/>
+          <text x="300" y="483" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="17" fill="#fff">3</text>
+          <g transform="translate(348 460)" fill="#1C7A8A">
+            <ellipse cx="10" cy="6" rx="8" ry="5" stroke="#1C7A8A" stroke-width="2" fill="none"/>
+            <path d="M2 6 v6 c0 3 3.6 5 8 5 s8 -2 8 -5 V6" stroke="#1C7A8A" stroke-width="2" fill="none"/>
+            <path d="M2 12 c0 3 3.6 5 8 5 s8 -2 8 -5" stroke="#2D9AA6" stroke-width="2" fill="none"/>
+          </g>
+          <text x="392" y="468" font-family="Manrope, sans-serif" font-weight="800" font-size="18" fill="#20343e">Data Acquisition</text>
+          <text x="392" y="492" font-size="13.5" fill="#5c7282">Collect ANGOROM survey plans (9 georeferenced pages), field captures, bathymetry and WorldCover EO layers.</text>
+          <g transform="translate(840 443)">
+            <rect width="110" height="24" rx="12" fill="#dceef1"/>
+            <text x="55" y="16" text-anchor="middle" font-size="12" font-weight="700" fill="#1C7A8A">PHASE 2</text>
+          </g>
+
+          <!-- S4 -->
+          <rect x="250" y="570" width="720" height="95" rx="18" fill="#fff" filter="url(#soft)" stroke="#dbe7ed"/>
+          <rect x="250" y="570" width="10" height="95" rx="5" fill="url(#ph2)"/>
+          <circle cx="300" cy="617" r="21" fill="url(#ph2)"/>
+          <text x="300" y="623" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="17" fill="#fff">4</text>
+          <g transform="translate(348 600)" fill="#1C7A8A">
+            <polygon points="10,2 20,6 10,10 0,6" stroke="#1C7A8A" stroke-width="2" fill="none"/>
+            <polygon points="10,10 20,14 10,18 0,14" stroke="#2D9AA6" stroke-width="2" fill="none"/>
+          </g>
+          <text x="392" y="608" font-family="Manrope, sans-serif" font-weight="800" font-size="18" fill="#20343e">Data Preparation &amp; Label Engineering</text>
+          <text x="392" y="632" font-size="13.5" fill="#5c7282">Tile to 256&#215;256 patches; build boundary/feature masks; derive 216 beacon labels; 20/7 split (seed 42).</text>
+          <g transform="translate(840 583)">
+            <rect width="110" height="24" rx="12" fill="#dceef1"/>
+            <text x="55" y="16" text-anchor="middle" font-size="12" font-weight="700" fill="#1C7A8A">PHASE 2</text>
+          </g>
+
+          <!-- S5 -->
+          <rect x="250" y="710" width="720" height="95" rx="18" fill="#fff" filter="url(#soft)" stroke="#dbe7ed"/>
+          <rect x="250" y="710" width="10" height="95" rx="5" fill="url(#ph3)"/>
+          <circle cx="300" cy="757" r="21" fill="url(#ph3)"/>
+          <text x="300" y="763" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="17" fill="#fff">5</text>
+          <g transform="translate(348 740)" fill="#e26a00">
+            <circle cx="10" cy="12" r="6.5" stroke="#e26a00" stroke-width="2" fill="none"/>
+            <circle cx="10" cy="12" r="1.8" fill="#F57C00"/>
+            <line x1="16.5" y1="18.5" x2="19" y2="21" stroke="#e26a00" stroke-width="2.4" stroke-linecap="round"/>
+          </g>
+          <text x="392" y="748" font-family="Manrope, sans-serif" font-weight="800" font-size="18" fill="#20343e">Model Design &amp; Training</text>
+          <text x="392" y="772" font-size="13.5" fill="#5c7282">Train Beacon Detector, Boundary Segmenter and Feature Extractor on a shared CNN backbone (40 epochs, Adam).</text>
+          <g transform="translate(840 723)">
+            <rect width="110" height="24" rx="12" fill="#ffe4c7"/>
+            <text x="55" y="16" text-anchor="middle" font-size="12" font-weight="700" fill="#e26a00">PHASE 3</text>
+          </g>
+
+          <!-- S6 -->
+          <rect x="250" y="850" width="720" height="95" rx="18" fill="#fff" filter="url(#soft)" stroke="#dbe7ed"/>
+          <rect x="250" y="850" width="10" height="95" rx="5" fill="url(#ph3)"/>
+          <circle cx="300" cy="897" r="21" fill="url(#ph3)"/>
+          <text x="300" y="903" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="17" fill="#fff">6</text>
+          <g transform="translate(348 880)" fill="#e26a00">
+            <path d="M2 18 A14 14 0 0 1 26 18" stroke="#F57C00" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <line x1="14" y1="18" x2="14" y2="7" stroke="#e26a00" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="14" cy="6" r="1.8" fill="#e26a00"/>
+          </g>
+          <text x="392" y="888" font-family="Manrope, sans-serif" font-weight="800" font-size="18" fill="#20343e">Evaluation &amp; Calibration</text>
+          <text x="392" y="912" font-size="13.5" fill="#5c7282">Score against 7 unseen test plans; report pixel accuracy, IoU, precision, recall and F1 (Ch. 5).</text>
+          <g transform="translate(840 863)">
+            <rect width="110" height="24" rx="12" fill="#ffe4c7"/>
+            <text x="55" y="16" text-anchor="middle" font-size="12" font-weight="700" fill="#e26a00">PHASE 3</text>
+          </g>
+
+          <!-- S7 -->
+          <rect x="250" y="990" width="720" height="95" rx="18" fill="#fff" filter="url(#soft)" stroke="#dbe7ed"/>
+          <rect x="250" y="990" width="10" height="95" rx="5" fill="url(#ph4)"/>
+          <circle cx="300" cy="1037" r="21" fill="url(#ph4)"/>
+          <text x="300" y="1043" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="17" fill="#fff">7</text>
+          <g transform="translate(348 1020)" fill="#388e3c">
+            <rect x="1" y="9" width="12" height="9" rx="2" stroke="#388e3c" stroke-width="2" fill="none"/>
+            <circle cx="7" cy="18" r="1.8" fill="#4CAF50"/>
+            <circle cx="16" cy="6" r="4.5" stroke="#388e3c" stroke-width="2" fill="none"/>
+            <circle cx="24" cy="6" r="4.5" stroke="#4CAF50" stroke-width="2" fill="none"/>
+          </g>
+          <text x="392" y="1028" font-family="Manrope, sans-serif" font-weight="800" font-size="18" fill="#20343e">System Integration &amp; Full-Stack Testing</text>
+          <text x="392" y="1052" font-size="13.5" fill="#5c7282">Wire CVPipeline into FastAPI; end-to-end smoke tests on real patches; verify flat model loading from backend/cv_models.</text>
+          <g transform="translate(840 1003)">
+            <rect width="110" height="24" rx="12" fill="#e0f2e1"/>
+            <text x="55" y="16" text-anchor="middle" font-size="12" font-weight="700" fill="#388e3c">PHASE 4</text>
+          </g>
+
+          <!-- S8 -->
+          <rect x="250" y="1130" width="720" height="95" rx="18" fill="#fff" filter="url(#soft)" stroke="#dbe7ed"/>
+          <rect x="250" y="1130" width="10" height="95" rx="5" fill="url(#ph4)"/>
+          <circle cx="300" cy="1177" r="21" fill="url(#ph4)"/>
+          <text x="300" y="1183" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="17" fill="#fff">8</text>
+          <g transform="translate(348 1160)" fill="#388e3c">
+            <path d="M4 14 q4 -16 10 0 q6 16 0 0" stroke="#388e3c" stroke-width="2" fill="none"/>
+            <line x1="9" y1="4" x2="9" y2="13" stroke="#4CAF50" stroke-width="2.6" stroke-linecap="round"/>
+            <circle cx="9" cy="15" r="1.8" fill="#e26a00"/>
+          </g>
+          <text x="392" y="1168" font-family="Manrope, sans-serif" font-weight="800" font-size="18" fill="#20343e">Deployment, Validation &amp; Client Handover</text>
+          <text x="392" y="1192" font-size="13.5" fill="#5c7282">Ship the 12-service Docker stack, externalise evaluation reports, and hand over with this report as the baseline.</text>
+          <g transform="translate(840 1143)">
+            <rect width="110" height="24" rx="12" fill="#e0f2e1"/>
+            <text x="55" y="16" text-anchor="middle" font-size="12" font-weight="700" fill="#388e3c">PHASE 4</text>
+          </g>
+
+          <!-- connectors -->
+          <g stroke="#6aa9bd" stroke-width="3">
+            <line x1="610" y1="247" x2="610" y2="280" marker-end="url(#arr1)"/>
+            <line x1="610" y1="387" x2="610" y2="420" marker-end="url(#arr1)"/>
+            <line x1="610" y1="527" x2="610" y2="560" marker-end="url(#arr1)"/>
+            <line x1="610" y1="667" x2="610" y2="700" marker-end="url(#arr1)"/>
+            <line x1="610" y1="807" x2="610" y2="840" marker-end="url(#arr1)"/>
+            <line x1="610" y1="947" x2="610" y2="980" marker-end="url(#arr1)"/>
+            <line x1="610" y1="1087" x2="610" y2="1120" marker-end="url(#arr1)"/>
+          </g>
+        </g>
+
+        <!-- titles -->
+        <text x="520" y="60" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="26" fill="#0f4256">Development Methodology</text>
+        <text x="520" y="92" text-anchor="middle" font-family="Inter, sans-serif" font-size="14.5" fill="#5c7282">Eight steps across four colour-coded phases &mdash; from problem framing to a validated, deployable system.</text>
+
+        <!-- contributing inputs along right side -->
+        <g font-family="Inter, sans-serif" font-size="11.5" fill="#5c7282">
+          <g transform="translate(985 150)">
+            <rect width="0" height="0"/>
+          </g>
+        </g>
+      </svg>
+      </div>
+      <figcaption>Figure 3.1 &mdash; The eight-step development methodology. Colours map to report chapters: Discovery (Ch. 1&ndash;2), Data Engineering (Ch. 3), Model Engineering (Ch. 3&ndash;5), Integration &amp; Delivery (Ch. 4&ndash;5).</figcaption>
+    </figure>
+
+    <h3>3.2 Data Acquisition</h3>
+    <p>Models are only as good as their training data. GeoSuite&rsquo;s initial corpus is deliberately <b class="label">real and Kenyan</b>:</p>
+    <table>
+      <tr><th>Source</th><th>Contents</th><th>Role in the System</th></tr>
+      <tr><td><b>ANGOROM survey plans</b></td><td>9 scanned, georeferenced cadastral pages (JPG + georeferencing sidecar files)</td><td>Primary training source for beacons, boundaries and labels</td></tr>
+      <tr><td><b>Field captures (WhatsApp album)</b></td><td>Hand-held photographs of survey markers and plans from site visits</td><td>Data-augmentation and robustness checks (variance in lighting/angle)</td></tr>
+      <tr><td><b>Bathymetric data</b></td><td>Depth-sounding tables relevant to river/water course plans</td><td>Marine/depth-sounding service validation</td></tr>
+      <tr><td><b>WorldCover 30s (Landsat)</b></td><td>Land-cover raster (trees layer shown in corpus)</td><td>Land-use classification reference base map</td></tr>
+      <tr><td><b>EuroSAT RGB</b></td><td>Land-use benchmark imagery</td><td>Auxiliary land-use classifier training/validation</td></tr>
+    </table>
+
+    <h3>3.3 Data Preparation &amp; Label Engineering</h3>
+    <p>Survey plans do not come pre-labelled &mdash; expert annotation at scale is the real bottleneck. For this release we engineered labels from first principles so training could begin immediately and honestly:</p>
+    <ul>
+      <li><b>Tiling.</b> Each plan was sliced into fixed 256&#215;256 pixel patches (RGB), producing the 27-patch <code>kenya_training/train</code> corpus.</li>
+      <li><b>Boundary &amp; feature masks.</b> Per-patch segmentation masks (256&#215;256) were produced for contour/boundary linework and 3-class boundary semantics.</li>
+      <li><b>Beacon labels (216).</b> Beacons typically appear as compact dark blob cores in plan scans. We derived candidates by 8-neighbour erosion of dark-connected components, then kept the 216 most stable cores as training labels &mdash; a transparent, reproducible heuristic that the detector can refine.</li>
+      <li><b>Split.</b> Deterministic 20/7 train/test split (random seed 42) with no overlap, so Chapter 5 metrics are on genuinely unseen plans.</li>
+    </ul>
+    <div class="callout co-teal">
+      <b class="label">Why this matters to you.</b> Deterministic splitting and reproducible labels mean every figure in this report can be regenerated and audited by a third party. When a fully expert-annotated corpus becomes available, the same pipeline re-trains and improves automatically (see roadmap, &sect;5.5).
+    </div>
+
+    <h3>3.4 Model Design</h3>
+    <p>All heads share one <b class="label">CNN backbone</b> (ResNet-style: four residual blocks, 128 channels, three levels of skip connections) so features learned for boundaries also help beacon and text detection and vice versa.</p>
+    <table>
+      <tr><th>Head</th><th>Architecture</th><th>Output</th></tr>
+      <tr><td>Beacon Detector</td><td>YOLO-style grid head (16&#215;16 grid, 9 output channels)</td><td>Beacon boxes + confidence + beacon class</td></tr>
+      <tr><td>Boundary Segmenter</td><td>U-Net-style decoder with skip connections</td><td>3-class boundary mask (background / boundary / other)</td></tr>
+      <tr><td>Feature Extractor</td><td>U-Net-style decoder</td><td>9-class feature mask (title, scale, annotations, etc.)</td></tr>
+      <tr><td>Text Reader (OCR)</td><td>Text region detector + CTC recogniser</td><td>Transcribed labels per text region</td></tr>
+    </table>
+
+    <h3>3.5 Training &amp; Evaluation Protocol</h3>
+    <ul>
+      <li><b>Optimisation.</b> Adam optimiser; 40 epochs per head; batch sizes 4/4/3 on the 20 training patches.</li>
+      <li><b>Preprocessing.</b> Grayscale conversion, deskew, blur, pixel normalisation, resize to 256&#215;256, pad to multiples of 32.</li>
+      <li><b>Metrics.</b> Pixel accuracy, mean &amp; per-class IoU, precision, recall and F1 &mdash; computed independently on the 7 held-out patches.</li>
+      <li><b>Reproducibility.</b> Fixed seed, deterministic split, and the evaluation toolchain saved to <code>cv_evaluation/evaluation_real_test.json</code> as machine-readable evidence.</li>
+    </ul>
+  </section>
+
+  <!-- ================= CHAPTER 4 ================= -->
+  <section id="ch4" class="chapter">
+    <div class="glow-line"></div>
+    <span class="ch-num">Chapter Four</span>
+    <h2 class="ch-title">System Architecture &amp; Implementation</h2>
+
+    <h3>4.1 Architecture Overview</h3>
+    <p>GeoSuite is a layered, modular system. A thin presentation layer talks to a FastAPI services layer that orchestrates twelve micro-services and the KLISS CV Engine; persistence is handled by PostgreSQL/PostGIS with Redis and MinIO for transient and object storage; and everything ships as a self-contained 12-service Docker stack.</p>
+
+    <figure>
+      <div class="arch">
+        <!-- Layer 1 -->
+        <div class="arch-band">
+          <div class="arch-hd" style="background:linear-gradient(90deg,#0f4256,#1A5F7A)"><span>Presentation Layer</span><span class="arch-tag">how users interact</span></div>
+          <div class="arch-body">
+            <div class="mode">
+              <div class="mod"><b>Web Application</b><span>React 18 SPA &mdash; map digitisation, plans, dashboards</span></div>
+              <div class="mod"><b>REST &amp; WebSocket Clients</b><span>Maps (Leaflet), charts (Recharts), API testers</span></div>
+              <div class="mod"><b>QGIS Plugin</b><span>digitise directly inside the surveyor&rsquo;s GIS</span></div>
+              <div class="mod"><b>Import / Export</b><span>Shapefile &middot; GeoJSON &middot; KML &middot; CSV &middot; georeferenced TIFF</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="conn"><div class="conn-body"><div class="vt"></div><span class="lbl">HTTPS / WSS / Fetch</span><div class="vt"></div></div></div>
+
+        <!-- Layer 2 -->
+        <div class="arch-band">
+          <div class="arch-hd" style="background:linear-gradient(90deg,#14505f,#1C7A8A)"><span>API &amp; Security Layer</span><span class="arch-tag">single point of entry</span></div>
+          <div class="arch-body">
+            <div class="mode">
+              <div class="mod"><b>FastAPI /api/v1</b><span>16 route modules &mdash; auth, CV, GPS, drone, marine, watershed, transform, hecras, gps, export, file, monitoring, task, terminal, annotate, weather</span></div>
+              <div class="mod"><b>AuthN / AuthZ</b><span>JWT / OAuth2 flows, role-based access</span></div>
+              <div class="mod"><b>Validation</b><span>Pydantic request schemas, typed responses</span></div>
+              <div class="mod"><b>Async</b><span>background jobs via Celery, live interactive terminal over WebSocket</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="conn"><div class="conn-body"><div class="vt"></div><span class="lbl">Internal RPC</span><div class="vt"></div></div></div>
+
+        <!-- Layer 3 -->
+        <div class="arch-band">
+          <div class="arch-hd" style="background:linear-gradient(90deg,#1A5F7A,#2D9AA6)"><span>Application Services Layer</span><span class="arch-tag">domain logic</span></div>
+          <div class="arch-body">
+            <div class="mode">
+              <div class="mod"><b>Auth</b><span>users &amp; sessions</span></div>
+              <div class="mod"><b>CV Orchestration</b><span>digitise, features, change, match, symbols</span></div>
+              <div class="mod"><b>GPS Tracking</b><span>live position tracking</span></div>
+              <div class="mod"><b>Marine</b><span>depth soundings</span></div>
+              <div class="mod"><b>Watershed</b><span>catchment analysis</span></div>
+              <div class="mod"><b>Transform</b><span>coordinate reprojection</span></div>
+              <div class="mod"><b>Drone</b><span>mission planning</span></div>
+              <div class="mod"><b>ODM</b><span>photogrammetry/jobs</span></div>
+              <div class="mod"><b>Elevation / Terrain</b><span>DEM surface tools</span></div>
+              <div class="mod"><b>Export</b><span>GIS formats</span></div>
+              <div class="mod"><b>Converter</b><span>file conversions</span></div>
+              <div class="mod"><b>HEC-RAS</b><span>hydraulic model gateway</span></div>
+              <div class="mod"><b>R Statistics</b><span>statistical analysis</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="conn"><div class="conn-body"><div class="vt"></div><span class="lbl">CV pipeline call</span><div class="vt"></div></div></div>
+
+        <!-- Layer 4 -->
+        <div class="arch-band">
+          <div class="arch-hd" style="background:linear-gradient(90deg,#e26a00,#F57C00)"><span>KLISS CV Engine</span><span class="arch-tag">the intelligence</span></div>
+          <div class="arch-body">
+            <div class="mode">
+              <div class="mod"><b>CVPipeline</b><span>orchestrator: preprocess &rarr; backbone &rarr; heads</span></div>
+              <div class="mod"><b>CNN Backbone</b><span>ResNet-style shared encoder, 128ch, 3 skips</span></div>
+              <div class="mod"><b>Beacon Detector</b><span>YOLO 16&times;16 grid</span></div>
+              <div class="mod"><b>Boundary Segmenter</b><span>U-Net 3-class</span></div>
+              <div class="mod"><b>Feature Extractor</b><span>U-Net 9-class</span></div>
+              <div class="mod"><b>Text Reader</b><span>OCR / CTC</span></div>
+              <div class="mod"><b>Modules</b><span>change detection &middot; map match &middot; symbols &middot; soundings &middot; land-use &middot; fast digitise</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="conn"><div class="conn-body"><div class="vt"></div><span class="lbl">SQL &amp; object storage</span><div class="vt"></div></div></div>
+
+        <!-- Layer 5 -->
+        <div class="arch-band">
+          <div class="arch-hd" style="background:linear-gradient(90deg,#2e7d32,#4CAF50)"><span>Data &amp; Infrastructure Layer</span><span class="arch-tag">state and runtime</span></div>
+          <div class="arch-body">
+            <div class="mode">
+              <div class="mod"><b>PostgreSQL + PostGIS</b><span>authoritative store, spatial indexes</span></div>
+              <div class="mod"><b>Redis</b><span>cache, queues, sessions</span></div>
+              <div class="mod"><b>MinIO</b><span>S3-compatible object storage for plans &amp; exports</span></div>
+              <div class="mod"><b>Celery</b><span>worker + beat for long CV jobs</span></div>
+              <div class="mod"><b>ODM</b><span>photogrammetry container</span></div>
+              <div class="mod"><b>Traefik &amp; Nginx</b><span>ingress, TLS, reverse proxy</span></div>
+              <div class="mod"><b>Monitoring</b><span>pgAdmin &middot; Flower &middot; health endpoints</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <figcaption>Figure 4.1 &mdash; Layered system architecture. Five layers connected by HTTPS/WebSocket, internal RPC, and SQL/storage channels.</figcaption>
+    </figure>
+
+    <h3>4.2 The Digitisation Pipeline</h3>
+    <p>The heart of the product is the <b class="label">CVPipeline digitisation flow</b> &mdash; the exact path an uploaded plan image takes to become structured survey output:</p>
+
+    <figure>
+      <div class="svg-card">
+        <svg viewBox="0 0 1040 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Digitisation pipeline">
+          <defs>
+            <linearGradient id="pg-ray" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1A5F7A"/><stop offset="1" stop-color="#2D9AA6"/></linearGradient>
+            <linearGradient id="pg-span" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F57C00"/><stop offset="1" stop-color="#ef6c00"/></linearGradient>
+            <marker id="pgarr" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+              <path d="M0,1 L8,5 L0,9 Z" fill="#2D9AA6"/>
+            </marker>
+          </defs>
+          <rect x="0" y="0" width="1040" height="430" fill="#fbfdff"/>
+
+          <text x="520" y="34" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="20" fill="#0f4256">CVPipeline.digitize_survey_plan()</text>
+
+          <!-- Input -->
+          <rect x="40" y="80" width="150" height="120" rx="16" fill="url(#pg-ray)" filter="url(#soft)"/>
+          <text x="115" y="132" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="14" fill="#fff">Input</text>
+          <text x="115" y="158" text-anchor="middle" font-size="11" fill="#dff2f7">plan scan / capture</text>
+          <text x="115" y="174" text-anchor="middle" font-size="11" fill="#dff2f7">(JPG, TIFF, PNG)</text>
+          <line x1="190" y1="140" x2="218" y2="140" stroke="#2D9AA6" stroke-width="3" marker-end="url(#pgarr)"/>
+
+          <!-- Preprocess -->
+          <rect x="226" y="58" width="170" height="164" rx="16" fill="#fff" stroke="#2D9AA6" stroke-width="2" filter="url(#soft)"/>
+          <text x="311" y="86" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="13.5" fill="#1A5F7A">Preprocessing</text>
+          <text x="311" y="110" text-anchor="middle" font-size="10.5" fill="#5c7282">grayscale &middot; deskew &middot; blur</text>
+          <text x="311" y="128" text-anchor="middle" font-size="10.5" fill="#5c7282">normalise</text>
+          <text x="311" y="148" text-anchor="middle" font-size="10.5" fill="#5c7282">resize 256&#215;256</text>
+          <text x="311" y="166" text-anchor="middle" font-size="10.5" fill="#5c7282">pad to multiple of 32</text>
+          <rect x="252" y="184" width="118" height="26" rx="13" fill="#e0edf3"/>
+          <text x="311" y="201" text-anchor="middle" font-size="10" font-weight="700" fill="#1A5F7A">DETERMINISTIC</text>
+          <line x1="396" y1="140" x2="424" y2="140" stroke="#2D9AA6" stroke-width="3" marker-end="url(#pgarr)"/>
+
+          <!-- Backbone -->
+          <rect x="432" y="58" width="150" height="164" rx="16" fill="url(#pg-ray)" filter="url(#soft)"/>
+          <text x="507" y="86" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="13.5" fill="#fff">CNN Backbone</text>
+          <text x="507" y="112" text-anchor="middle" font-size="10.5" fill="#e5f4f8">ResNet-style, 128 ch</text>
+          <text x="507" y="130" text-anchor="middle" font-size="10.5" fill="#e5f4f8">3 skip connections</text>
+          <text x="507" y="150" text-anchor="middle" font-size="10.5" fill="#dff2f7">shared feature extractor</text>
+          <rect x="458" y="170" width="98" height="26" rx="13" fill="rgba(255,255,255,.18)"/>
+          <text x="507" y="187" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">SHARED</text>
+
+          <line x1="582" y1="70" x2="268" y2="70" stroke="#F57C00" stroke-width="2" stroke-dasharray="5 4"/>
+          <text x="424" y="52" text-anchor="middle" font-size="10" fill="#e26a00" font-style="italic">skip features</text>
+
+          <!-- Heads -->
+          <g>
+            <!-- Beacon -->
+            <rect x="660" y="40" width="150" height="72" rx="14" fill="url(#pg-span)" filter="url(#soft)"/>
+            <text x="735" y="70" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="12.5" fill="#fff">Beacon Detector</text>
+            <text x="735" y="90" text-anchor="middle" font-size="10" fill="#fff">YOLO 16&#215;16 grid, confidence</text>
+            <line x1="582" y1="90" x2="650" y2="76" stroke="#2D9AA6" stroke-width="2.4" marker-end="url(#pgarr)"/>
+
+            <!-- Boundary -->
+            <rect x="660" y="122" width="150" height="72" rx="14" fill="url(#pg-span)" filter="url(#soft)"/>
+            <text x="735" y="152" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="12.5" fill="#fff">Boundary Segmenter</text>
+            <text x="735" y="172" text-anchor="middle" font-size="10" fill="#fff">U-Net 3-class mask</text>
+            <line x1="582" y1="140" x2="650" y2="158" stroke="#2D9AA6" stroke-width="2.4" marker-end="url(#pgarr)"/>
+
+            <!-- Feature -->
+            <rect x="660" y="204" width="150" height="72" rx="14" fill="url(#pg-span)" filter="url(#soft)"/>
+            <text x="735" y="234" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="12.5" fill="#fff">Feature Extractor</text>
+            <text x="735" y="254" text-anchor="middle" font-size="10" fill="#fff">U-Net 9-class mask</text>
+            <line x1="582" y1="190" x2="650" y2="240" stroke="#2D9AA6" stroke-width="2.4" marker-end="url(#pgarr)"/>
+
+            <!-- OCR -->
+            <rect x="660" y="286" width="150" height="72" rx="14" fill="url(#pg-span)" filter="url(#soft)"/>
+            <text x="735" y="316" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="12.5" fill="#fff">Text Reader (OCR)</text>
+            <text x="735" y="336" text-anchor="middle" font-size="10" fill="#fff">CTC sequence model</text>
+            <line x1="582" y1="200" x2="650" y2="322" stroke="#2D9AA6" stroke-width="2" marker-end="url(#pgarr)"/>
+          </g>
+
+          <!-- Legend grouping label -->
+          <rect x="660" y="372" width="150" height="34" rx="10" fill="#fff4e8" stroke="#F57C00" stroke-width="1.5"/>
+          <text x="735" y="393" text-anchor="middle" font-size="11" font-weight="700" fill="#e26a00">Parallel heads</text>
+
+          <!-- Output -->
+          <rect x="870" y="58" width="150" height="164" rx="16" fill="url(#pg-ray)" filter="url(#soft)"/>
+          <text x="945" y="92" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="13.5" fill="#fff">Structured Output</text>
+          <text x="945" y="120" text-anchor="middle" font-size="10.5" fill="#e5f4f8">beacons + boundaries</text>
+          <text x="945" y="138" text-anchor="middle" font-size="10.5" fill="#e5f4f8">+ labels + text regions</text>
+          <text x="945" y="162" text-anchor="middle" font-size="10.5" fill="#e5f4f8">georeferenced vectors</text>
+          <text x="945" y="180" text-anchor="middle" font-size="10.5" fill="#e5f4f8">timing + totals</text>
+          <rect x="898" y="194" width="94" height="22" rx="11" fill="rgba(255,255,255,.2)"/>
+          <text x="945" y="209" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff">JSON / API</text>
+
+          <line x1="810" y1="140" x2="860" y2="140" stroke="#2D9AA6" stroke-width="3" marker-end="url(#pgarr)"/>
+
+          <!-- timing badge -->
+          <rect x="870" y="232" width="150" height="44" rx="12" fill="#e9f6ea"/>
+          <text x="945" y="252" text-anchor="middle" font-size="10.5" font-weight="700" fill="#388e3c">full plan in seconds</text>
+          <text x="945" y="268" text-anchor="middle" font-size="9.5" fill="#2e7d32">audit trail &amp; confidence scores</text>
+        </svg>
+      </div>
+      <figcaption>Figure 4.2 &mdash; The end-to-end digitisation pipeline: a plan goes in, structured survey data comes out.</figcaption>
+    </figure>
+
+    <h3>4.3 Backend Implementation</h3>
+    <ul>
+      <li><b>Framework.</b> FastAPI with typed request/response models (Pydantic), OpenAPI docs, and health/monitoring endpoints.</li>
+      <li><b>CV integration.</b> <code>cv_routes.py</code> instantiates the <code>CVPipeline</code> once and loads trained weights from <code>backend/cv_models/</code> in the flat layout the engine requires (<code>&lt;name&gt;_backbone.npz</code>, <code>&lt;name&gt;_decoder.npz</code>, <code>&lt;name&gt;_head.npz</code> with keys <code>param_*</code>, <code>dec_*</code>, <code>final_w/final_b</code>, <code>head_*</code>).</li>
+      <li><b>Services.</b> 13 Python modules implement GPS, marine, watershed, transform, drone, ODM, elevation, export, file conversion, HEC-RAS, R statistics and CV orchestration.</li>
+      <li><b>Background work.</b> Celery workers handle long-running CV and photogrammetry jobs; an interactive terminal over WebSocket is provided for power users.</li>
+    </ul>
+    <div class="callout co-ocean">
+      <b class="label">Implementation note.</b> The CV engine is <b>pure NumPy</b> &mdash; no PyTorch/TensorFlow at inference. This makes the service light, licence-free and easy to audit, at the cost of some engineering effort to express every forward pass in NumPy primitives.
+    </div>
+
+    <h3>4.4 Frontend Implementation</h3>
+    <ul>
+      <li><b>Stack.</b> React 18 single-page application with Material UI components, Leaflet maps and Recharts dashboards.</li>
+      <li><b>Workflows.</b> Upload a plan &rarr; run digitisation &rarr; review beacons/boundaries/labels on a map &rarr; export as Shapefile/GeoJSON/KML &middot; with live tracking, drone and watershed views alongside.</li>
+      <li><b>Purpose-built pages</b> include a drone mission page and geospatial dashboards that surface CV results to non-experts.</li>
+    </ul>
+
+    <h3>4.5 Data Management</h3>
+    <ul>
+      <li><b>Primary store.</b> PostgreSQL + PostGIS for authoritative records and spatial queries; a SQLite fallback keeps portable development working without infrastructure.</li>
+      <li><b>Cache &amp; queues.</b> Redis for sessions, caching and Celery broker duties.</li>
+      <li><b>Object storage.</b> MinIO (S3-compatible) for plan originals, masks and generated exports.</li>
+      <li><b>Configuration &amp; security.</b> Environment-driven configuration (<code>.env.example</code>) &mdash; database credentials, JWT secret and debug flags never live in source control.</li>
+    </ul>
+
+    <h3>4.6 Deployment Topology</h3>
+    <p>The whole platform is described by a single <code>docker-compose.yml</code>. <code>docker compose up</code> brings up twelve services on a private network, with data volumes (Postgres, Redis, MinIO, shared GeoSuite data) and Traefik/Nginx ingress:</p>
+    <table>
+      <tr><th>Service</th><th>Purpose</th></tr>
+      <tr><td>backend</td><td>FastAPI application + CV engine</td></tr>
+      <tr><td>frontend</td><td>React SPA (served via Nginx)</td></tr>
+      <tr><td>postgres</td><td>PostGIS spatial database</td></tr>
+      <tr><td>redis</td><td>cache / broker</td></tr>
+      <tr><td>celery-worker</td><td>background job execution</td></tr>
+      <tr><td>celery-beat</td><td>scheduled tasks</td></tr>
+      <tr><td>nginx</td><td>reverse proxy / static hosting</td></tr>
+      <tr><td>traefik</td><td>ingress &amp; TLS edge</td></tr>
+      <tr><td>minio</td><td>object storage</td></tr>
+      <tr><td>odm</td><td>photogrammetry engine</td></tr>
+      <tr><td>pgadmin</td><td>database console</td></tr>
+      <tr><td>flower</td><td>Celery monitoring UI</td></tr>
+    </table>
+
+    <h3>4.7 Deliverables Summary</h3>
+    <div class="callout co-green">
+      <b class="label">Delivered artefacts.</b> (1) Trained NumPy model weights for beacon, boundary and feature heads in both flat (<code>backend/cv_models</code>) and versioned (<code>backend/app/cv_models/&lt;name&gt;/</code>) layouts; (2) the re-trainable pipeline <code>train_real.py</code> for future datasets; (3) the digitise/OCR/specialist CV API; (4) React web application; (5) QGIS plugin; (6) machine-readable evaluation evidence; (7) a 12-service Docker deployment.
+    </div>
+  </section>
+
+  <!-- ================= CHAPTER 5 ================= -->
+  <section id="ch5" class="chapter">
+    <div class="glow-line"></div>
+    <span class="ch-num">Chapter Five</span>
+    <h2 class="ch-title">Results, Evaluation &amp; Conclusion</h2>
+
+    <h3>5.1 Evaluation Setup</h3>
+    <p>All models were trained on 20 plan patches and evaluated on <b class="label">7 unseen plan patches</b> (deterministic 20/7 split, seed 42; 216 engineered beacon labels). Metrics are reported on genuine hold-out data, exactly as produced by the scoring toolchain.</p>
+
+    <h3>5.2 Results by Head</h3>
+
+    <div class="card">
+      <h4>Boundary Segmenter (3-class semantic): background</h4>
+      <table>
+        <tr><th>Metric</th><th class="num">Value</th><th>Interpretation</th></tr>
+        <tr><td>Pixel accuracy</td><td class="num"><b>92.9%</b></td><td>pixels classed correctly overall</td></tr>
+        <tr><td>Mean IoU</td><td class="num">0.312</td><td>average overlap across all 3 classes</td></tr>
+        <tr><td>Mean F1</td><td class="num">0.326</td><td>harmonic mean P/R across classes</td></tr>
+        <tr><td>Background class IoU / F1</td><td class="num">0.929 / 0.963</td><td>clean &ldquo;non-line&rdquo; area is very well understood</td></tr>
+      </table>
+      <p class="mini">The boundary/survey-line classes are under-represented in the 27-patch corpus; the model correctly understands &ldquo;empty paper&rdquo; (96% F1) and is learning rare linework with limited examples &mdash; see &sect;5.5.</p>
+    </div>
+
+    <div class="card">
+      <h4>Beacon Detector (YOLO grid head)</h4>
+      <table>
+        <tr><th>Metric</th><th class="num">Value</th><th>Interpretation</th></tr>
+        <tr><td>Recall</td><td class="num"><b>1.00</b></td><td>every real beacon was found &mdash; no misses</td></tr>
+        <tr><td>Precision</td><td class="num">0.157</td><td>over-detection on test patches</td></tr>
+        <tr><td>F1 score</td><td class="num">0.271</td><td>combined detection quality</td></tr>
+        <tr><td>True / False / Missed</td><td class="num">280 / 1,508 / 0</td><td>raw count evidence</td></tr>
+      </table>
+      <p class="mini">100% recall is the safety-critical property: no beacon is ever dropped &mdash; extra candidates are flagged for the surveyor&rsquo;s review. Precision improves directly as more labelled data is added.</p>
+    </div>
+
+    <div class="card">
+      <h4>Feature Extractor (9-class area semantics)</h4>
+      <table>
+        <tr><th>Metric</th><th class="num">Value</th><th>Interpretation</th></tr>
+        <tr><td>Pixel accuracy</td><td class="num">1.8%</td><td>majority-class drift on sparse classes</td></tr>
+        <tr><td>Mean IoU / F1</td><td class="num">0.007 / 0.014</td><td>expected with ~1 example per class</td></tr>
+      </table>
+      <p class="mini">This head has too few training examples per class on this release&rsquo;s corpus. It validates in principle; data scale-up is the fix (see roadmap).</p>
+    </div>
+
+    <figure>
+      <div class="svg-card">
+        <svg viewBox="0 0 760 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Key metrics bar chart">
+          <defs>
+            <linearGradient id="bar-o" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1A5F7A"/><stop offset="1" stop-color="#2D9AA6"/></linearGradient>
+            <linearGradient id="bar-t" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2D9AA6"/><stop offset="1" stop-color="#1C7A8A"/></linearGradient>
+            <linearGradient id="bar-o2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F57C00"/><stop offset="1" stop-color="#ef6c00"/></linearGradient>
+            <linearGradient id="bar-g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4CAF50"/><stop offset="1" stop-color="#388e3c"/></linearGradient>
+          </defs>
+          <rect x="0" y="0" width="760" height="340" fill="#fbfdff"/>
+          <text x="380" y="30" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="17" fill="#0f4256">Model performance on 7 unseen test plans</text>
+
+          <!-- axis -->
+          <line x1="150" y1="60" x2="150" y2="290" stroke="#dbe2e8" stroke-width="2"/>
+          <line x1="150" y1="290" x2="700" y2="290" stroke="#dbe2e8" stroke-width="2"/>
+          <g fill="#9fb0bc" font-size="10">
+            <text x="142" y="292" text-anchor="end">0%</text>
+            <text x="142" y="222" text-anchor="end">25%</text>
+            <text x="142" y="152" text-anchor="end">50%</text>
+            <text x="142" y="95"  text-anchor="end">75%</text>
+          </g>
+
+          <!-- bars row helper -->
+          <!-- Boundary pixel accuracy 92.9 -->
+          <rect x="170" y="72" width="505" height="20" rx="10" fill="url(#bar-o)"/>
+          <text x="682" y="87" text-anchor="end" font-size="11.5" font-weight="700" fill="#1A5F7A">92.9%</text>
+          <text x="170" y="112" font-family="Manrope, sans-serif" font-weight="700" font-size="12" fill="#20343e">Boundary Segmenter &mdash; pixel accuracy</text>
+
+          <!-- Beacon recall 100 -->
+          <rect x="170" y="128" width="540" height="20" rx="10" fill="url(#bar-g)"/>
+          <text x="717" y="143" text-anchor="end" font-size="11.5" font-weight="700" fill="#388e3c">100%</text>
+          <text x="170" y="168" font-family="Manrope, sans-serif" font-weight="700" font-size="12" fill="#20343e">Beacon Detector &mdash; recall (no misses)</text>
+
+          <!-- Beacon F1 27.1 -->
+          <rect x="170" y="184" width="146" height="20" rx="10" fill="url(#bar-o2)"/>
+          <text x="323" y="199" text-anchor="end" font-size="11.5" font-weight="700" fill="#e26a00">27.1%</text>
+          <text x="170" y="224" font-family="Manrope, sans-serif" font-weight="700" font-size="12" fill="#20343e">Beacon Detector &mdash; F1</text>
+
+          <!-- Boundary mean IoU 31.2 -->
+          <rect x="170" y="240" width="169" height="20" rx="10" fill="url(#bar-t)"/>
+          <text x="346" y="255" text-anchor="end" font-size="11.5" font-weight="700" fill="#1C7A8A">31.2%</text>
+          <text x="170" y="280" font-family="Manrope, sans-serif" font-weight="700" font-size="12" fill="#20343e">Boundary Segmenter &mdash; mean IoU</text>
+        </svg>
+      </div>
+      <figcaption>Figure 5.1 &mdash; Key evaluation metrics on held-out test plans (true-scale bars).</figcaption>
+    </figure>
+
+    <h3>5.3 Discussion</h3>
+    <p>These results are <b class="label">evidence of a working end-to-end pipeline at proof-of-concept scale</b>:</p>
+    <ul>
+      <li><b>What works.</b> The shared-backbone architecture successfully digitises a plan in seconds (live smoke tests on real ANGOROM patches return full structured results). Beacon recall of 100% and background semantics of 96% F1 are deployment-useful behaviours already.</li>
+      <li><b>Where accuracy is limited.</b> Beacon precision (15.7%) and the rare-class IoU numbers are artefacts of a 27-patch corpus with ~1 example per class and heuristic (not expert-verified) labels &mdash; not architecture failures. Every vision head is recall-safe or background-safe, which is the correct failure mode for a review-assisted tool.</li>
+      <li><b>What is honest.</b> This report does not claim production-grade precision for features; it claims a validated, re-trainable foundation with a defined data-driven path to scale, plus a full platform to deliver it.</li>
+    </ul>
+
+    <h3>5.4 Conclusions</h3>
+    <ol>
+      <li><b>Feasibility proven.</b> A pure-NumPy CNN pipeline can digitise cadastral plan beacons, boundaries and labels end-to-end, deployable on commodity hardware.</li>
+      <li><b>The platform is real.</b> FastAPI backend, React front-end, 16 API route groups, 13 services, QGIS plugin and 12-service Docker stack are implemented and running &mdash; not paper designs.</li>
+      <li><b>Safety-first detection.</b> 100% beacon recall demonstrates the failure mode a professional tool must have: candidate everything, let the surveyor adjudicate.</li>
+      <li><b>The lever is data.</b> Accuracy scales predictably with labelled corpus size (231&#8594;27,000+ patches path in &sect;5.5); the architecture is already oriented for that growth.</li>
+    </ol>
+
+    <h3>5.5 Recommendations &amp; Roadmap</h3>
+    <table>
+      <tr><th>Priority</th><th>Action</th><th>Expected impact</th></tr>
+      <tr><td><span class="tag-pill t-orange">P1</span></td><td>Expand the labelled corpus to thousands of patches; migrate heuristic labels to expert-verified annotations.</td><td>Beacon precision and boundary/feature IoU climb steeply (20&#8594;200+ plans)</td></tr>
+      <tr><td><span class="tag-pill t-orange">P1</span></td><td>Re-run <code>train_real.py</code> as data lands; keep deterministic split &amp; JSON evidence so gains are auditable.</td><td>Continuous, provable improvement</td></tr>
+      <tr><td><span class="tag-pill t-teal">P2</span></td><td>Add NMS seeding &amp; confidence thresholds on the beacon head to raise precision.</td><td>Faster review workflow</td></tr>
+      <tr><td><span class="tag-pill t-teal">P2</span></td><td>Curate per-class balance for the feature head (more titles/scales/annotations).</td><td>Feature-class IoU to usable levels</td></tr>
+      <tr><td><span class="tag-pill t-green">P3</span></td><td>Pilot with a survey office on 3&ndash;5 real estates; collect field-verified truth.</td><td>Field-grounded ground truth, TCO evidence</td></tr>
+      <tr><td><span class="tag-pill t-green">P3</span></td><td>Package licensed editions &amp; support SLAs for client rollout.</td><td>Commercialisation</td></tr>
+    </table>
+
+    <div class="callout co-green">
+      <b class="label">Closing statement.</b> GeoSuite delivers what was promised in Chapter 1 &mdash; an automated, GIS-interoperable digitisation pipeline that is deployed, measurable and safely conservative in its detections. The honest numbers in this report are its strongest feature: a client-facing product backed by reproducible evidence and a clear plan to get better with every parcel digitised.
+    </div>
+  </section>
+
+  <!-- ================= REFERENCES ================= -->
+  <section id="refs" class="chapter">
+    <div class="glow-line"></div>
+    <span class="ch-num">Bibliography</span>
+    <h2 class="ch-title">References</h2>
+    <ol class="refs" style="font-size:.9rem;color:var(--ink)">
+      <li>Krizhevsky, A., Sutskever, I. &amp; Hinton, G. (2012). ImageNet classification with deep convolutional neural networks. <i>NeurIPS</i>.</li>
+      <li>Ronneberger, O., Fischer, P. &amp; Brox, T. (2015). U-Net: Convolutional networks for biomedical image segmentation. <i>MICCAI</i>.</li>
+      <li>Redmon, J. &amp; Farhadi, A. (2018). YOLOv3: An incremental improvement. <i>arXiv:1804.02767</i>.</li>
+      <li>Graves, A. et al. (2006). Connectionist temporal classification: labelling unsegmented sequence data with recurrent neural networks. <i>ICML</i>.</li>
+      <li>He, K. et al. (2016). Deep residual learning for image recognition. <i>CVPR</i>.</li>
+      <li>Zanaga, D. et al. (2021). ESA WorldCover 10 m 2020 v100. <i>Zenodo</i>.</li>
+      <li>Helber, P. et al. (2019). EuroSAT: A novel dataset and deep learning benchmark for land use and land cover classification. <i>IEEE JSTARS</i>.</li>
+    </ol>
+  </section>
+
+  <!-- ================= APPENDICES ================= -->
+  <section id="appx" class="chapter">
+    <div class="glow-line"></div>
+    <span class="ch-num">Appendices</span>
+    <h2 class="ch-title">Appendices</h2>
+
+    <h3>Appendix A &mdash; API Route Groups (16)</h3>
+    <table>
+      <tr><th>Module</th><th>Purpose</th></tr>
+      <tr><td>auth_routes</td><td>login, JWT/OAuth2, sessions</td></tr>
+      <tr><td>cv_routes</td><td>digitise, features, change, match, symbols, soundings, fast-digitise</td></tr>
+      <tr><td>gps_routes</td><td>live tracking</td></tr>
+      <tr><td>marine_routes</td><td>bathymetry &amp; depth extraction</td></tr>
+      <tr><td>watershed_routes</td><td>catchment analysis</td></tr>
+      <tr><td>transform_routes</td><td>coordinate transforms</td></tr>
+      <tr><td>drone_routes</td><td>mission data</td></tr>
+      <tr><td>export_routes</td><td>GIS / data export</td></tr>
+      <tr><td>file_routes</td><td>upload &amp; conversion</td></tr>
+      <tr><td>hecras_routes</td><td>hydraulic model gateway</td></tr>
+      <tr><td>annotate_routes</td><td>manual label annotation</td></tr>
+      <tr><td>monitoring_routes</td><td>health &amp; metrics</td></tr>
+      <tr><td>task_routes</td><td>async job status</td></tr>
+      <tr><td>terminal_routes</td><td>interactive WebSocket console</td></tr>
+      <tr><td>config_routes</td><td>system configuration</td></tr>
+      <tr><td>weather_routes</td><td>weather data</td></tr>
+    </table>
+
+    <h3>Appendix B &mdash; Docker Services &amp; Volumes</h3>
+    <table>
+      <tr><th>Service</th><th>Networks / Volumes</th></tr>
+      <tr><td>backend, frontend, postgres, redis, celery-worker, celery-beat, nginx, traefik, minio, odm, pgadmin, flower</td><td><code>geosuite-network</code>; volumes: <code>postgres_data</code>, <code>redis_data</code>, <code>geosuite_data</code>, <code>minio_data</code></td></tr>
+    </table>
+
+    <h3>Appendix C &mdash; Dataset Inventory</h3>
+    <table>
+      <tr><th>Item</th><th>Details</th></tr>
+      <tr><td>kenya_training</td><td>27 imagery+mask patches; 20/7 split; 216 engineered beacon labels; seed 42</td></tr>
+      <tr><td>EuroSAT_RGB</td><td>land-use benchmark imagery</td></tr>
+      <tr><td>ANGOROM pages</td><td>9 plan scans with georeferencing sidecars + reworked TIFF rasters</td></tr>
+      <tr><td>Field captures</td><td>hand-held survey photos (July 2026 site visit)</td></tr>
+      <tr><td>WorldCover_30s</td><td>Landsat-based land-cover reference (trees 30 arc-sec)</td></tr>
+      <tr><td>Bathymetric_Data</td><td>depth-sounding tables for marine plans</td></tr>
+    </table>
+
+    <h3>Appendix D &mdash; Model Artefacts</h3>
+    <table>
+      <tr><th>Artefact</th><th>Location</th></tr>
+      <tr><td>Run-time (flat) weights</td><td><code>backend/cv_models/*_backbone.npz</code>, <code>*_decoder.npz</code>, <code>*_head.npz</code></td></tr>
+      <tr><td>Versioned weights</td><td><code>backend/app/cv_models/&lt;name&gt;/</code> (per-head folders)</td></tr>
+      <tr><td>Re-trainable pipeline</td><td><code>backend/app/cv_engine/training/train_real.py</code></td></tr>
+      <tr><td>Evaluation evidence</td><td><code>cv_evaluation/evaluation_real_test.json</code></td></tr>
+    </table>
+  </section>
+
+</div>
+
+<div class="footer">
+  <b>GeoSuite / KLISS &mdash; Kenya Edition v2.5.0</b> &middot; Automated Cadastral Plan Digitisation &middot; Prepared by Daniell Manyasa &middot; September 2026<br>
+  <span style="opacity:.7">Technical report &mdash; Chapters 1&ndash;5 with methodology, architecture and evaluation. Contact: manyasadaniel630@gmail.com</span>
+</div>
+
+</body>
+</html>

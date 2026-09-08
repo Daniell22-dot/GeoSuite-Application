@@ -62,7 +62,7 @@ const WatershedPage = () => {
       {/* Header Area */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <Box>
-          <Typography variant="h4" sx={{ fontFamily: 'Outfit', fontWeight: 700, letterSpacing: -0.5, mb: 1 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, letterSpacing: -0.5, mb: 1 }}>
             WATERSHED ANALYSIS
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 600 }}>
@@ -86,7 +86,7 @@ const WatershedPage = () => {
              ) : (
                 <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
                   <TerrainIcon sx={{ fontSize: 80, color: 'primary.main', mb: 2, opacity: 0.3 }} />
-                  <Typography variant="h6" sx={{ fontFamily: 'Outfit' }}>Awaiting Elevation Data</Typography>
+                  <Typography variant="h6" sx={{}}>Awaiting Elevation Data</Typography>
                   <Typography variant="body2">Upload a Digital Elevation Model (DEM) to start hydrological delineation.</Typography>
                 </Box>
              )}
@@ -104,13 +104,13 @@ const WatershedPage = () => {
         {analysisResults && (
            <Grid item xs={12}>
               <Box className="glass-panel" sx={{ p: 4 }}>
-                 <Typography variant="subtitle1" sx={{ fontFamily: 'Outfit', fontWeight: 600, mb: 3 }}>SESSION SUMMARY</Typography>
-                 <Grid container spacing={4}>
-                    <AnalysisMetric label="Watershed Area" value={`${analysisResults.watershed?.area_km2?.toFixed(2)} km²`} />
-                    <AnalysisMetric label="Stream Length" value={`${analysisResults.streams?.total_length_km?.toFixed(2)} km`} />
-                    <AnalysisMetric label="Peak Elevation" value={`${analysisResults.watershed?.elevation_stats?.max?.toFixed(0)} m`} />
-                    <AnalysisMetric label="Relief Ratio" value={(analysisResults.watershed?.elevation_stats?.relief / (analysisResults.watershed?.area_km2 * 1000)).toFixed(4)} />
-                 </Grid>
+                 <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 3 }}>SESSION SUMMARY</Typography>
+<Grid container spacing={4}>
+                    <AnalysisMetric label="Watershed Area" value={`${(analysisResults.watershed?.area_km2 || 0).toFixed(2)} km²`} />
+                    <AnalysisMetric label="Stream Length" value={`${(analysisResults.streams?.total_length_km || 0).toFixed(2)} km`} />
+                    <AnalysisMetric label="Peak Elevation" value={`${(analysisResults.watershed?.elevation_stats?.max || 0).toFixed(0)} m`} />
+                    <AnalysisMetric label="Relief Ratio" value={reliefRatio(analysisResults)} />
+                  </Grid>
               </Box>
            </Grid>
         )}
@@ -119,10 +119,17 @@ const WatershedPage = () => {
   );
 };
 
+const reliefRatio = (results) => {
+  const relief = results?.watershed?.elevation_stats?.relief || 0;
+  const area = results?.watershed?.area_km2 || 0;
+  if (area <= 0) return '0.0000';
+  return (relief / (area * 1000)).toFixed(4);
+};
+
 const AnalysisMetric = ({ label, value }) => (
   <Grid item xs={12} sm={6} md={3}>
     <Box sx={{ p: 2, borderRadius: '12px', bgcolor: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-      <Typography variant="h5" sx={{ fontFamily: 'Outfit', fontWeight: 700 }}>{value}</Typography>
+      <Typography variant="h5" sx={{ fontWeight: 700 }}>{value}</Typography>
       <Typography variant="caption" color="text.secondary" sx={{ letterSpacing: 1 }}>{label.toUpperCase()}</Typography>
     </Box>
   </Grid>

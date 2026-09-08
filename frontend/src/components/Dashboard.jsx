@@ -58,17 +58,18 @@ const Dashboard = () => {
       ]);
       
       const counts = statsData?.counts || {};
+      const healthStatus = health?.status || 'unknown';
       setStats({
-        totalFiles: counts.gps_tracks + counts.marine_charts + counts.drone_surveys || 0,
+        totalFiles: (counts.gps_tracks + counts.marine_charts + counts.drone_surveys) || 0,
         totalAnalyses: counts.watershed_analyses || 0,
         storageUsed: 0,
         activeUsers: counts.users || 0,
-        systemHealth: health.status,
+        systemHealth: healthStatus,
       });
       
       setRecentActivities([
         { id: 1, user: 'System', action: 'Application started', time: 'Just now', type: 'system' },
-        { id: 2, user: 'Health', action: `Status: ${health.status}`, time: 'Just now', type: 'system' },
+        { id: 2, user: 'Health', action: `Status: ${healthStatus}`, time: 'Just now', type: 'system' },
       ]);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -108,7 +109,7 @@ const Dashboard = () => {
     <Container maxWidth="xl" className="animate-fade-in">
       {/* Welcome Header */}
       <Box sx={{ mb: 5 }}>
-        <Typography variant="h3" sx={{ fontWeight: 700, fontFamily: 'Outfit', mb: 1 }}>
+        <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
           Reporting & Insights
         </Typography>
         <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400 }}>
@@ -149,7 +150,7 @@ const Dashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
            <DashboardStatCard 
              title="Sync Status" 
-             value={stats.systemHealth.toUpperCase()} 
+             value={stats.systemHealth?.toUpperCase() || 'N/A'} 
              subtitle="C++ Engine Active" 
              icon={<PersonIcon />} 
              color="#2e7d32"
@@ -162,7 +163,7 @@ const Dashboard = () => {
         <Grid item xs={12} lg={8}>
           <Box className="glass-panel" sx={{ p: 4, mb: 4 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-              <Typography variant="h6" sx={{ fontFamily: 'Outfit' }}>Processing Activity</Typography>
+              <Typography variant="h6" sx={{}}>Processing Activity</Typography>
               <Button size="small" variant="text">Details</Button>
             </Box>
             <Box sx={{ height: 350 }}>
@@ -185,7 +186,7 @@ const Dashboard = () => {
 
         <Grid item xs={12} lg={4}>
           <Box className="glass-panel" sx={{ p: 4, mb: 4 }}>
-            <Typography variant="h6" sx={{ mb: 4, fontFamily: 'Outfit' }}>Analysis Mix</Typography>
+            <Typography variant="h6" sx={{ mb: 4 }}>Analysis Mix</Typography>
             <Box sx={{ height: 250, position: 'relative' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -213,7 +214,7 @@ const Dashboard = () => {
           </Box>
 
           <Box className="glass-panel" sx={{ p: 4 }}>
-                <Typography variant="h6" sx={{ mb: 3, fontFamily: 'Outfit' }}>Recent Activity</Typography>
+                <Typography variant="h6" sx={{ mb: 3 }}>Recent Activity</Typography>
                 <List dense>
                     {recentActivities.map((activity, i) => (
                         <React.Fragment key={activity.id}>

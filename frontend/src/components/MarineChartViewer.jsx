@@ -27,7 +27,6 @@ import {
   Download,
   Settings,
 } from '@mui/icons-material';
-import { useMarine } from '../services/ApiContext';
 import { useAppConfig } from '../services/gisUtils';
 
 const createSvgIcon = (color, size = 30) => {
@@ -62,7 +61,6 @@ const MarineChartViewer = ({ chartData, onChartLoad }) => {
     zoom: 10,
   });
   const mapRef = useRef();
-  const { processMarineFile } = useMarine();
   const { config } = useAppConfig();
   const apiLayers = config?.mapLayers || [];
   const baseLayers = apiLayers.filter(l => l.isBase);

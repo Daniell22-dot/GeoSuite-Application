@@ -685,6 +685,16 @@ export const ApiProvider = ({ children }) => {
     },
   };
 
+  /**
+   * System monitoring API functions
+   */
+  const monitoringApi = {
+    getHealth: async () => apiRequest('get', '/api/v1/monitoring/health'),
+    getMetrics: async () => apiRequest('get', '/api/v1/monitoring/metrics'),
+    getPerformance: async () => apiRequest('get', '/api/v1/monitoring/performance'),
+    getLogs: async (limit = 50) => apiRequest('get', `/api/v1/monitoring/logs?limit=${limit}`),
+  };
+
   // Context value
   const contextValue = {
     // State
@@ -704,6 +714,7 @@ export const ApiProvider = ({ children }) => {
     digitize: digitizeApi,
     cv: cvApi,
     annotate: annotateApi,
+    monitoring: monitoringApi,
     
     // Generic request
     request: apiRequest,

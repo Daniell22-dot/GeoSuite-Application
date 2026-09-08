@@ -158,7 +158,7 @@ const DigitizePage = () => {
       <Container maxWidth="xl" sx={{ py: 4 }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" sx={{ fontWeight: 700, fontFamily: 'Outfit', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <DigitizeIcon sx={{ color: 'primary.main', fontSize: 36 }} />
             Survey Plan Digitizer
           </Typography>

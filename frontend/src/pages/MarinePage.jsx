@@ -91,7 +91,7 @@ const MarinePage = () => {
       {/* Header Area */}
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <Box>
-          <Typography variant="h4" sx={{ fontFamily: 'Outfit', fontWeight: 700, letterSpacing: -0.5, mb: 1 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, letterSpacing: -0.5, mb: 1 }}>
             MARINE CHARTING
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 600 }}>
@@ -112,7 +112,7 @@ const MarinePage = () => {
           <Stack spacing={3}>
             {/* Chart Inventory */}
             <Box className="glass-panel" sx={{ p: 3 }}>
-              <Typography variant="subtitle2" sx={{ fontFamily: 'Outfit', fontWeight: 600, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <VisibilityIcon fontSize="small" color="primary"/> LOADED CHARTS
               </Typography>
               
@@ -134,7 +134,7 @@ const MarinePage = () => {
             {/* Analysis Workspace */}
             {activeChart && (
               <Box className="glass-panel" sx={{ p: 3 }}>
-                <Typography variant="subtitle2" sx={{ fontFamily: 'Outfit', fontWeight: 600, mb: 2 }}>ANALYSIS TOOLS</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>ANALYSIS TOOLS</Typography>
                 <Stack spacing={2}>
                   <Box>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>Active Layers</Typography>
@@ -176,7 +176,7 @@ const MarinePage = () => {
             ) : (
               <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
                 <WavesIcon sx={{ fontSize: 80, color: 'primary.main', mb: 2, opacity: 0.3 }} />
-                <Typography variant="h6" sx={{ fontFamily: 'Outfit' }}>Select or Import Chart</Typography>
+                <Typography variant="h6" sx={{}}>Select or Import Chart</Typography>
                 <Typography variant="body2">Awaiting nautical data for vertical profile analysis.</Typography>
               </Box>
             )}

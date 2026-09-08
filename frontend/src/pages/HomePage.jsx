@@ -137,7 +137,7 @@ const HomePage = () => {
 
       {/* Feature Cards */}
       <Container maxWidth="lg" sx={{ pb: 12 }}>
-        <Typography variant="h4" sx={{ mb: 6, textAlign: 'center', fontFamily: 'Outfit' }}>
+        <Typography variant="h4" sx={{ mb: 6, textAlign: 'center' }}>
           Capabilities
         </Typography>
         <Grid container spacing={3}>

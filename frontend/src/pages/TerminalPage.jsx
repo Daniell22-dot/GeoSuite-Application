@@ -21,7 +21,7 @@ const TerminalPage = () => {
     <Container maxWidth={false} sx={{ py: 4, px: { xs: 2, md: 4 } }}>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <Box>
-          <Typography variant="h4" sx={{ fontFamily: 'Outfit', fontWeight: 700, letterSpacing: -0.5, mb: 1 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, letterSpacing: -0.5, mb: 1 }}>
             INTEGRATED TERMINAL
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 600 }}>
@@ -45,7 +45,7 @@ const TerminalPage = () => {
         {/* Info Column */}
         <Grid item xs={12} lg={3}>
           <Box className="glass-panel" sx={{ p: 3, height: '100%' }}>
-            <Typography variant="subtitle2" sx={{ fontFamily: 'Outfit', fontWeight: 600, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
               <InfoIcon fontSize="small" color="primary"/> COMMAND GUIDE
             </Typography>
             
