@@ -82,8 +82,8 @@ const HomePage = () => {
               <Typography
                 variant="h1"
                 sx={{
-                  fontSize: { xs: '2.5rem', md: '4.5rem' },
-                  lineHeight: 1.1,
+                  fontSize: { xs: '2rem', md: '2.4rem' },
+                  lineHeight: 1.2,
                   mb: 3,
                   background: 'linear-gradient(to right, #fff, #94a3b8)',
                   WebkitBackgroundClip: 'text',
@@ -97,17 +97,17 @@ const HomePage = () => {
               </Typography>
               <Typography
                 variant="h6"
-                sx={{ color: 'text.secondary', mb: 6, maxWidth: '600px', fontWeight: 400, fontSize: '1.15rem' }}
+                sx={{ color: 'text.secondary', mb: 5, maxWidth: '600px', fontWeight: 400, fontSize: '0.95rem' }}
               >
                 Survey plan digitization, drone processing, coordinate transformations,
                 and field analysis — built for Kenyan surveyors.
               </Typography>
-              <Stack direction="row" spacing={3}>
+              <Stack direction="row" spacing={2}>
                 <Button
                   variant="contained"
                   size="large"
                   onClick={() => navigate('/digitize')}
-                  sx={{ px: 6, py: 2, fontSize: '1.1rem', borderRadius: '100px' }}
+                  sx={{ px: 4, py: 1 }}
                 >
                   Get Started
                 </Button>
@@ -116,7 +116,7 @@ const HomePage = () => {
                   size="large"
                   onClick={() => navigate('/dashboard')}
                   sx={{
-                    px: 6, py: 2, fontSize: '1.1rem', borderRadius: '100px',
+                    px: 4, py: 1,
                     borderColor: 'rgba(255,255,255,0.1)', color: '#fff',
                     '&:hover': { borderColor: 'rgba(255,255,255,0.3)', bgcolor: 'rgba(255,255,255,0.05)' }
                   }}

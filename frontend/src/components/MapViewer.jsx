@@ -148,7 +148,7 @@ const MapViewer = ({
   };
 
   return (
-    <Box sx={{ position: 'relative', height, borderRadius: '16px', overflow: 'hidden' }} ref={mapRef}>
+    <Box className="qgis-graticule" sx={{ position: 'relative', height, borderRadius: 3, overflow: 'hidden' }} ref={mapRef}>
       {/* Map Content */}
       <MapContainer
         center={[0, 0]}

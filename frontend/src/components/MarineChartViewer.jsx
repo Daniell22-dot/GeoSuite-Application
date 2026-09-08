@@ -284,7 +284,7 @@ const MarineChartViewer = ({ chartData, onChartLoad }) => {
       )}
 
       {/* Map Container */}
-      <Paper elevation={3} sx={{ flex: 1, position: 'relative' }}>
+      <Paper elevation={3} className="qgis-grid" sx={{ flex: 1, position: 'relative' }}>
         <MapContainer
           center={viewState.center}
           zoom={viewState.zoom}

@@ -109,7 +109,7 @@ const WatershedTools = ({ demData, onAnalysisComplete }) => {
       {/* Main Workspace */}
       <Box sx={{ display: 'flex', flex: 1, gap: 3, minHeight: 0 }}>
         {/* Map Workspace */}
-        <Box sx={{ flex: 2, position: 'relative', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <Box className="qgis-grid" sx={{ flex: 2, position: 'relative', borderRadius: 3, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
           <MapContainer center={[0, 0]} zoom={mapZoom} style={{ height: '100%', width: '100%' }} whenCreated={setMap} zoomControl={false}>
             <TileLayer url={baseTile} attribution="&copy; CARTO" />
             {analysisState.results && (

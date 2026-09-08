@@ -75,44 +75,44 @@ const Navigation = ({ activeView, setActiveView }) => {
         },
       }}
     >
-      <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
         <Avatar 
           variant="rounded" 
           sx={{ 
             bgcolor: 'primary.main', 
-            width: 40, 
-            height: 40,
-            boxShadow: '0 0 20px rgba(10, 132, 255, 0.5)'
+            width: 32, 
+            height: 32,
+            boxShadow: '0 0 12px rgba(10, 132, 255, 0.4)'
           }}
         >
-          <TerrainIcon />
+          <TerrainIcon sx={{ fontSize: 18 }} />
         </Avatar>
-        <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: -0.5 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: -0.3 }}>
           {config?.appName || 'GeoSuite'}
         </Typography>
       </Box>
 
       <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.05)' }} />
 
-      <List sx={{ px: 2, py: 2 }}>
+      <List dense sx={{ px: 1.5, py: 1.5 }}>
         {menuItems.map((item, index) => (
           item.divider ? (
-            <Box key={index} sx={{ mt: 2, mb: 1, px: 2 }}>
+            <Box key={index} sx={{ mt: 1.5, mb: 0.5, px: 1.5 }}>
               {item.label && (
-                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.3)', fontWeight: 600, letterSpacing: 1.5, fontSize: '0.65rem' }}>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.35)', fontWeight: 600, letterSpacing: 1.5, fontSize: '0.62rem' }}>
                   {item.label}
                 </Typography>
               )}
             </Box>
           ) : (
-            <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
+            <ListItem key={item.text} disablePadding>
               <ListItemButton
                 onClick={() => handleNavigation(item.path)}
                 selected={location.pathname === item.path}
                 sx={{
-                  borderRadius: '12px',
-                  py: 1.5,
-                  transition: 'all 0.2s',
+                  minHeight: 30,
+                  py: 0.7,
+                  transition: 'all 0.15s',
                   '&.Mui-selected': {
                     bgcolor: 'rgba(10, 132, 255, 0.15)',
                     color: 'primary.light',
@@ -126,7 +126,7 @@ const Navigation = ({ activeView, setActiveView }) => {
               >
                 <ListItemIcon 
                   sx={{ 
-                    minWidth: 46, 
+                    minWidth: 36, 
                     color: location.pathname === item.path ? 'primary.light' : 'rgba(255,255,255,0.5)' 
                   }}
                 >
@@ -135,7 +135,7 @@ const Navigation = ({ activeView, setActiveView }) => {
                 <ListItemText 
                   primary={item.text} 
                   primaryTypographyProps={{ 
-                    fontSize: '0.95rem',
+                    fontSize: '0.82rem',
                     fontWeight: location.pathname === item.path ? 600 : 400
                   }} 
                 />
@@ -145,24 +145,25 @@ const Navigation = ({ activeView, setActiveView }) => {
         ))}
       </List>
 
-      <Box sx={{ mt: 'auto', p: 2 }}>
+      <Box sx={{ mt: 'auto', p: 1.5 }}>
         <WeatherWidget city="Nairobi,KE" />
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{ mt: 1.5 }}>
           <ListItem disablePadding>
             <ListItemButton
               sx={{
-                borderRadius: '12px',
+                minHeight: 30,
+                borderRadius: 3,
                 bgcolor: 'rgba(255, 255, 255, 0.03)',
                 border: '1px solid rgba(255, 255, 255, 0.05)',
                 '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.08)' }
               }}
             >
-              <ListItemIcon sx={{ minWidth: 46, color: 'rgba(255,255,255,0.7)' }}>
+              <ListItemIcon sx={{ minWidth: 36, color: 'rgba(255,255,255,0.7)' }}>
                 <SettingsIcon fontSize="small" />
               </ListItemIcon>
               <ListItemText 
                 primary="Settings" 
-                primaryTypographyProps={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }} 
+                primaryTypographyProps={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.7)' }} 
               />
             </ListItemButton>
           </ListItem>
