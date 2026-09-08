@@ -4,7 +4,6 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 
 // Components
 import Dashboard from './components/Dashboard';
@@ -225,7 +224,6 @@ const AppInner = () => {
               <Box className="sb-sep" />
               <Box className="sb-item">100%</Box>
               <Box className="sb-sep" />
-              <Box className="sb-item"></Box>
               <Box className="sb-item">© {new Date().getFullYear()}</Box>
             </Box>
           </Box>
