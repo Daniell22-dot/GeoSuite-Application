@@ -2,13 +2,13 @@
 Train the KLISS CV engine heads on the real Kenya training dataset.
 
 Loads the real 256x256 plan patches from DATASETS/kenya_training/train/,
-derives beacon labels heuristically (junction/corner points of the drawn
+derives beacon labels heuristically (compact dark marker cores in the drawn
 boundary lines), splits the patches into a train/test partition (deterministic
 seed), trains boundary_segmenter, beacon_detector and feature_extractor with a
 compatible batch source, evaluates on the held-out test split, and saves the
 trained weights into backend/app/cv_models/.
 
-Pure NumPy + scipy (optional) — no external ML framework.
+Pure NumPy — no external ML framework.
 """
 import os
 import sys
@@ -20,13 +20,6 @@ import numpy as np
 
 REPO_ROOT = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..')
 sys.path.insert(0, os.path.join(REPO_ROOT, 'backend'))
-
-try:
-    from scipy import ndimage as scipy_ndimage
-    HAS_SCIPY = True
-except ImportError:
-    scipy_ndimage = None
-    HAS_SCIPY = False
 
 from app.cv_engine.training.train import (
     train_boundary_segmenter,
@@ -80,50 +73,65 @@ def load_real_dataset() -> dict:
 # Beacon heuristic
 # ---------------------------------------------------------------------------
 
-def _junction_pixels(boundary: np.ndarray) -> np.ndarray:
-    """Return bool mask of boundary pixels where >=3 boundary arms meet (junctions).
+def _erode_dark(mask: np.ndarray) -> np.ndarray:
+    """Keep only dark pixels whose 8 neighbours are all dark (core of blobs).
 
-    Junction points of drawn parcel lines are used as a heuristic for survey
-    beacons: in cadastral plans beacons are placed at parcel corners where the
-    boundary lines change direction or meet.
+    Thin boundary lines vanish under this erosion; compact beacon markers
+    (small filled circles) survive as small round cores.
     """
-    b = (boundary > 0).astype(np.int32)
-    from app.cv_engine.ops import conv2d
-    kernel = np.ones((1, 1, 3, 3), dtype=np.float64)
-    kernel[0, 0, 1, 1] = 0
-    x = b[np.newaxis, np.newaxis].astype(np.float64)
-    nbr = conv2d(x, kernel, np.zeros(1), stride=1, padding=1)[0, 0]
-    return (nbr >= 3).astype(bool) & (b > 0)
+    m = (mask > 0).astype(np.int32)
+    ys, xs = np.where(m)
+    core = np.zeros_like(m, dtype=bool)
+    if ys.size < 8:
+        return core
+    shifts = [(dy, dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if not (dy == 0 and dx == 0)]
+    yl, yr = max(1, ys.min()), min(m.shape[0] - 1, ys.max() + 1)
+    xl, xr = max(1, xs.min()), min(m.shape[1] - 1, xs.max() + 1)
+    region = m[yl:yr, xl:xr].astype(bool)
+    core[yl:yr, xl:xr] = region
+    for dy, dx in shifts:
+        sh = m[yl + dy:yr + dy, xl + dx:xr + dx].astype(bool)
+        core[yl:yr, xl:xr] &= sh
+    return core
 
 
-def _beacon_targets_from_junctions(boundary: np.ndarray, image_size: int) -> np.ndarray:
-    """Build a (GRID, GRID, YOLO_CHANNELS) YOLO target tensor from junction pixels.
+def _beacon_targets_from_blobs(boundary: np.ndarray, image_size: int) -> np.ndarray:
+    """Build a (GRID, GRID, YOLO_CHANNELS) YOLO target tensor from compact dark blobs.
 
-    Every grid cell that contains a junction is assigned one beacon whose center
-    is the mean of the junction pixels in that cell. Beacon type is 'unknown'
-    (class index 3) since the real plans carry no labelled type info.
+    Each grid cell that contains a compact, roughly-round dark core (a survey
+    beacon marker) is assigned one beacon at the blob centroid. Type is
+    'unknown' (class index 3) since the real plans carry no labelled types.
     """
-    cells = _junction_pixels(boundary)
+    erased = _erode_dark(boundary)
     targets = np.zeros((GRID, GRID, YOLO_CHANNELS), dtype=np.float64)
-    junctions_y, junctions_x = np.where(cells)
-    if junctions_y.size == 0:
+    rows, cols = np.where(erased)
+    if rows.size == 0:
         return targets
 
     cell = image_size / GRID
-    cell_pixels = np.zeros((GRID, GRID), dtype=bool)
-    gy = (junctions_y / cell).astype(int)
-    gx = (junctions_x / cell).astype(int)
+    gy = (rows / cell).astype(int)
+    gx = (cols / cell).astype(int)
     gy = np.clip(gy, 0, GRID - 1)
     gx = np.clip(gx, 0, GRID - 1)
-    cell_pixels[gy, gx] = True
+    cells_with_blobs = np.zeros((GRID, GRID), dtype=bool)
+    cells_with_blobs[gy, gx] = True
 
     for r in range(GRID):
         for c in range(GRID):
-            if not cell_pixels[r, c]:
+            if not cells_with_blobs[r, c]:
                 continue
             idx = np.where((gy == r) & (gx == c))[0]
-            cy_px = float(np.mean(junctions_y[idx]))
-            cx_px = float(np.mean(junctions_x[idx]))
+            area = idx.size
+            if area < 4 or area > 130:
+                continue
+            py = rows[idx]; px = cols[idx]
+            w = int(px.max() - px.min() + 1)
+            h = int(py.max() - py.min() + 1)
+            fill = area / (w * h)
+            if w > 14 or h > 14 or fill < 0.35:
+                continue
+            cy_px = float(np.mean(py))
+            cx_px = float(np.mean(px))
             col = int(cx_px / cell)
             row = int(cy_px / cell)
             col = max(0, min(col, GRID - 1))
@@ -145,11 +153,18 @@ def apply_beacon_labels(dataset: dict) -> None:
     for i in range(len(dataset['images'])):
         bmask = dataset['boundary_masks'][i]
         image_size = bmask.shape[0]
-        yolo = _beacon_targets_from_junctions(bmask, image_size)
+        yolo = _beacon_targets_from_blobs(bmask, image_size)
         beacon_targets.append(yolo)
-        cells = _junction_pixels(bmask)
-        dataset['boundary_masks'][i] = np.where(cells, 2, bmask).astype(np.int32)
-        dataset['feature_masks'][i] = np.where(cells, 2, dataset['feature_masks'][i]).astype(np.int32)
+        cells = yolo[:, :, 0] > 0.5
+        mark = np.zeros_like(bmask, dtype=bool)
+        ys, xs = np.where(cells)
+        cell = image_size / GRID
+        for r, c in zip(ys, xs):
+            y0 = int(r * cell); x0 = int(c * cell)
+            y1 = min(image_size, y0 + int(cell)); x1 = min(image_size, x0 + int(cell))
+            mark[y0:y1, x0:x1] = True
+        dataset['boundary_masks'][i] = np.where(mark, 2, bmask).astype(np.int32)
+        dataset['feature_masks'][i] = np.where(mark, 2, dataset['feature_masks'][i]).astype(np.int32)
     dataset['beacon_targets'] = beacon_targets
 
 
