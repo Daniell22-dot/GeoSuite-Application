@@ -70,7 +70,7 @@ def preprocess_batch(images):
     return x
 
 
-def train_boundary_segmenter(num_epochs=20, batch_size=2, lr=1e-3, save_every=5):
+def train_boundary_segmenter(num_epochs=20, batch_size=2, lr=1e-3, save_every=5, batch_source=None):
     print("\n" + "=" * 60)
     print("TRAINING BOUNDARY SEGMENTER")
     print("=" * 60)
@@ -87,7 +87,7 @@ def train_boundary_segmenter(num_epochs=20, batch_size=2, lr=1e-3, save_every=5)
     optimizer = AdamOptimizer(lr=lr)
 
     for epoch in range(num_epochs):
-        batch = generate_parcel_batch(batch_size, 256)
+        batch = (batch_source or generate_parcel_batch)(batch_size, 256)
         images = preprocess_batch(batch['images'])
         target_masks = batch['boundary_masks']
 
@@ -141,7 +141,7 @@ def train_boundary_segmenter(num_epochs=20, batch_size=2, lr=1e-3, save_every=5)
     return backbone, dec1, dec2, dec3, final_w, final_b
 
 
-def train_beacon_detector(num_epochs=20, batch_size=2, lr=1e-3, save_every=5):
+def train_beacon_detector(num_epochs=20, batch_size=2, lr=1e-3, save_every=5, batch_source=None):
     print("\n" + "=" * 60)
     print("TRAINING BEACON DETECTOR")
     print("=" * 60)
@@ -153,7 +153,7 @@ def train_beacon_detector(num_epochs=20, batch_size=2, lr=1e-3, save_every=5):
     optimizer = AdamOptimizer(lr=lr)
 
     for epoch in range(num_epochs):
-        batch = generate_parcel_batch(batch_size, 256)
+        batch = (batch_source or generate_parcel_batch)(batch_size, 256)
         images = preprocess_batch(batch['images'])
         beacon_targets = np.array(batch['beacon_targets'])
 
@@ -224,7 +224,7 @@ def train_beacon_detector(num_epochs=20, batch_size=2, lr=1e-3, save_every=5):
     return backbone, head
 
 
-def train_feature_extractor(num_epochs=20, batch_size=2, lr=1e-3, save_every=5):
+def train_feature_extractor(num_epochs=20, batch_size=2, lr=1e-3, save_every=5, batch_source=None):
     print("\n" + "=" * 60)
     print("TRAINING FEATURE EXTRACTOR")
     print("=" * 60)
@@ -240,7 +240,7 @@ def train_feature_extractor(num_epochs=20, batch_size=2, lr=1e-3, save_every=5):
     optimizer = AdamOptimizer(lr=lr)
 
     for epoch in range(num_epochs):
-        batch = generate_parcel_batch(batch_size, 256)
+        batch = (batch_source or generate_parcel_batch)(batch_size, 256)
         images = batch['images'].transpose(0, 3, 1, 2) / 255.0
         target_masks = batch['feature_masks']
 
