@@ -5,29 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoSuite — Professional Geospatial Intelligence</title>
     <meta name="description" content="GeoSuite is a professional geospatial processing platform for Kenyan surveyors: survey plan digitization, drone processing, coordinate transformation, GPS analysis, marine charts and watershed modeling.">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231A5F7A'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='white' stroke-width='1.5' opacity='0.6'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23F57C00'/%3E%3C/svg%3E">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%230a84ff'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='white' stroke-width='1.5' opacity='0.6'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%235e5ce6'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Droid+Sans:wght@400;700&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --ocean: #1A5F7A;
-            --ocean-dark: #143F52;
-            --teal: #2D9AA6;
-            --orange: #F57C00;
+            --bg: #0f172a;
+            --bg-deep: #0d1526;
+            --surface: rgba(30, 41, 59, 0.72);
+            --line: rgba(255, 255, 255, 0.08);
+            --line-strong: rgba(255, 255, 255, 0.15);
+            --primary: #0a84ff;
+            --primary-light: #409fff;
+            --secondary: #5e5ce6;
             --green: #4CAF50;
-            --ink: #0B2430;
-            --text: #37505c;
-            --muted: #6b8591;
-            --surface: #ffffff;
-            --bg: #f5f8f9;
-            --line: #e3eaf0;
-            --shadow: 0 20px 50px rgba(11, 36, 48, 0.08);
-            --shadow-lg: 0 35px 80px rgba(11, 36, 48, 0.14);
-            --grad-ocean: linear-gradient(135deg, #1A5F7A 0%, #2D9AA6 100%);
-            --grad-brand: linear-gradient(135deg, #1A5F7A 0%, #2D9AA6 55%, #4CAF50 100%);
-            --radius: 20px;
+            --orange: #F57C00;
+            --ink: #f8fafc;
+            --text: #cbd5e1;
+            --muted: #94a3b8;
+            --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.45);
+            --grad-brand: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%);
+            --radius: 3px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,15 +36,16 @@
         html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Droid Sans', 'Ubuntu', 'Segoe UI', 'Roboto', sans-serif;
+            font-size: 14px;
             color: var(--text);
             background: var(--bg);
-            line-height: 1.6;
+            line-height: 1.5;
             -webkit-font-smoothing: antialiased;
         }
 
         h1, h2, h3, h4, .brand {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Droid Sans', 'Ubuntu', sans-serif;
             color: var(--ink);
         }
 
@@ -56,45 +58,47 @@
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            font-family: 'Outfit', sans-serif;
+            gap: 8px;
+            font-family: 'Droid Sans', 'Ubuntu', sans-serif;
             font-weight: 600;
-            font-size: 1rem;
-            padding: 14px 28px;
-            border-radius: 100px;
+            font-size: 0.85rem;
+            padding: 9px 20px;
+            line-height: 1;
+            min-height: 34px;
+            border-radius: var(--radius);
             border: none;
             cursor: pointer;
             text-decoration: none;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
         }
 
         .btn-primary {
-            background: var(--grad-ocean);
+            background: var(--primary);
             color: #fff;
-            box-shadow: 0 12px 28px rgba(45, 154, 166, 0.35);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(26, 95, 122, 0.45); }
+        .btn-primary:hover { background: var(--primary-light); }
 
         .btn-ghost {
             background: transparent;
-            color: var(--ocean);
-            border: 2px solid var(--teal);
+            color: var(--ink);
+            border: 1px solid var(--line-strong);
         }
-        .btn-ghost:hover { background: rgba(45, 154, 166, 0.08); transform: translateY(-2px); }
+        .btn-ghost:hover { background: rgba(255, 255, 255, 0.06); border-color: rgba(255,255,255,0.3); }
 
         .btn-orange {
             background: var(--orange);
             color: #fff;
-            box-shadow: 0 12px 28px rgba(245, 124, 0, 0.3);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
-        .btn-orange:hover { transform: translateY(-2px); }
+        .btn-orange:hover { background: #ff8f2b; }
 
         /* ── Navigation ─────────────────────────── */
         .nav {
             position: sticky;
             top: 0;
             z-index: 50;
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(14px);
             border-bottom: 1px solid var(--line);
         }
@@ -102,30 +106,31 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 72px;
+            height: 60px;
         }
         .brand {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 1.35rem;
+            gap: 10px;
+            font-size: 1.1rem;
             font-weight: 700;
             text-decoration: none;
             color: var(--ink);
         }
         .brand-mark {
-            width: 40px;
-            height: 40px;
-            border-radius: 11px;
-            background: var(--grad-ocean);
+            width: 32px;
+            height: 32px;
+            border-radius: 3px;
+            background: var(--primary);
             display: grid;
             place-items: center;
             position: relative;
             flex-shrink: 0;
+            box-shadow: 0 0 12px rgba(10, 132, 255, 0.4);
         }
         .brand-mark span {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             border: 2px solid rgba(255,255,255,0.7);
             display: block;
@@ -134,32 +139,32 @@
         .brand-mark span::after {
             content: '';
             position: absolute;
-            inset: 4px;
+            inset: 3px;
             border-radius: 50%;
-            background: var(--orange);
+            background: var(--secondary);
         }
-        .brand em { font-style: normal; color: var(--teal); }
-        .nav-links { display: flex; gap: 32px; align-items: center; }
+        .brand em { font-style: normal; color: var(--primary-light); }
+        .nav-links { display: flex; gap: 28px; align-items: center; }
         .nav-links a {
-            color: var(--text);
+            color: var(--muted);
             text-decoration: none;
             font-weight: 500;
-            font-size: 0.95rem;
-            transition: color 0.2s;
+            font-size: 0.85rem;
+            transition: color 0.15s;
         }
-        .nav-links a:hover { color: var(--ocean); }
-        .nav-cta { padding: 10px 22px; font-size: 0.9rem; }
-        .nav-toggle { display: none; background: none; border: none; font-size: 1.5rem; color: var(--ink); cursor: pointer; }
+        .nav-links a:hover { color: var(--ink); }
+        .nav-cta { padding: 8px 16px; font-size: 0.8rem; }
+        .nav-toggle { display: none; background: none; border: none; font-size: 1.4rem; color: var(--ink); cursor: pointer; }
 
         /* ── Hero ─────────────────────────────── */
         .hero {
             position: relative;
             overflow: hidden;
             background:
-                radial-gradient(1000px 500px at 85% -10%, rgba(45,154,166,0.18), transparent 60%),
-                radial-gradient(800px 500px at -10% 20%, rgba(26,95,122,0.14), transparent 60%),
-                linear-gradient(180deg, #ffffff 0%, #f0f7f8 100%);
-            padding: 110px 0 90px;
+                radial-gradient(1000px 500px at 85% -10%, rgba(10,132,255,0.18), transparent 60%),
+                radial-gradient(800px 500px at -10% 20%, rgba(94,92,230,0.14), transparent 60%),
+                linear-gradient(180deg, #0d1526 0%, #0f172a 100%);
+            padding: 96px 0 80px;
         }
         .hero-grid {
             display: grid;
@@ -171,51 +176,52 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(45,154,166,0.12);
-            color: var(--ocean);
+            background: rgba(10,132,255,0.15);
+            color: var(--primary-light);
             font-weight: 600;
-            font-size: 0.85rem;
-            padding: 8px 16px;
-            border-radius: 100px;
-            margin-bottom: 22px;
+            font-size: 0.78rem;
+            padding: 6px 12px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(10,132,255,0.3);
+            margin-bottom: 20px;
         }
         .hero-badge i { color: var(--orange); }
         .hero h1 {
-            font-size: clamp(2.6rem, 5.2vw, 4.2rem);
-            line-height: 1.05;
-            font-weight: 800;
+            font-size: clamp(2rem, 4.4vw, 2.9rem);
+            line-height: 1.2;
+            font-weight: 700;
             letter-spacing: -0.02em;
-            margin-bottom: 22px;
+            margin-bottom: 20px;
         }
         .hero h1 .accent {
-            background: var(--grad-ocean);
+            background: var(--grad-brand);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .hero p.lead {
-            font-size: 1.18rem;
-            color: var(--text);
+            font-size: 0.95rem;
+            color: var(--muted);
             max-width: 560px;
-            margin-bottom: 34px;
+            margin-bottom: 30px;
         }
-        .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 46px; }
+        .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 40px; }
         .hero-stats {
             display: flex;
-            gap: 44px;
+            gap: 40px;
             flex-wrap: wrap;
-            padding-top: 30px;
+            padding-top: 26px;
             border-top: 1px solid var(--line);
         }
         .stat h3 {
-            font-size: 1.9rem;
-            font-weight: 800;
-            background: var(--grad-ocean);
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--grad-brand);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .stat p { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
+        .stat p { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
 
         .hero-visual {
             position: relative;
@@ -225,8 +231,9 @@
         .hero-map-card {
             width: 100%;
             aspect-ratio: 1/1;
-            background: var(--grad-ocean);
-            border-radius: 28px;
+            background: #0d1526;
+            border: 1px solid var(--line-strong);
+            border-radius: 3px;
             box-shadow: var(--shadow-lg);
             padding: 14px;
             position: relative;
@@ -237,92 +244,94 @@
             position: absolute;
             inset: 0;
             background:
-                repeating-linear-gradient(0deg, transparent 0 8%, rgba(255,255,255,0.05) 8% 8.4%),
-                repeating-linear-gradient(90deg, transparent 0 8%, rgba(255,255,255,0.05) 8% 8.4%);
+                repeating-linear-gradient(0deg, transparent 0 6.66%, rgba(10,132,255,0.06) 6.66% 6.9%),
+                repeating-linear-gradient(90deg, transparent 0 6.66%, rgba(10,132,255,0.06) 6.66% 6.9%);
         }
         .hero-map-card .center-pin {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 64px; height: 64px;
+            width: 56px; height: 56px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.12);
+            background: rgba(10,132,255,0.15);
             display: grid;
             place-items: center;
             z-index: 2;
-            border: 1px solid rgba(255,255,255,0.25);
+            border: 1px solid rgba(10,132,255,0.4);
         }
         .hero-map-card .center-pin span {
-            width: 26px; height: 26px;
+            width: 22px; height: 22px;
             border-radius: 50%;
-            background: var(--orange);
-            box-shadow: 0 0 0 8px rgba(245,124,0,0.35);
+            background: var(--secondary);
+            box-shadow: 0 0 0 8px rgba(94,92,230,0.35);
         }
         .float-chip {
             position: absolute;
             z-index: 3;
-            background: rgba(255,255,255,0.95);
-            border-radius: 14px;
-            padding: 14px 18px;
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(6px);
+            border: 1px solid var(--line);
+            border-radius: 3px;
+            padding: 10px 14px;
             box-shadow: var(--shadow);
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 0.9rem;
+            gap: 10px;
+            font-size: 0.8rem;
             animation: floatY 5s ease-in-out infinite;
         }
         .float-chip .fc-icon {
-            width: 38px; height: 38px;
-            border-radius: 10px;
+            width: 32px; height: 32px;
+            border-radius: 3px;
             display: grid;
             place-items: center;
             color: #fff;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
-        .float-chip b { display: block; color: var(--ink); font-family: 'Outfit'; font-size: 0.92rem; }
+        .float-chip b { display: block; color: var(--ink); font-weight: 700; font-size: 0.8rem; }
         .float-chip small { color: var(--muted); }
         .chip-drone { top: 8%; left: -6%; }
         .chip-drone .fc-icon { background: linear-gradient(135deg,#5e5ce6,#2D9AA6); }
         .chip-track { bottom: 10%; right: -4%; animation-delay: 1.2s; }
         .chip-track .fc-icon { background: linear-gradient(135deg,#ed6c02,#F57C00); }
         .chip-watershed { bottom: 30%; left: -8%; animation-delay: 2.4s; }
-        .chip-watershed .fc-icon { background: linear-gradient(135deg,#00bcd4,#2D9AA6); }
+        .chip-watershed .fc-icon { background: linear-gradient(135deg,#0a84ff,#409fff); }
         .chip-marine { top: 36%; right: -8%; animation-delay: 3.6s; }
-        .chip-marine .fc-icon { background: linear-gradient(135deg,#1A5F7A,#00bcd4); }
+        .chip-marine .fc-icon { background: linear-gradient(135deg,#0a84ff,#5e5ce6); }
 
         @keyframes floatY {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
+            50% { transform: translateY(-10px); }
         }
 
         /* ── Sections common ─────────────────── */
-        section { padding: 96px 0; }
-        .section-head { text-align: center; max-width: 680px; margin: 0 auto 60px; }
+        section { padding: 84px 0; }
+        .section-head { text-align: center; max-width: 680px; margin: 0 auto 52px; }
         .section-head .eyebrow {
             display: inline-block;
             font-weight: 700;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             letter-spacing: 0.14em;
             text-transform: uppercase;
-            color: var(--teal);
-            margin-bottom: 14px;
+            color: var(--primary-light);
+            margin-bottom: 12px;
         }
-        .section-head h2 { font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: -0.01em; margin-bottom: 16px; }
-        .section-head p { color: var(--muted); font-size: 1.08rem; }
+        .section-head h2 { font-size: clamp(1.6rem, 3vw, 2rem); font-weight: 700; letter-spacing: -0.01em; margin-bottom: 14px; }
+        .section-head p { color: var(--muted); font-size: 0.92rem; }
 
         /* ── Features ────────────────────────── */
         .features-section { background: var(--bg); }
         .features-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 26px;
+            gap: 20px;
         }
         .feature-card {
             background: var(--surface);
             border: 1px solid var(--line);
             border-radius: var(--radius);
-            padding: 34px 30px;
-            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            padding: 26px 24px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
             position: relative;
             overflow: hidden;
         }
@@ -330,90 +339,90 @@
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0;
-            height: 4px;
-            background: var(--fc-gradient, var(--grad-ocean));
-            opacity: 0;
-            transition: opacity 0.25s;
+            height: 2px;
+            background: var(--fc-gradient, var(--grad-brand));
+            opacity: 0.7;
         }
-        .feature-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); border-color: transparent; }
-        .feature-card:hover::before { opacity: 1; }
+        .feature-card:hover { border-color: rgba(10,132,255,0.4); box-shadow: var(--shadow); }
         .feature-icon {
-            width: 56px; height: 56px;
-            border-radius: 15px;
+            width: 42px; height: 42px;
+            border-radius: 3px;
             display: grid;
             place-items: center;
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             color: #fff;
-            margin-bottom: 22px;
+            margin-bottom: 16px;
         }
-        .feature-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 10px; }
-        .feature-card p { font-size: 0.96rem; color: var(--muted); }
+        .feature-card h3 { font-size: 0.98rem; font-weight: 700; margin-bottom: 8px; }
+        .feature-card p { font-size: 0.82rem; color: var(--muted); }
         .feature-tag {
             display: inline-block;
-            margin-top: 16px;
-            font-size: 0.7rem;
+            margin-top: 14px;
+            font-size: 0.62rem;
             font-weight: 700;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
-            padding: 4px 12px;
-            border-radius: 100px;
-            background: #f0f6f7;
-            color: var(--teal);
+            padding: 3px 10px;
+            border-radius: var(--radius);
+            background: rgba(10,132,255,0.12);
+            color: var(--primary-light);
+            border: 1px solid rgba(10,132,255,0.25);
         }
 
         /* ── Workflow ───────────────────────── */
-        .workflow { background: var(--ink); color: #cfe0e7; }
-        .workflow .section-head h2 { color: #fff; }
-        .workflow .section-head p { color: rgba(255,255,255,0.65); }
-        .workflow .section-head .eyebrow { color: var(--teal); }
-        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+        .workflow { background: var(--bg-deep); color: var(--text); }
+        .workflow .section-head h2 { color: var(--ink); }
+        .workflow .section-head p { color: var(--muted); }
+        .workflow .section-head .eyebrow { color: var(--primary-light); }
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .step {
             position: relative;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--surface);
+            border: 1px solid var(--line);
             border-radius: var(--radius);
-            padding: 34px 30px;
+            padding: 26px 24px;
         }
         .step-num {
-            width: 42px; height: 42px;
-            border-radius: 12px;
-            background: var(--grad-ocean);
+            width: 34px; height: 34px;
+            border-radius: var(--radius);
+            background: var(--grad-brand);
             color: #fff;
-            font-family: 'Outfit'; font-weight: 700;
+            font-weight: 700;
+            font-size: 0.9rem;
             display: grid;
             place-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
-        .step h3 { color: #fff; font-size: 1.18rem; margin-bottom: 8px; }
-        .step p { font-size: 0.95rem; color: rgba(255,255,255,0.6); }
+        .step h3 { color: var(--ink); font-size: 0.98rem; margin-bottom: 8px; }
+        .step p { font-size: 0.82rem; color: var(--muted); }
 
         /* ── Tech / Platforms ──────────────── */
         .tech-band {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 14px;
+            gap: 12px;
         }
         .tech-chip {
             background: var(--surface);
             border: 1px solid var(--line);
-            border-radius: 100px;
-            padding: 12px 22px;
-            font-family: 'Outfit'; font-weight: 600;
-            font-size: 0.95rem;
+            border-radius: var(--radius);
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 0.8rem;
             color: var(--ink);
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 6px 18px rgba(11,36,48,0.04);
+            gap: 8px;
+            box-shadow: var(--shadow);
         }
-        .tech-chip i { color: var(--teal); }
+        .tech-chip i { color: var(--primary-light); }
 
         /* ── CTA band ──────────────────────── */
         .cta-band {
-            background: var(--grad-ocean);
-            border-radius: 28px;
-            padding: 70px 50px;
+            background: var(--grad-brand);
+            border-radius: var(--radius);
+            padding: 54px 44px;
             text-align: center;
             color: #fff;
             position: relative;
@@ -423,7 +432,7 @@
             content: '';
             position: absolute;
             top: -60%; right: -10%;
-            width: 420px; height: 420px;
+            width: 360px; height: 360px;
             border-radius: 50%;
             background: rgba(255,255,255,0.08);
         }
@@ -431,51 +440,71 @@
             content: '';
             position: absolute;
             bottom: -70%; left: -10%;
-            width: 380px; height: 380px;
+            width: 320px; height: 320px;
             border-radius: 50%;
-            background: rgba(245,124,0,0.18);
+            background: rgba(255,255,255,0.1);
         }
-        .cta-band h2 { color: #fff; font-size: clamp(1.9rem, 3.6vw, 2.7rem); font-weight: 800; margin-bottom: 14px; position: relative; z-index: 1; }
-        .cta-band p { color: rgba(255,255,255,0.85); font-size: 1.08rem; margin-bottom: 32px; position: relative; z-index: 1; }
-        .cta-band .btn-orange, .cta-band .btn { position: relative; z-index: 1; }
-        .cta-band .btn-ghost { border-color: rgba(255,255,255,0.5); color: #fff; margin-left: 14px; }
-        .cta-band .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+        .cta-band h2 { color: #fff; font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; margin-bottom: 12px; position: relative; z-index: 1; }
+        .cta-band p { color: rgba(255,255,255,0.85); font-size: 0.92rem; margin-bottom: 28px; position: relative; z-index: 1; }
+        .cta-band .btn { position: relative; z-index: 1; }
+        .cta-band .btn-ghost { border-color: rgba(255,255,255,0.5); color: #fff; margin-left: 12px; }
+        .cta-band .btn-ghost:hover { background: rgba(255,255,255,0.12); }
 
         /* ── Footer ────────────────────────── */
-        footer { background: var(--ocean-dark); color: rgba(255,255,255,0.75); padding: 70px 0 40px; }
+        footer { background: #081020; color: var(--muted); padding: 60px 0 0; }
         .footer-grid {
             display: grid;
             grid-template-columns: 1.4fr 1fr 1fr;
             gap: 48px;
-            padding-bottom: 46px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 44px;
+            border-bottom: 1px solid var(--line);
         }
-        .footer-brand .brand { color: #fff; margin-bottom: 16px; }
-        .footer-brand p { font-size: 0.94rem; max-width: 320px; }
-        footer h4 { color: #fff; font-size: 1.02rem; margin-bottom: 18px; font-weight: 600; }
+        .footer-brand .brand { color: var(--ink); margin-bottom: 14px; }
+        .footer-brand p { font-size: 0.84rem; max-width: 320px; }
+        footer h4 { color: var(--ink); font-size: 0.85rem; margin-bottom: 14px; font-weight: 700; }
         footer ul { list-style: none; }
-        footer li { margin-bottom: 10px; }
-        footer a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.93rem; transition: color 0.2s; }
-        footer a:hover { color: #fff; }
+        footer li { margin-bottom: 8px; }
+        footer a { color: var(--muted); text-decoration: none; font-size: 0.82rem; transition: color 0.15s; }
+        footer a:hover { color: var(--ink); }
         .footer-bottom {
-            padding-top: 30px;
+            padding-top: 26px;
+            padding-bottom: 26px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 16px;
             flex-wrap: wrap;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
         }
-        .socials { display: flex; gap: 12px; }
+        .socials { display: flex; gap: 10px; }
         .socials a {
-            width: 38px; height: 38px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.08);
+            width: 32px; height: 32px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.06);
             display: grid;
             place-items: center;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
         }
-        .socials a:hover { background: var(--teal); color: #fff; }
+        .socials a:hover { background: var(--primary); color: #fff; }
+
+        /* ── QGIS-style status bar ─────────────── */
+        .qgis-statusbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 7px 24px;
+            background: rgba(15, 23, 42, 0.92);
+            border-top: 1px solid var(--line);
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+        .qgis-statusbar .sb-group { display: flex; align-items: center; gap: 10px; }
+        .sb-item { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .sb-sep { width: 1px; height: 14px; background: var(--line-strong); }
+        .sb-coord { font-variant-numeric: tabular-nums; }
+        .qgis-statusbar b { color: var(--ink); font-weight: 600; }
 
         /* ── Responsive ────────────────────── */
         @media (max-width: 980px) {
@@ -489,25 +518,25 @@
         @media (max-width: 640px) {
             .nav-links {
                 position: fixed;
-                inset: 72px 0 auto 0;
-                background: #fff;
+                inset: 60px 0 auto 0;
+                background: #0f172a;
                 flex-direction: column;
                 gap: 0;
                 padding: 12px 24px;
-                box-shadow: var(--shadow);
+                box-shadow: var(--shadow-lg);
                 transform: translateY(-140%);
                 transition: transform 0.3s ease;
                 border-bottom: 1px solid var(--line);
             }
             .nav-links.open { transform: translateY(0); }
-            .nav-links a { padding: 14px 0; border-bottom: 1px solid var(--line); width: 100%; }
-            .nav-links .btn { margin-top: 14px; }
+            .nav-links a { padding: 12px 0; border-bottom: 1px solid var(--line); width: 100%; }
+            .nav-links .btn { margin-top: 12px; }
             .nav-toggle { display: block; }
             .features-grid, .steps-grid, .footer-grid { grid-template-columns: 1fr; }
-            .hero { padding: 70px 0 60px; }
-            .cta-band { padding: 50px 28px; }
-            section { padding: 72px 0; }
-            .hero-stats { gap: 28px; }
+            .hero { padding: 64px 0 56px; }
+            .cta-band { padding: 44px 24px; }
+            section { padding: 64px 0; }
+            .hero-stats { gap: 26px; }
         }
     </style>
 </head>
@@ -587,20 +616,20 @@
                 <p>From scanned field sheets to publishable maps — GeoSuite automates the hand-off between every stage of the survey workflow.</p>
             </div>
             <div class="features-grid">
-                <div class="feature-card" style="--fc-gradient: linear-gradient(135deg,#7C3AED,#2D9AA6);">
-                    <div class="feature-icon" style="background: linear-gradient(135deg,#7C3AED,#2D9AA6);"><i class="fas fa-microchip"></i></div>
+                <div class="feature-card" style="--fc-gradient: linear-gradient(135deg,#7C3AED,#0a84ff);">
+                    <div class="feature-icon" style="background: linear-gradient(135deg,#7C3AED,#0a84ff);"><i class="fas fa-microchip"></i></div>
                     <h3>Survey Plan Digitizer</h3>
                     <p>Auto-extract beacons, boundaries and labels from scanned survey plans using computer vision — no manual re-digitizing.</p>
                     <span class="feature-tag">AI / Computer Vision</span>
                 </div>
-                <div class="feature-card" style="--fc-gradient: linear-gradient(135deg,#5e5ce6,#2D9AA6);">
-                    <div class="feature-icon" style="background: linear-gradient(135deg,#5e5ce6,#2D9AA6);"><i class="fas fa-helicopter"></i></div>
+                <div class="feature-card" style="--fc-gradient: linear-gradient(135deg,#5e5ce6,#0a84ff);">
+                    <div class="feature-icon" style="background: linear-gradient(135deg,#5e5ce6,#0a84ff);"><i class="fas fa-helicopter"></i></div>
                     <h3>Drone Surveys</h3>
                     <p>Upload drone imagery, process with OpenDroneMap, and generate COGs and PMTiles ready for web delivery.</p>
                     <span class="feature-tag">Photogrammetry</span>
                 </div>
-                <div class="feature-card" style="--fc-gradient: linear-gradient(135deg,#4CAF50,#2D9AA6);">
-                    <div class="feature-icon" style="background: linear-gradient(135deg,#4CAF50,#2D9AA6);"><i class="fas fa-arrows-rotate"></i></div>
+                <div class="feature-card" style="--fc-gradient: linear-gradient(135deg,#0a84ff,#5e5ce6);">
+                    <div class="feature-icon" style="background: linear-gradient(135deg,#0a84ff,#5e5ce6);"><i class="fas fa-arrows-rotate"></i></div>
                     <h3>Coordinate Transform</h3>
                     <p>Cassini-Soldner ↔ UTM transformations with geodetic, polynomial and Helmert methods tuned for Kenyan zones.</p>
                     <span class="feature-tag">Arc 1960 · Zone I–IV</span>
@@ -611,14 +640,14 @@
                     <p>Advanced track processing with elevation correction, distance/performance metrics and multi-format export.</p>
                     <span class="feature-tag">Field Data</span>
                 </div>
-                <div class="feature-card" style="--fc-gradient: linear-gradient(135deg,#00bcd4,#2D9AA6);">
-                    <div class="feature-icon" style="background: linear-gradient(135deg,#00bcd4,#2D9AA6);"><i class="fas fa-ship"></i></div>
+                <div class="feature-card" style="--fc-gradient: linear-gradient(135deg,#0a84ff,#2D9AA6);">
+                    <div class="feature-icon" style="background: linear-gradient(135deg,#0a84ff,#2D9AA6);"><i class="fas fa-ship"></i></div>
                     <h3>Marine Charts</h3>
                     <p>Visualize nautical data with depth soundings and bathymetry overlays for hydrographic surveys.</p>
                     <span class="feature-tag">Hydrography</span>
                 </div>
-                <div class="feature-card" style="--fc-gradient: linear-gradient(135deg,#ff5722,#ed6c02);">
-                    <div class="feature-icon" style="background: linear-gradient(135deg,#ff5722,#ed6c02);"><i class="fas fa-mountain"></i></div>
+                <div class="feature-card" style="--fc-gradient: linear-gradient(135deg,#4CAF50,#0a84ff);">
+                    <div class="feature-icon" style="background: linear-gradient(135deg,#4CAF50,#0a84ff);"><i class="fas fa-mountain"></i></div>
                     <h3>Watershed Modeling</h3>
                     <p>Delineate basins and extract stream networks with high-precision DEM analysis for hydrology.</p>
                     <span class="feature-tag">Hydrology</span>
@@ -726,6 +755,27 @@
                     <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
                     <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                 </div>
+            </div>
+        </div>
+
+        <!-- QGIS-style status bar (matches the app) -->
+        <div class="qgis-statusbar">
+            <div class="sb-group">
+                <span class="sb-item"><b>GeoSuite v2.5.0</b></span>
+                <span class="sb-sep"></span>
+                <span class="sb-item"><b>CRS</b> EPSG:21037 · Arc 1960 / UTM zone 37S</span>
+                <span class="sb-sep"></span>
+                <span class="sb-item sb-coord">X 285 000.000</span>
+                <span class="sb-item sb-coord">Y 9 892 000.000</span>
+                <span class="sb-item sb-coord">Lat 0.000000°</span>
+                <span class="sb-item sb-coord">Lon 36.000000°</span>
+            </div>
+            <div class="sb-group">
+                <span class="sb-item">Scale 1:2 500</span>
+                <span class="sb-sep"></span>
+                <span class="sb-item">100%</span>
+                <span class="sb-sep"></span>
+                <span class="sb-item">&copy; 2026</span>
             </div>
         </div>
     </footer>
