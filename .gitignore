@@ -6,6 +6,7 @@ node_modules/
 *.log
 # Ignore build output
 dist/
+build/
 # Ignore temporary files
 *.tmp
 # Ignore IDE specific files
@@ -13,7 +14,45 @@ dist/
 .idea/
 .venv/
 venv/
+.venv-311/
 # Ignore OS generated files
 .DS_Store
 # Ignore coverage reports
 coverage/
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.class
+# Ignore C extensions (compiled Python modules)
+*.so
+*.pyd
+# Ignore RAW DATA folder
+RAW DATA/
+# Ignore DATASETS folder
+DATASETS/
+# Ignore Parcels folder
+Parcels/
+# Ignore developer utility scripts
+check_models.py
+check_perf.py
+cv_evaluation/
+final_verification.py
+quick_train.py
+test_api.py
+train_all.py
+train_gebco.py
+# Ignore backend cache directories
+backend/app/__pycache__/
+backend/app/cv_engine/__pycache__/
+backend/app/cv_engine/heads/__pycache__/
+backend/app/cv_engine/modules/__pycache__/
+backend/app/cv_engine/training/__pycache__/
+backend/app/models/__pycache__/
+backend/app/routes/__pycache__/
+backend/app/services/__pycache__/
+backend/app/utils/__pycache__/
+backend/test_data/
+# Ignore build outputs
+build/
+```
