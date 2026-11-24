@@ -1,0 +1,25 @@
+# GeoSuite Desktop Application Dependencies
+# For: PyQt6, QGIS integration, and desktop geospatial features
+
+# Core GUI framework
+PyQt6>=6.0.0
+
+# QGIS Python integration (for CRS, map canvas, vector operations)
+# Note: QGIS 3.x requires qgis-pyqgis package
+# On Windows: pip install qgis --extra-index-url https://pyqgis4w.osgeo.org/wheels/
+# On macOS: brew install qgis && pip install qgis
+# On Ubuntu: sudo apt-get install qgis python3-qgis
+
+# Additional dependencies
+numpy>=1.24.0
+reportlab>=3.0.0  # For report generation
+
+# Optional dependencies
+# PyInstaller for creating standalone executables
+pyinstaller>=6.0.0  # --onefile --windowed GeoSuiteDesktop.py
+
+# Matplotlib for additional plotting (if needed outside QGIS)
+matplotlib>=3.8.0
+
+# PILLOW for image handling
+Pillow>=10.0.0
